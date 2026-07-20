@@ -49,8 +49,17 @@ DFT_DH_K3 = -8.0e3
 
 # --- Cheung/2015 形（per-kg・Pa 基準の温度依存 k, 水阻害は乾燥前提で無視）---
 #   ProductionofMethylAcetate.pdf（2015, Miriyam）が Cheung 2007 データを整形。
-#   r = k·pCO/(1+K_w·p_w) → 乾燥前提 K_w=0 → r = k·pCO。438K・50bar で DTU と ~25% 整合。
+#   r = k·(pCO/(1+K_w·p_w))·(K_DME·pDME/(1+K_DME·pDME))
+#     乾燥前提 K_w=0。DME 因子は零次形の DME>100% 転化を防ぐ正則化（K_DME=1 Pa⁻¹）。
+#     pDME≳1e-4 bar で因子≈1、枯渇で→0。438K・50bar 微分で DTU と ~25% 整合。
 CHEUNG2007 = (8.2e-5, -8370.0)   # (A [kmol·kg⁻¹·s⁻¹·Pa⁻¹], −Ea/R [K])
+K_DME_REG = 1.0e5                # DME 擬似吸着定数 = 1 Pa⁻¹ = 1e5 bar⁻¹（2015 論文の正則化）
+
+
+def _dme_reg(p_DME: float) -> float:
+    """2015 論文の DME 正則化因子 K_DME·pDME/(1+K_DME·pDME)。DME 枯渇で速度→0（>100%転化を防ぐ）。"""
+    x = K_DME_REG * p_DME
+    return x / (1.0 + x)
 
 _DTU_MODELS = ("DTU", "DTU-Cheung2007-1", "DTU-Cheung2007-2", "DTU-Cheung2007-3",
                "DTU-Cheng2017-1", "DTU-Cheng2017-2", "DTU-Cheng2017-3")
@@ -89,9 +98,10 @@ def rate_cheung2007(state) -> float:
     """Cheung/2015 形: r_MA = k(T)·pCO [mol·kg_cat⁻¹·s⁻¹]（per kg・MA阻害なし・乾燥前提）。
     k=8.2e-5·exp(−8370/T) kmol·kg⁻¹·s⁻¹·Pa⁻¹ を直接使用。network 側で ×酸点密度 しない。"""
     A, mEaR = CHEUNG2007
-    p_CO = state.partial_pressures()["CO"]        # bar
-    # k[kmol/(kg·s·Pa)]·pCO[bar]·1e5[Pa/bar]·1000[mol/kmol] = mol/(kg·s)
-    return A * math.exp(mEaR / state.T) * p_CO * 1.0e8
+    p = state.partial_pressures()
+    p_CO, p_DME = p["CO"], p.get("DME", 0.0)      # bar
+    # k[kmol/(kg·s·Pa)]·pCO[bar]·1e5[Pa/bar]·1000[mol/kmol] = mol/(kg·s)、×DME正則化
+    return A * math.exp(mEaR / state.T) * p_CO * 1.0e8 * _dme_reg(p_DME)
 
 
 def rate_cheng2017(state) -> float:
@@ -101,8 +111,9 @@ def rate_cheng2017(state) -> float:
     A, mEaR = CHEUNG2007
     k_ref = A * math.exp(mEaR / T_REF)            # Cheung の k(438K) [kmol/(kg·s·Pa)]
     k_T = k_ref * math.exp(-EA_CHENG / R * (1.0 / state.T - 1.0 / T_REF))
-    p_CO = state.partial_pressures()["CO"]
-    return k_T * p_CO * 1.0e8                      # → mol/(kg·s), per kg
+    p = state.partial_pressures()
+    p_CO, p_DME = p["CO"], p.get("DME", 0.0)
+    return k_T * p_CO * 1.0e8 * _dme_reg(p_DME)   # → mol/(kg·s), per kg（×DME正則化）
 
 
 def rate(state, model: str = "DTU") -> float:
