@@ -141,6 +141,8 @@
   footer li{display:flex;gap:10px;flex-wrap:wrap;}
   footer .f{font-family:var(--mono);font-size:12px;color:var(--accent-ink);}
   footer .d{color:var(--faint);}
+  footer .foot-grp{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 6px;}
+  footer .foot-grp:first-of-type{margin-top:2px;}
   a.doi{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid var(--line);}
   a.doi:hover{border-bottom-color:var(--accent);}
   hr.sp{border:none;border-top:1px solid var(--line);margin:0;}
@@ -606,20 +608,62 @@
       </div>
       <p><b>使い分け:</b> 新触媒・微分条件・短時間なら 3 者は実質同一（<b>r ∝ p<sub>CO</sub></b>）。<b>高転化率では DTU の MA 阻害項</b>、<b>長時間運転では Cheng の失活項</b>が必要。総説（Accounts 2024）が機構・速度・失活・拡散を統括。</p>
     </div>
+
+    <div class="note acc">
+      <p class="h">温度依存性のまとめ（一次確認済み）</p>
+      <p><b>DTU 2017 は 438 K の単一温度で温度依存を持たない</b>が、<b>温度依存（活性化エネルギー）は別論文で確立済み</b>。DTU が続報を出さなかったのは、DFT/機構論文であり Ea が既に Cheung/Cheng にあったため（続報の欠如は不自然ではない）。</p>
+      <p><b>① Cheung 2007（一次データ）:</b> <code>cheung2007.pdf</code> Fig 8 が <b>Arrhenius プロット</b>（423–463 K, 930 kPa CO/20 kPa DME, 速度 mol·(g-atom Al)⁻¹·h⁻¹）。本まとめで図の傾きを実読 → <b>E<sub>a</sub> ≈ 70–85 kJ/mol</b>（試料 Si/Al で分布）。</p>
+      <p><b>② プロセス整形形（Cheung データの表現）:</b> <code>ProductionofMethylAcetate.pdf</code>（2015, p6/p11）が Cheung データを Aspen 向けに整形:
+        <span class="inl">k = 8.2×10⁻⁵·exp(−8370/T) kmol·kg<sub>cat</sub>⁻¹·s⁻¹·Pa⁻¹</span>（E<sub>a</sub>=69.6 kJ/mol）。<b>水阻害・CO 一次・DME 零次</b>: r = k·p<sub>CO</sub>/(1+K<sub>w</sub>p<sub>w</sub>)。E<sub>a</sub>=69.6 は ① の 70–85 kJ/mol と<b>整合（一次確認済み）</b>。
+        <b>⚠️ この式は DTU 由来ではない</b>（旧記述「DTU の Pa 基準形」は帰属誤りで削除済み。正しくは Cheung 2007 → 2015 プロセス論文）。</p>
+      <p><b>③ Cheng 2017:</b> <code>cheng2017.pdf</code>「Deactivation Kinetics…H-MOR」で <b>E<sub>a</sub> = 88.65±0.93 kJ/mol</b>（基準 g·(g·h·kPa)⁻¹）。</p>
+      <div class="tbl-scroll" style="margin:12px 0;">
+        <table>
+          <caption>報告されている活性化エネルギー（DME カルボニル化）</caption>
+          <thead><tr><th>E<sub>a</sub> [kJ/mol]</th><th>出所</th><th class="rolecol">種別</th></tr></thead>
+          <tbody>
+            <tr><td>69.6（=8370 K）</td><td>2015 プロセス論文（Cheung データ整形）</td><td class="rolecol">整形</td></tr>
+            <tr><td>~70–85</td><td>Cheung 2007 Fig 8 の傾き（本まとめで実読）</td><td class="rolecol">実験(図)</td></tr>
+            <tr><td>88.65±0.93</td><td>Cheng 2017（実測フィット）</td><td class="rolecol">実験</td></tr>
+            <tr><td>99.8</td><td>サイドポケット MA 生成の intrinsic 障壁（DFT）</td><td class="rolecol">計算</td></tr>
+            <tr><td>~130</td><td>Cheung 2007 本文の引用値 [44]</td><td class="rolecol">引用</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>モデル構造は別物:</b> <b>DTU = MA(生成物)阻害</b> [1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>]・438 K・per mol Al/bar。
+        <b>Cheung/2015 = 水阻害</b> [1+K<sub>w</sub>p<sub>w</sub>]・温度依存 k・per kg/Pa。<b>阻害機構も速度基準も異なる</b>ので混同しない。</p>
+      <p><b>K₂/K₃（吸着）の温度依存は与えられていない:</b> DTU は 438 K の点値のみ、Cheung/2015 形は<b>速度定数 k のみ温度依存</b>（吸着 K<sub>w</sub> は乾燥前提で無視）。吸着定数の温度依存を入れるには吸着エンタルピー（van't Hoff）が別途必要。</p>
+      <p><b>実装方針:</b> 温度依存が要るなら <b>Cheung/2015 形（水阻害・k(T)）を出所付きで採用</b>。高転化率で MA 阻害を厳密に見るなら <b>DTU（438 K）</b>。両者は別モデルとして使い分ける。</p>
+    </div>
   </section>
 
   <footer>
     <h3>出典ファイル</h3>
+    <p class="foot-grp">§1 メタノール合成（Graaf）</p>
     <ul>
-      <li><span class="f">graaf1988.pdf</span><span class="d">Graaf 1988 · <a class="doi" href="https://doi.org/10.1016/0009-2509(88)85127-3">10.1016/0009-2509(88)85127-3</a></span></li>
-      <li><span class="f">graaf_2016_equilibria_IECR.pdf</span><span class="d">Graaf &amp; Winkelman 2016（平衡）· <a class="doi" href="https://doi.org/10.1021/acs.iecr.6b00815">10.1021/acs.iecr.6b00815</a></span></li>
-      <li><span class="f">vandenBussche_Froment_1996_JCatal.pdf</span><span class="d">VBF 1996 · <a class="doi" href="https://doi.org/10.1006/jcat.1996.0156">10.1006/jcat.1996.0156</a></span></li>
-      <li><span class="f">numerical-analysis-…-(dme)-synthesis.pdf</span><span class="d">KOGAS 2008（Song ら, IECR 47, 4553–4559, Correspondence）· <a class="doi" href="https://doi.org/10.1021/ie071589e">10.1021/ie071589e</a></span></li>
-      <li><span class="f">catalysts-11-01522.pdf (+ SI)</span><span class="d">KOGAS 2021 · <a class="doi" href="https://doi.org/10.3390/catal11121522">10.3390/catal11121522</a></span></li>
-      <li><span class="f">dtu_mordenite_carbonylation_mechanism_CatSciTech2017.pdf</span><span class="d">DTU 2017 · <a class="doi" href="https://doi.org/10.1039/c6cy01904h">10.1039/c6cy01904h</a></span></li>
-      <li><span class="f">Catalytic_dehydration…1993….pdf</span><span class="d">Bercič &amp; Levec 1993「メタノール脱水 速度式・原著（Table III）」<i>Ind. Eng. Chem. Res.</i> 32, 2478 · <a class="doi" href="https://doi.org/10.1021/ie00023a006">10.1021/ie00023a006</a></span></li>
-      <li><span class="f">Intrinsic_and_global_reaction_rate…_1992….pdf</span><span class="d">Bercič &amp; Levec 1992「同・KOGAS が引用した版」<i>Ind. Eng. Chem. Res.</i> 31, 1035 · <a class="doi" href="https://doi.org/10.1021/ie00004a010">10.1021/ie00004a010</a></span></li>
-      <li><span class="f">graaf1986.pdf</span><span class="d">Graaf ら 1986「メタノール合成の化学平衡（K<sub>p</sub> の一次出典）」<i>Chem. Eng. Sci.</i> 41, 2883 · <a class="doi" href="https://doi.org/10.1016/0009-2509(86)80019-7">10.1016/0009-2509(86)80019-7</a></span></li>
+      <li><span class="f">graaf1988.pdf</span><span class="d">G. H. Graaf, E. J. Stamhuis, A. A. C. M. Beenackers. “Kinetics of Low-Pressure Methanol Synthesis.” <i>Chem. Eng. Sci.</i> <b>43</b>(12), 3185–3195 (1988). <a class="doi" href="https://doi.org/10.1016/0009-2509(88)85127-3">10.1016/0009-2509(88)85127-3</a> 〔§1 速度式〕</span></li>
+      <li><span class="f">graaf1986.pdf</span><span class="d">G. H. Graaf, P. J. J. M. Sijtsema, E. J. Stamhuis, G. E. H. Joosten. “Chemical Equilibria in Methanol Synthesis.” <i>Chem. Eng. Sci.</i> <b>41</b>(11), 2883–2890 (1986). <a class="doi" href="https://doi.org/10.1016/0009-2509(86)80019-7">10.1016/0009-2509(86)80019-7</a> 〔§1 平衡定数 一次出典〕</span></li>
+      <li><span class="f">graaf_2016_equilibria_IECR.pdf</span><span class="d">G. Graaf, J. G. M. Winkelman. “Chemical Equilibria in Methanol Synthesis Including the Water–Gas Shift Reaction.” <i>Ind. Eng. Chem. Res.</i> <b>55</b>(20), 5854–5864 (2016). <a class="doi" href="https://doi.org/10.1021/acs.iecr.6b00815">10.1021/acs.iecr.6b00815</a> 〔§1 平衡定数 2016版〕</span></li>
+    </ul>
+    <p class="foot-grp">§2 VBF・KOGAS・脱水（Bercič–Levec）</p>
+    <ul>
+      <li><span class="f">vandenBussche_Froment_1996_JCatal.pdf</span><span class="d">K. M. Vanden Bussche, G. F. Froment. “A Steady-State Kinetic Model for Methanol Synthesis and the Water Gas Shift Reaction on a Commercial Cu/ZnO/Al₂O₃ Catalyst.” <i>J. Catal.</i> <b>161</b>, 1–10 (1996). <a class="doi" href="https://doi.org/10.1006/jcat.1996.0156">10.1006/jcat.1996.0156</a> 〔§2 MS/RWGS〕</span></li>
+      <li><span class="f">ng1999.pdf</span><span class="d">K. L. Ng, D. Chadwick, B. A. Toseland. “Kinetics and modelling of dimethyl ether synthesis from synthesis gas.” <i>Chem. Eng. Sci.</i> <b>54</b>(15–16), 3587–3592 (1999). <a class="doi" href="https://doi.org/10.1016/S0009-2509(98)00514-4">10.1016/S0009-2509(98)00514-4</a> 〔§2 KOGAS 全パラメータの一次出典〕</span></li>
+      <li><span class="f">numerical-analysis-…-(dme)-synthesis.pdf</span><span class="d">D. Song, W. Cho, G. Lee, D. K. Park, E. S. Yoon. “Numerical Analysis of a Pilot-Scale Fixed-Bed Reactor for Dimethyl Ether (DME) Synthesis.” <i>Ind. Eng. Chem. Res.</i> <b>47</b>, 4553–4559 (2008) [Correspondence]. <a class="doi" href="https://doi.org/10.1021/ie071589e">10.1021/ie071589e</a> 〔§2 KOGAS 2008〕</span></li>
+      <li><span class="f">catalysts-11-01522.pdf (+ SI)</span><span class="d">D. Song, S. Y. Cho, T. T. Vu, Y. H. P. Duong, E. Kim. “Validation of a Fixed Bed Reactor Model for Dimethyl Ether Synthesis Using Pilot-Scale Plant Data.” <i>Catalysts</i> <b>11</b>, 1522 (2021). <a class="doi" href="https://doi.org/10.3390/catal11121522">10.3390/catal11121522</a> 〔§2 KOGAS 2021〕</span></li>
+      <li><span class="f">Catalytic_dehydration…1993….pdf</span><span class="d">G. Bercič, J. Levec. “Catalytic Dehydration of Methanol to Dimethyl Ether. Kinetic Investigation and Reactor Simulation on a Packed Bed Reactor.” <i>Ind. Eng. Chem. Res.</i> <b>32</b>, 2478–2484 (1993). <a class="doi" href="https://doi.org/10.1021/ie00023a006">10.1021/ie00023a006</a> 〔§2 脱水 原著〕</span></li>
+      <li><span class="f">Intrinsic_and_global_reaction_rate…_1992….pdf</span><span class="d">G. Bercič, J. Levec. “Intrinsic and Global Reaction Rate of Methanol Dehydration over γ-Al₂O₃ Pellets.” <i>Ind. Eng. Chem. Res.</i> <b>31</b>, 1035–1040 (1992). <a class="doi" href="https://doi.org/10.1021/ie00004a010">10.1021/ie00004a010</a> 〔§2 脱水 KOGAS 引用版〕</span></li>
+    </ul>
+    <p class="foot-grp">§3 モルデナイト カルボニル化</p>
+    <ul>
+      <li><span class="f">cheung2006.pdf</span><span class="d">P. Cheung, A. Bhan, G. J. Sunley, E. Iglesia. “Selective Carbonylation of Dimethyl Ether to Methyl Acetate Catalyzed by Acidic Zeolites.” <i>Angew. Chem. Int. Ed.</i> <b>45</b>, 1617–1620 (2006). <a class="doi" href="https://doi.org/10.1002/anie.200503898">10.1002/anie.200503898</a> 〔§3 発見〕</span></li>
+      <li><span class="f">cheung2007.pdf</span><span class="d">P. Cheung, A. Bhan, G. J. Sunley, D. J. Law, E. Iglesia. “Site requirements and elementary steps in dimethyl ether carbonylation catalyzed by acidic zeolites.” <i>J. Catal.</i> <b>245</b>, 110–123 (2007). <a class="doi" href="https://doi.org/10.1016/j.jcat.2006.09.020">10.1016/j.jcat.2006.09.020</a> 〔§3 速度則・Arrhenius(Fig 8, 温度依存 一次データ)〕</span></li>
+      <li><span class="f">bhan2007.pdf</span><span class="d">A. Bhan, A. D. Allian, G. J. Sunley, D. J. Law, E. Iglesia. “Specificity of Sites within Eight-Membered Ring Zeolite Channels for Carbonylation of Methyls to Acetyls.” <i>J. Am. Chem. Soc.</i> <b>129</b>(15), 4919–4924 (2007). <a class="doi" href="https://doi.org/10.1021/ja070094d">10.1021/ja070094d</a> 〔§3 8-MR サイト特異性〕</span></li>
+      <li><span class="f">dtu_mordenite_carbonylation_mechanism_CatSciTech2017.pdf</span><span class="d">D. B. Rasmussen, J. M. Christensen, B. Temel, F. Studt, P. G. Moses, J. Rossmeisl, A. Riisager, A. D. Jensen. “Reaction mechanism of dimethyl ether carbonylation to methyl acetate over mordenite – a combined DFT/experimental study.” <i>Catal. Sci. Technol.</i> <b>7</b>, 1141–1152 (2017). <a class="doi" href="https://doi.org/10.1039/c6cy01904h">10.1039/c6cy01904h</a> 〔§3 完全レート式(438 K)・MA阻害・DFT〕</span></li>
+      <li><span class="f">cheng2017.pdf</span><span class="d">Z. Cheng, S. Huang, Y. Li, J. Lv, K. Cai, X. Ma. “Deactivation Kinetics for Carbonylation of Dimethyl Ether to Methyl Acetate on H-MOR.” <i>Ind. Eng. Chem. Res.</i> <b>56</b>, 13618–13627 (2017). <a class="doi" href="https://doi.org/10.1021/acs.iecr.7b03500">10.1021/acs.iecr.7b03500</a> 〔§3 失活モデル・E<sub>a</sub>=88.65 kJ/mol〕</span></li>
+      <li><span class="f">accounts2024_MOR_carbonylation_review.pdf</span><span class="d">W. Chen, Z. Liu, X. Yi, A. Zheng. “Confinement-Driven Dimethyl Ether Carbonylation in Mordenite Zeolite as an Ultramicroscopic Reactor.” <i>Acc. Chem. Res.</i> (2024). <a class="doi" href="https://doi.org/10.1021/acs.accounts.4c00389">10.1021/acs.accounts.4c00389</a> 〔§3 総説(機構・拡散)〕</span></li>
+      <li><span class="f">KC129.pdf</span><span class="d">M. A. Kipnis, E. A. Volnina. “Methyl Acetate Synthesis by Dimethyl Ether Carbonylation in the Presence of Zeolites: A Review.” <i>Kinetics and Catalysis</i> <b>63</b>(2), 129–140 (2022). <a class="doi" href="https://doi.org/10.1134/S0023158422020033">10.1134/S0023158422020033</a> 〔§3 総説〕</span></li>
+      <li><span class="f">ProductionofMethylAcetate.pdf</span><span class="d">A. Miriyam. “Production of Methyl Acetate using Carbonylation of Dimethyl Ether.” University of Hartford, March 2015（ResearchGate; 非査読の ASPEN プロセス設計レポート, 全34頁）. <a class="doi" href="https://doi.org/10.13140/RG.2.2.24659.07201">10.13140/RG.2.2.24659.07201</a> 〔温度依存形 <b>k = 8.2×10⁻⁵·exp(−8370/T) kmol·kg⁻¹·s⁻¹·Pa⁻¹</b>（p6/p11）を掲載。本文中で <b>Cheung ら（cheung2007）</b>データの整形と明記＝一次は cheung2007、DTU ではない〕</span></li>
     </ul>
   </footer>
 </div>
