@@ -11,8 +11,7 @@ dist/
 .venv/
 venv/
 
-# 生成物（examples から再生成可能）
-figures/
+# figures/ は追跡する（examples から再生成可能だが、GitHub で閲覧できるよう含める）
 
 # 参照 PDF / zip（著作権物・大容量。ローカル保管のみ、コミットしない）
 references/*.pdf
