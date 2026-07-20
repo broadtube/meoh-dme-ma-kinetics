@@ -632,8 +632,42 @@
       </div>
       <p><b>モデル構造は別物:</b> <b>DTU = MA(生成物)阻害</b> [1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>]・438 K・per mol Al/bar。
         <b>Cheung/2015 = 水阻害</b> [1+K<sub>w</sub>p<sub>w</sub>]・温度依存 k・per kg/Pa。<b>阻害機構も速度基準も異なる</b>ので混同しない。</p>
-      <p><b>K₂/K₃（吸着）の温度依存は与えられていない:</b> DTU は 438 K の点値のみ、Cheung/2015 形は<b>速度定数 k のみ温度依存</b>（吸着 K<sub>w</sub> は乾燥前提で無視）。吸着定数の温度依存を入れるには吸着エンタルピー（van't Hoff）が別途必要。</p>
-      <p><b>実装方針:</b> 温度依存が要るなら <b>Cheung/2015 形（水阻害・k(T)）を出所付きで採用</b>。高転化率で MA 阻害を厳密に見るなら <b>DTU（438 K）</b>。両者は別モデルとして使い分ける。</p>
+      <p><b>k₁ への外部 Ea 適用は正当（438 K 整合確認済）:</b> DTU k₁(438 K) の微分速度 0.76 mol·(mol Al)⁻¹·h⁻¹（930 kPa CO）は Cheung Fig 8 の同条件 ≈1 とほぼ一致（~30%以内）。<b>DTU k₁ は Cheung/Cheng の Arrhenius 線上の一点</b>なので、Cheung(70–85) または Cheng(88.65 kJ/mol) の Ea を DTU k₁ に適用する外挿は出所として正当（旧 DTU-T の誤りは未検証Ea・別基準・整合未確認の3点で、正しくやれば問題ない）。</p>
+      <p><b>K₂/K₃ の温度依存も DTU 自身の DFT から取れる:</b> K₂・K₃ は CH₃–MA 錯体（阻害種）の準平衡定数で、<b>Table 2 吸着エネルギー</b>（MA −1.01/−1.12 eV, DME −0.98/−0.99 eV; T3-O3 側pocket / T1-O4 主channel）と <b>Table 3 反応エネルギー ΔE</b> が van't Hoff の ΔH を与える: <span class="inl">K(T)=K(438)·exp(−ΔH/R·(1/T−1/438))</span>（大きさは 438 K fit・傾きは DFT, 同一論文/触媒/DFT で自己整合）。<b>MA と DME の吸着はほぼ同強度</b>なので <b>K₃(∝p<sub>MA</sub>/p<sub>DME</sub>) はほぼ温度非依存</b>（ΔH₃ ≈ −2〜−13 kJ/mol）、K₂(∝p<sub>MA</sub>) は MA 吸着 ~−100 kJ/mol に対応し温度依存が強い。</p>
+    </div>
+
+    <div class="note acc">
+      <p class="h">実装モデルの選択肢（温度依存バリアント・全て出所ベース）</p>
+      <p>速度式と、k₁ / K₂ / K₃ の温度依存の有無で 5 段階。すべて基準 438 K の Arrhenius/van't Hoff <span class="inl">x(T)=x(438)·exp(−E/R·(1/T−1/438))</span>。橙 = 温度依存化する定数。</p>
+      <div class="tbl-scroll" style="margin:12px 0;">
+        <table>
+          <caption>カルボニル化 速度モデル（推奨実装オプション）</caption>
+          <thead><tr><th>モデル</th><th>速度式 r<sub>MA</sub></th><th>k₁</th><th>K₂</th><th>K₃</th><th class="rolecol">出所</th></tr></thead>
+          <tbody>
+            <tr><td><b>DTU</b></td><td>k₁p<sub>CO</sub>/(1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>)</td><td>438 K 固定</td><td>固定</td><td>固定</td><td class="rolecol">DTU 2017</td></tr>
+            <tr><td><b>Cheng</b></td><td>k·f<sub>CO</sub>（MA 阻害なし・1次）</td><td class="diff">E<sub>a</sub>=88.65</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol">Cheng 2017</td></tr>
+            <tr><td><b>DTU-Cheng</b></td><td>DTU 式</td><td class="diff">E<sub>a</sub>=88.65</td><td>固定</td><td>固定</td><td class="rolecol">DTU 式 + Cheng E<sub>a</sub></td></tr>
+            <tr><td><b>DTU-Cheng 2</b></td><td>DTU 式</td><td class="diff">E<sub>a</sub>=88.65</td><td class="diff">van't Hoff ΔH₂</td><td>固定</td><td class="rolecol">+ DTU DFT(MA 吸着)</td></tr>
+            <tr><td><b>DTU-Cheng 3</b></td><td>DTU 式</td><td class="diff">E<sub>a</sub>=88.65</td><td class="diff">van't Hoff ΔH₂</td><td class="diff">van't Hoff ΔH₃</td><td class="rolecol">+ DTU DFT</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>各モデルの位置づけ:</b>
+        <b>DTU</b> = 438 K・MA 阻害の検証済み基準。
+        <b>Cheng</b> = 別構造（1次・MA 阻害なし）の温度依存モデル（要 Cheng Table 1 転記、per-g/kPa・f<sub>CO</sub> 基準）。
+        <b>DTU-Cheng</b> = DTU の MA 阻害を保ちつつ k₁ を温度依存化（<b>最も実用的</b>）。
+        <b>2・3</b> = さらに K₂・K₃ も DFT-ΔH で温度依存化（厳密）。</p>
+      <p class="msub-note"><b>注意:</b> ① Ea は Cheung(70–85, Fig 8 実読)でも可。② Cheng 版の per-g/kPa・CO フガシティ基準は DTU の per-mol-Al/bar と混用しない。③ 版2・3 は K₂/K₃ の DFT ステップ対応（DTU 被覆率導出 eqn 5–10）の精読が必要で、DFT は ±10–20 kJ/mol の不確かさ。<b>K₃ は ΔH₃ が小さくほぼ温度非依存なので版3の実益は限定的</b>。</p>
+    </div>
+
+    <div class="note">
+      <p class="h">水(H₂O)阻害とタンデム設計 — 水項は加えない（乾燥前提が正しい）</p>
+      <p><b>Cheung 2007 は水阻害を式で扱う</b>（Appendix A, eq 1–3）が、実験と整合する形は
+        <span class="inl">r = k₅p<sub>CO</sub> / (1 + p<sub>H2O</sub>/(K₄·p<sub>CH3OH</sub>) + k₅p<sub>CO</sub>/(k₆·p<sub>DME</sub>))</span>
+        で、<b>水項は単純な K<sub>w</sub>·p<sub>H2O</sub> ではなく p<sub>H2O</sub>/(K₄·p<sub>CH3OH</sub>) ＝メタノール分圧と結合</b>（水とメタノールが methoxylation で相互変換するため）。2015 論文の <span class="inl">1+K<sub>w</sub>p<sub>w</sub></span> はこの簡略版。</p>
+      <p><b>数値定数がどの出所にもない:</b> Cheung は機構的な形のみで数値をフィットせず（“rates are not normalized … because of their uncertain identity”）、2015 論文は水項を「乾燥前提で無視」、DTU は乾燥給気で水項なし。<b>→ 定量的に出所づけられる K<sub>w</sub> は存在しない</b>（一次確認済み）。</p>
+      <p><b>機構:</b> DME カルボニル化は<b>定常・乾燥 DME では水を生成しない</b>（methoxylation が CH₃ を水なしで再生）。水は外部供給・湿った DME のときだけ阻害する。実験では 1.1 kPa H₂O 添加で速度が markedly inhibited（強い阻害）。</p>
+      <p><b>結論・タンデム設計指針:</b> 水阻害は severe だが数値化できないので、<b>DTU 式に水項は加えない（乾燥 DME 前提が正しい）</b>。単一床の湿ったタンデムは物理的に成立しにくく、工業 DME→MA と同様、<b>合成/脱水 @250 ℃ → 水分離 → 乾燥 DME をカルボニル化 @~180 ℃</b> の<b>段階反応器</b>が正当（2015 論文も “water must be removed from the DME stream prior to the carbonylation step” と明記）。<code>fig_length_compare</code> の単一等温タンデムは水阻害を無視した概念図である点に留意。</p>
     </div>
   </section>
 
