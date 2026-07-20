@@ -1,23 +1,22 @@
 """carbonylation 比較図: 純カルボニル化 PFR での速度モデル比較（実長さ z 基準）。
 
-DME + CO → 酢酸メチル(MA) の単独反応を PFR に通し、代表 5 モデルを比較する。
-温度依存モデルは 438 K では DTU と一致するため、差が出る 200 ℃(473 K) で比較。
+DME + CO → 酢酸メチル(MA) の単独反応を PFR に通す。温度依存モデルは 438 K で DTU と
+一致するため、差が出る 200 ℃(473 K) で比較。
 
-代表 5 モデル（詳細は rate_equations.html §3 の 9 モデル表）:
-  DTU              : MA阻害・438K固定（温度依存なし＝基準）
-  DTU-Cheung2007-1 : DTU式(MA阻害) + k1 温度依存(Cheung Ea=69.6)
-  DTU-Cheng2017-1  : 同上だが Cheng Ea=88.65（Ea 大→より速い）
-  Cheung2007       : 1次・MA阻害なし・per kg（8.2e-5·exp(−8370/T) 実値, DME正則化付き）
-  Cheng2017        : 同 1次形で Ea=88.65（★混成）
-読み取り:
-  ・DTU(青) は 438K 固定なので 200℃ でも遅い（温度依存を入れると大きく速くなる）。
-  ・Ea 差: Cheng(88.65) > Cheung(69.6) で速い。
-  ・MA阻害の有無: standalone(Cheung2007/Cheng2017) は MA 阻害がなく DME を 100% まで転化、
-    DTU系(MA阻害あり)は MA 蓄積で頭打ち。
+配色: 色=系統（DTU=青 / Cheung2007系=橙 / Cheng2017系=緑）、線種=温度依存の段階
+      （-1=実線 k₁のみ / -2=破線 +K₂ / -3=点線 +K₂K₃）。
+      standalone（Cheung2007/Cheng2017, MA阻害なし）は薄い灰で「参考（過大評価）」。
 
-条件: feed CO:DME = 0.90:0.10（過剰CO・DME律速）, 全流量 0.05 mol/s, 200℃, 50 bar,
+要点:
+  ・DTU(青) は 438K 固定なので 200℃ でも遅い（温度依存を入れると速くなる）。
+  ・Ea 差: Cheng(88.65, 緑) > Cheung(69.6, 橙)。
+  ・段階: -2(+K₂) は高温で MA吸着↓＝阻害弱まり速い。-3(+K₃) は K₃ の ΔH が小さくほぼ -2 と同じ。
+  ・standalone(灰) は MA阻害がなく DME を 100% まで暴走 → 反応器(高転化)では過大評価。
+    ＝積分条件では DTU系(MA阻害あり)が妥当、standalone は微分条件専用。
+
+条件: feed CO:DME = 0.90:0.10, 全流量 0.05 mol/s, 200℃, 50 bar,
       触媒 3 kg（内径40mm管・ρ_bed=1200・ε=0.40 → 全長 ~2 m）。
-⚠️ 200℃ は DTU/Cheung の実験域(150–190℃)をやや外挿。model 選択で MA 収率が大きく変わる点に注意。
+⚠️ 200℃ は DTU/Cheung の実験域(150–190℃)をやや外挿。
 
 実行: PYTHONPATH=src python3 examples/fig_carbonylation_compare.py
 """
@@ -29,12 +28,25 @@ from reaction_rate.reactors import pfr, CatalystBed
 from reaction_rate.network import species_rates
 from reaction_rate import plots
 
-FTOT = 0.05                               # 全モル流量 [mol/s]
+FTOT = 0.05
 T, P = 473.15, 50.0                       # 200 ℃, 50 bar
-W = 3.0                                   # カルボニル化触媒 [kg]
+W = 3.0
 GEOM = Geometry(area=np.pi / 4 * 0.04**2, bulk_density=1200.0, void_fraction=0.40)
 
-MODELS = ["DTU", "DTU-Cheung2007-1", "DTU-Cheng2017-1", "Cheung2007", "Cheng2017"]
+C = plots.OKABE_ITO
+_GREY = "#8a95a0"
+# (model, color, linestyle, lw, label)
+SERIES = [
+    ("DTU",              C[0], "-",  2.0, "DTU (438K fixed)"),
+    ("DTU-Cheung2007-1", C[1], "-",  1.8, "DTU-Cheung2007-1"),
+    ("DTU-Cheung2007-2", C[1], "--", 1.8, "DTU-Cheung2007-2"),
+    ("DTU-Cheung2007-3", C[1], ":",  2.2, "DTU-Cheung2007-3"),
+    ("DTU-Cheng2017-1",  C[2], "-",  1.8, "DTU-Cheng2017-1"),
+    ("DTU-Cheng2017-2",  C[2], "--", 1.8, "DTU-Cheng2017-2"),
+    ("DTU-Cheng2017-3",  C[2], ":",  2.2, "DTU-Cheng2017-3"),
+    ("Cheung2007",       _GREY, "-", 1.0, "Cheung2007 (ref: no MA inhib.)"),
+    ("Cheng2017",        _GREY, "--", 1.0, "Cheng2017 (ref: no MA inhib.)"),
+]
 
 
 def feed():
@@ -42,7 +54,6 @@ def feed():
 
 
 def ma_rate_profile(result, bed, models):
-    """各 z での MA 生成速度 [mol·kg_bed⁻¹·s⁻¹]（局所組成から再評価）。"""
     y = result.mole_fractions()
     return np.array([
         species_rates(GasState(result.T, result.P, {s: float(y[s][i]) for s in result.F}),
@@ -53,30 +64,33 @@ def ma_rate_profile(result, bed, models):
 
 def main():
     runs = {}
-    for m in MODELS:
+    for name, *_ in SERIES:
         bed = CatalystBed({"carbonylation": W})
-        models = {"carbonylation": m}
-        runs[m] = (pfr(feed(), T, P, bed, models=models), bed, models)
+        models = {"carbonylation": name}
+        runs[name] = (pfr(feed(), T, P, bed, models=models), bed, models)
     z = next(iter(runs.values()))[0].length(GEOM)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6.4, 6.8), dpi=130, sharex=True)
-
-    # 上: DME 転化率（standalone は MA阻害なしで 100% まで、DTU系は頭打ち）
-    plots.lines(z, {m: runs[m][0].conversion("DME") * 100 for m in MODELS},
-                "", "DME conversion [%]", ax=ax1)
-    ax1.get_legend().remove()             # 凡例は下段のみ（色対応は共通・上段は曲線と重なるため）
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6.6, 7.2), dpi=130, sharex=True)
+    for ax, kind in ((ax1, "conv"), (ax2, "rate")):
+        for name, col, ls, lw, lab in SERIES:
+            if kind == "conv":
+                yv = runs[name][0].conversion("DME") * 100
+            else:
+                yv = ma_rate_profile(*runs[name])
+            ax.plot(z, yv, color=col, ls=ls, lw=lw, label=lab)
+        plots._style(ax)
+    ax1.set_ylabel("DME conversion [%]", color=plots._INK)
+    ax2.set_ylabel("MA formation rate [mol·kg⁻¹·s⁻¹]", color=plots._INK)
+    ax2.set_xlabel("Reactor length z [m]", color=plots._INK)
     ax1.set_title(f"Carbonylation models (DME+CO→MA, {int(T-273.15)} °C, {int(P)} bar)",
                   fontsize=11)
-
-    # 下: MA 生成速度（温度依存・Ea 差・DME枯渇で速度が落ちる様子）。右上が空くので凡例をここに
-    plots.lines(z, {m: ma_rate_profile(*runs[m]) for m in MODELS},
-                "Reactor length z [m]", "MA formation rate [mol·kg⁻¹·s⁻¹]", ax=ax2)
+    ax2.legend(frameon=False, labelcolor=plots._INK, fontsize=7.5, ncol=1, loc="upper right")
 
     fig.tight_layout()
     print("saved", plots.save(fig, "carbonylation_compare.png"))
-    for m in MODELS:
-        r = runs[m][0]
-        print(f"{m:18s} DME conv={r.conversion('DME')[-1]*100:5.1f}%  "
+    for name, *_ in SERIES:
+        r = runs[name][0]
+        print(f"{name:20s} DME conv={r.conversion('DME')[-1]*100:5.1f}%  "
               f"y_MA={r.mole_fractions()['MA'][-1]:.4f}")
 
 
