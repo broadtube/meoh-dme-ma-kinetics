@@ -12,7 +12,9 @@
   'synthesis'     : Cu/ZnO/Al2O3。model='KOGAS'(既定)/'VBF'/'Graaf1988'。MS/RWGS。
                     ※ Graaf はフガシティ基準・純メタノール合成向け（ハイブリッドでは非推奨）。
   'dehydration'   : γ-Al2O3。model='KOGAS'(既定)/'BercicLevec1993'。MD。
-  'carbonylation' : H-MOR。model='DTU'。r_MA[mol/(mol Al)/s]×acid_site_density で kg基準へ。
+  'carbonylation' : H-MOR。model= DTU / Cheung2007 / Cheng2017 / DTU-Cheung2007-{1,2,3} /
+                    DTU-Cheng2017-{1,2,3}（計9種。carbonylation.py 参照）。
+                    DTU系は per mol Al ×acid_site_density、Cheung2007/Cheng2017 は既に per kg。
 """
 from collections import defaultdict
 
@@ -52,9 +54,11 @@ def _role_rates(state, role, model, bed, k_eq3):
         return {"CH3OH": -2 * rMD, "DME": rMD, "H2O": rMD}
 
     if role == "carbonylation":
-        # CH3OCH3 + CO → CH3COOCH3。r_MA[mol/(mol Al)/s] × n_Al → mol·kg⁻¹·s⁻¹
+        # CH3OCH3 + CO → CH3COOCH3
         model = model or "DTU"
-        r = carbonylation.rate(state, model=model) * bed.acid_site_density
+        r = carbonylation.rate(state, model=model)
+        if model not in carbonylation._PER_KG_MODELS:   # DTU系: per mol Al → ×酸点密度
+            r *= bed.acid_site_density                  # Cheung2007/Cheng2017 は既に per kg
         return {"DME": -r, "CO": -r, "MA": r}
 
     raise ValueError(f"unknown catalyst role: {role!r}")

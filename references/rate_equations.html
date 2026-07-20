@@ -637,27 +637,32 @@
     </div>
 
     <div class="note acc">
-      <p class="h">実装モデルの選択肢（温度依存バリアント・全て出所ベース）</p>
-      <p>速度式と、k₁ / K₂ / K₃ の温度依存の有無で 5 段階。すべて基準 438 K の Arrhenius/van't Hoff <span class="inl">x(T)=x(438)·exp(−E/R·(1/T−1/438))</span>。橙 = 温度依存化する定数。</p>
+      <p class="h">実装モデルの選択肢（温度依存バリアント・全 9 種, 出所ベース）</p>
+      <p>基準 438 K の Arrhenius/van't Hoff <span class="inl">x(T)=x(438)·exp(−E/R·(1/T−1/438))</span>。橙 = 温度依存化する定数。
+        温度依存 Ea は 2 系統（別論文・~15% 差で整合）: <b>Cheung 2007</b>（基礎速度論, Ea≈69.6）／<b>Cheng 2017</b>（失活論文, Ea=88.65）。K₂/K₃ の ΔH は <b>DTU 自身の DFT</b>（両系統で共通）。</p>
       <div class="tbl-scroll" style="margin:12px 0;">
         <table>
-          <caption>カルボニル化 速度モデル（推奨実装オプション）</caption>
-          <thead><tr><th>モデル</th><th>速度式 r<sub>MA</sub></th><th>k₁</th><th>K₂</th><th>K₃</th><th class="rolecol">出所</th></tr></thead>
+          <caption>カルボニル化 速度モデル（9 種。実装 model 名）</caption>
+          <thead><tr><th>model</th><th>速度式</th><th>k₁</th><th>K₂</th><th>K₃</th><th>基準</th><th class="rolecol">出所</th></tr></thead>
           <tbody>
-            <tr><td><b>DTU</b></td><td>k₁p<sub>CO</sub>/(1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>)</td><td>438 K 固定</td><td>固定</td><td>固定</td><td class="rolecol">DTU 2017</td></tr>
-            <tr><td><b>Cheng</b></td><td>k·f<sub>CO</sub>（MA 阻害なし・1次）</td><td class="diff">E<sub>a</sub>=88.65</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol">Cheng 2017</td></tr>
-            <tr><td><b>DTU-Cheng</b></td><td>DTU 式</td><td class="diff">E<sub>a</sub>=88.65</td><td>固定</td><td>固定</td><td class="rolecol">DTU 式 + Cheng E<sub>a</sub></td></tr>
-            <tr><td><b>DTU-Cheng 2</b></td><td>DTU 式</td><td class="diff">E<sub>a</sub>=88.65</td><td class="diff">van't Hoff ΔH₂</td><td>固定</td><td class="rolecol">+ DTU DFT(MA 吸着)</td></tr>
-            <tr><td><b>DTU-Cheng 3</b></td><td>DTU 式</td><td class="diff">E<sub>a</sub>=88.65</td><td class="diff">van't Hoff ΔH₂</td><td class="diff">van't Hoff ΔH₃</td><td class="rolecol">+ DTU DFT</td></tr>
+            <tr><td><b>DTU</b></td><td>k₁p<sub>CO</sub>/(1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>)</td><td>438 K 固定</td><td>固定</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">DTU 2017</td></tr>
+            <tr><td><b>Cheung2007</b></td><td>k(T)·p<sub>CO</sub>（MA阻害なし・乾燥）</td><td class="diff">Ea=69.6</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td>mol/kg</td><td class="rolecol">8.2e-5·exp(−8370/T), Cheung→2015</td></tr>
+            <tr><td><b>Cheng2017</b> ★混成</td><td>k(T)·p<sub>CO</sub>（同上・Ea のみ Cheng）</td><td class="diff">Ea=88.65</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td>mol/kg</td><td class="rolecol">大きさ Cheung@438K + Cheng Ea</td></tr>
+            <tr><td><b>DTU-Cheung2007-1</b></td><td>DTU 式</td><td class="diff">Ea=69.6</td><td>固定</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">DTU + Cheung Ea</td></tr>
+            <tr><td><b>DTU-Cheung2007-2</b></td><td>DTU 式</td><td class="diff">Ea=69.6</td><td class="diff">ΔH₂(DFT)</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">+ DTU DFT</td></tr>
+            <tr><td><b>DTU-Cheung2007-3</b></td><td>DTU 式</td><td class="diff">Ea=69.6</td><td class="diff">ΔH₂(DFT)</td><td class="diff">ΔH₃(DFT)</td><td>mol/(mol Al)</td><td class="rolecol">+ DTU DFT</td></tr>
+            <tr><td><b>DTU-Cheng2017-1</b></td><td>DTU 式</td><td class="diff">Ea=88.65</td><td>固定</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">DTU + Cheng Ea</td></tr>
+            <tr><td><b>DTU-Cheng2017-2</b></td><td>DTU 式</td><td class="diff">Ea=88.65</td><td class="diff">ΔH₂(DFT)</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">+ DTU DFT</td></tr>
+            <tr><td><b>DTU-Cheng2017-3</b></td><td>DTU 式</td><td class="diff">Ea=88.65</td><td class="diff">ΔH₂(DFT)</td><td class="diff">ΔH₃(DFT)</td><td>mol/(mol Al)</td><td class="rolecol">+ DTU DFT</td></tr>
           </tbody>
         </table>
       </div>
-      <p><b>各モデルの位置づけ:</b>
+      <p><b>位置づけ:</b>
         <b>DTU</b> = 438 K・MA 阻害の検証済み基準。
-        <b>Cheng</b> = 別構造（1次・MA 阻害なし）の温度依存モデル（要 Cheng Table 1 転記、per-g/kPa・f<sub>CO</sub> 基準）。
-        <b>DTU-Cheng</b> = DTU の MA 阻害を保ちつつ k₁ を温度依存化（<b>最も実用的</b>）。
-        <b>2・3</b> = さらに K₂・K₃ も DFT-ΔH で温度依存化（厳密）。</p>
-      <p class="msub-note"><b>注意:</b> ① Ea は Cheung(70–85, Fig 8 実読)でも可。② Cheng 版の per-g/kPa・CO フガシティ基準は DTU の per-mol-Al/bar と混用しない。③ 版2・3 は K₂/K₃ の DFT ステップ対応（DTU 被覆率導出 eqn 5–10）の精読が必要で、DFT は ±10–20 kJ/mol の不確かさ。<b>K₃ は ΔH₃ が小さくほぼ温度非依存なので版3の実益は限定的</b>。</p>
+        <b>Cheung2007</b> = 1次・MA阻害なしの温度依存形（<b>8.2e-5 の実値・per kg</b>, 438K で DTU と ~25% 整合）。
+        <b>Cheng2017</b> = 同形で Ea のみ Cheng（★混成: Cheng 独自の絶対値は変換不能のため大きさは Cheung に anchor）。
+        <b>DTU-Cheung/Cheng 系</b> = DTU の MA 阻害を保ちつつ k₁(-1)/+K₂(-2)/+K₃(-3) を温度依存化。<b>Cheung 系が第一推奨</b>（基礎速度論・438K検証）、Cheng 系は Ea を高めに取る感度用。</p>
+      <p class="msub-note"><b>注意:</b> ① 新しい Cheng 2017 が「より正確」とは限らない（Cheung 2007 が基礎速度論の定番、Cheng は失活が主眼）。両 Ea は ~15% 差で整合。② per-kg 形（Cheung2007/Cheng2017）は反応器で ×酸点密度 をしない（DTU 系の per mol Al と基準が違う）。③ ΔH₂/ΔH₃ は DFT 概算（±10–20 kJ/mol, DTU eqn 5–10 の精読要）。<b>K₃ は ΔH₃ が小さくほぼ温度非依存</b>（-3 の実益は限定的）。④ 2015 論文 p6 の「Cheng et al.」は綴りミスで実体は <b>Cheung 2007</b>（p11=Cheung⁵, 2015 は Cheng 2017 より前）。</p>
     </div>
 
     <div class="note">
