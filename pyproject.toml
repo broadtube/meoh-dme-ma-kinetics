@@ -1,0 +1,23 @@
+[project]
+name = "reaction-rate"
+version = "0.1.0"
+description = "CO/CO2/H2 → メタノール / DME / 酢酸メチル 合成の反応速度計算"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",     # SRK 3次方程式の求解(np.roots) 等
+    "scipy>=1.11",     # 反応器の積分(solve_ivp)・求解
+    "chemicals>=1.5",  # 一般成分の臨界物性DB (DME/酢酸メチル/N2 …)
+]
+
+[project.optional-dependencies]
+# thermo: 自前SRKの検証用 / cantera: 平衡・熱力学・データ源(SRKは無い)
+extra = ["thermo>=0.6", "cantera>=3.0"]
+plot = ["matplotlib>=3.8"]     # examples/ の Fig 出力用（PNG）
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

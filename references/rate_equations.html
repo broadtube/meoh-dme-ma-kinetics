@@ -1,0 +1,625 @@
+<title>反応速度式リファレンス — MeOH / DME / 酢酸メチル合成</title>
+<style>
+  :root{
+    --ink:#1b242c; --muted:#5b6873; --faint:#8a95a0;
+    --paper:#f5f6f3; --panel:#ffffff; --panel-2:#eef1ee; --line:#dbe0dd;
+    --accent:#0d6d72; --accent-soft:#e2efef; --accent-ink:#0a5155;
+    --amber:#a15c11; --amber-soft:#f6ecdc; --amber-line:#e4c79a;
+    --code-bg:#f0f2ef; --shadow:0 1px 2px rgba(20,30,40,.05),0 8px 24px rgba(20,30,40,.05);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:ui-sans-serif,"Segoe UI",system-ui,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Code","Roboto Mono",Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ink:#e7edf0; --muted:#9aa7b1; --faint:#71808b;
+      --paper:#0f151a; --panel:#161e25; --panel-2:#1c262e; --line:#2a353e;
+      --accent:#45b6bb; --accent-soft:#12312f; --accent-ink:#7fd4d7;
+      --amber:#d69848; --amber-soft:#2b2113; --amber-line:#5a441f;
+      --code-bg:#1a232b; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --ink:#1b242c; --muted:#5b6873; --faint:#8a95a0; --paper:#f5f6f3; --panel:#ffffff;
+    --panel-2:#eef1ee; --line:#dbe0dd; --accent:#0d6d72; --accent-soft:#e2efef; --accent-ink:#0a5155;
+    --amber:#a15c11; --amber-soft:#f6ecdc; --amber-line:#e4c79a; --code-bg:#f0f2ef;
+    --shadow:0 1px 2px rgba(20,30,40,.05),0 8px 24px rgba(20,30,40,.05);
+  }
+  :root[data-theme="dark"]{
+    --ink:#e7edf0; --muted:#9aa7b1; --faint:#71808b; --paper:#0f151a; --panel:#161e25;
+    --panel-2:#1c262e; --line:#2a353e; --accent:#45b6bb; --accent-soft:#12312f; --accent-ink:#7fd4d7;
+    --amber:#d69848; --amber-soft:#2b2113; --amber-line:#5a441f; --code-bg:#1a232b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;font-size:16px;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px 96px;}
+
+  /* ---- top bar ---- */
+  nav.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  .bar-in{max-width:920px;margin:0 auto;padding:11px 24px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;}
+  .bar-in .brand{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);
+    text-transform:uppercase;margin-right:auto;}
+  .bar-in a{font-size:13.5px;color:var(--ink);text-decoration:none;padding:3px 10px;border-radius:999px;
+    border:1px solid transparent;transition:background .15s,border-color .15s;}
+  .bar-in a:hover{background:var(--accent-soft);border-color:var(--line);}
+  .bar-in a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---- header ---- */
+  header.hero{padding:60px 0 34px;border-bottom:1px solid var(--line);margin-bottom:8px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent-ink);margin:0 0 16px;}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,5vw,44px);line-height:1.1;
+    letter-spacing:-.01em;margin:0 0 14px;text-wrap:balance;}
+  .lede{font-size:17px;color:var(--muted);max-width:64ch;margin:0;}
+  .lede b{color:var(--ink);font-weight:600;}
+
+  /* ---- legend ---- */
+  .legend{margin:26px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:10px 20px;padding:18px 20px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;}
+  .legend dl{margin:0;display:flex;gap:10px;align-items:baseline;font-size:13.5px;}
+  .legend dt{font-family:var(--mono);color:var(--accent-ink);white-space:nowrap;}
+  .legend dd{margin:0;color:var(--muted);}
+
+  /* ---- sections ---- */
+  section{padding-top:52px;scroll-margin-top:64px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px;}
+  .sec-head h2{font-family:var(--serif);font-weight:600;font-size:27px;margin:0;letter-spacing:-.01em;}
+  .tag{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--line);
+    padding:2px 9px;border-radius:999px;}
+  .cite{font-size:13.5px;color:var(--muted);margin:6px 0 22px;}
+  .cite code{font-family:var(--mono);font-size:12.5px;background:var(--code-bg);padding:1px 6px;border-radius:5px;}
+  .subhead{font-family:var(--serif);font-weight:600;font-size:21px;margin:42px 0 4px;letter-spacing:-.01em;
+    padding-top:22px;border-top:1px solid var(--line);text-wrap:balance;}
+  .fitmark{font-family:var(--mono);font-size:10.5px;color:var(--accent-ink);}
+
+  /* ---- reaction chips ---- */
+  .rxns{display:flex;flex-direction:column;gap:8px;margin:0 0 22px;padding:0;list-style:none;}
+  .rxns li{display:flex;gap:12px;align-items:center;font-size:15px;padding:8px 14px;background:var(--panel);
+    border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);}
+  .rxns .n{font-family:var(--mono);font-size:12px;color:var(--accent-ink);border:1px solid var(--line);
+    background:var(--accent-soft);border-radius:6px;padding:1px 7px;white-space:nowrap;}
+  .rxns .eq{font-family:var(--serif);font-size:16.5px;}
+  .rxns .lbl{margin-left:auto;font-size:12.5px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
+
+  /* ---- equation cards ---- */
+  .eqcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+    margin:14px 0;overflow:hidden;}
+  .eqcard .cap{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:9px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .eqcard .cap .name{font-family:var(--mono);font-size:12.5px;letter-spacing:.03em;color:var(--ink);}
+  .eqcard .cap .unit{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  .eqbody{overflow-x:auto;padding:18px 18px;}
+  math{font-size:1.16em;}
+  math[display="block"]{margin:0 auto;min-width:max-content;}
+  .msub-note{font-size:12.5px;color:var(--muted);padding:0 16px 14px;margin-top:-4px;}
+
+  /* ---- callouts ---- */
+  .note{border-left:3px solid var(--amber);background:var(--amber-soft);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:16px 0;font-size:14.5px;}
+  .note.acc{border-left-color:var(--accent);background:var(--accent-soft);}
+  .note .h{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--amber);margin:0 0 6px;font-weight:600;}
+  .note.acc .h{color:var(--accent-ink);}
+  .note p{margin:6px 0 0;} .note p:first-of-type{margin-top:0;}
+  .note code,.inl{font-family:var(--mono);font-size:12.5px;background:var(--code-bg);padding:1px 6px;border-radius:5px;}
+  .strike{text-decoration:line-through;text-decoration-color:var(--amber);opacity:.75;}
+
+  /* ---- parameter tables ---- */
+  .tbl-scroll{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);}
+  table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel);min-width:min(100%,520px);}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:11.5px;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--muted);padding:12px 16px 8px;}
+  th,td{padding:9px 14px;text-align:right;border-bottom:1px solid var(--line);
+    font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px;white-space:nowrap;}
+  th:first-child,td:first-child{text-align:left;font-family:var(--sans);}
+  thead th{color:var(--muted);font-weight:600;border-bottom:1.5px solid var(--line);position:sticky;top:0;
+    background:var(--panel-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--panel-2);}
+  td.match{color:#1c62c9;} td.diff{color:var(--amber);}
+  @media (prefers-color-scheme:dark){ td.match{color:#6fb2ff;} }
+  :root[data-theme="light"] td.match{color:#1c62c9;}
+  :root[data-theme="dark"] td.match{color:#6fb2ff;}
+  .rolecol{color:var(--muted);font-family:var(--sans)!important;font-size:12.5px;text-align:left!important;}
+
+  /* ---- equilibrium block ---- */
+  .eqconst{display:grid;gap:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;box-shadow:var(--shadow);margin:14px 0;}
+  .eqconst .row{display:flex;align-items:center;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line);overflow-x:auto;}
+  .eqconst .row:last-child{border-bottom:none;}
+  .eqconst .rl{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;min-width:78px;}
+  .eqconst .rxn-lbl{margin-left:auto;font-family:var(--serif);font-size:14.5px;color:var(--muted);white-space:nowrap;}
+
+  footer{margin-top:64px;padding-top:26px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;}
+  footer h3{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink);margin:0 0 12px;}
+  footer ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;}
+  footer li{display:flex;gap:10px;flex-wrap:wrap;}
+  footer .f{font-family:var(--mono);font-size:12px;color:var(--accent-ink);}
+  footer .d{color:var(--faint);}
+  a.doi{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid var(--line);}
+  a.doi:hover{border-bottom-color:var(--accent);}
+  hr.sp{border:none;border-top:1px solid var(--line);margin:0;}
+  @media (max-width:560px){ .wrap{padding:0 16px 72px;} .bar-in{padding:10px 16px;} .rxns .lbl{display:none;} }
+</style>
+
+<nav class="bar">
+  <div class="bar-in">
+    <span class="brand">rate&nbsp;laws · CO/CO₂/H₂</span>
+    <a href="#graaf">Graaf 1988</a>
+    <a href="#vbf">VBF &amp; KOGAS</a>
+    <a href="#dtu">MOR カルボニル化</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="eyebrow">Kinetic reference · methanol → DME → methyl acetate</p>
+    <h1>CO / CO₂ / H₂ からの合成 — 反応速度式まとめ</h1>
+    <p class="lede">メタノール合成（<b>Graaf 1988</b>）、メタノール／DME 合成（<b>Vanden Bussche–Froment 1996 と KOGAS</b>、同一形式を KOGAS 表記で統一）、および DME カルボニル化による酢酸メチル合成（<b>DTU 2017</b>）の実装用速度式。原論文から抽出し、KOGAS SI の誤り（平方根・単位）を VBF と照合して訂正済み。</p>
+
+    <div class="legend" aria-label="記号の凡例">
+      <dl><dt>fᵢ</dt><dd>フガシティ [bar]（Graaf）</dd></dl>
+      <dl><dt>pᵢ</dt><dd>分圧 [bar]（VBF/KOGAS/DTU）</dd></dl>
+      <dl><dt>Cᵢ</dt><dd>モル濃度 [kmol·m⁻³]（式3）</dd></dl>
+      <dl><dt>κ = A·e^(B/RT)</dt><dd>R = 8.314 J·mol⁻¹·K⁻¹, T [K]</dd></dl>
+      <dl><dt>r</dt><dd>速度 [mol·kg<sub>cat</sub>⁻¹·s⁻¹]（実装の統一単位。原著 native は源で異なる→§2②）</dd></dl>
+      <dl><dt>K<sub>eq</sub></dt><dd>反応の平衡定数</dd></dl>
+    </div>
+  </header>
+
+  <!-- ============ GRAAF ============ -->
+  <section id="graaf">
+    <div class="sec-head">
+      <h2>1 &nbsp;Graaf（1988）— メタノール合成</h2>
+      <span class="tag">model A3B2C3</span>
+    </div>
+    <p class="cite">Graaf, Stamhuis, Beenackers, <i>Chem. Eng. Sci.</i> <b>43</b>(12) 3185–3195 (1988) ·
+      <code>graaf1988.pdf</code> · DOI 10.1016/0009-2509(88)85127-3 · デュアルサイト LHHW、H₂ は解離吸着、駆動力はフガシティ基準。
+      <b>速度は原著（p8, p10）で <span class="inl">mol·s⁻¹·kg<sub>cat</sub>⁻¹</span></b> ＝実装の統一単位と同じ（<b>換算不要</b>）、フガシティ f [bar]。</p>
+
+    <ul class="rxns">
+      <li><span class="n">A</span><span class="eq">CO + 2H₂ ⇌ CH₃OH</span><span class="lbl">CO hydrog.</span></li>
+      <li><span class="n">B</span><span class="eq">CO₂ + H₂ ⇌ CO + H₂O</span><span class="lbl">reverse WGS</span></li>
+      <li><span class="n">C</span><span class="eq">CO₂ + 3H₂ ⇌ CH₃OH + H₂O</span><span class="lbl">CO₂ hydrog.</span></li>
+    </ul>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_A &nbsp;(CO 水素化)</span><span class="unit">mol·kg⁻¹·s⁻¹</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mi>A</mi></msub><mo>=</mo>
+          <mfrac>
+            <mrow>
+              <msub><mi>k</mi><mi>A</mi></msub><msub><mi>K</mi><mtext>CO</mtext></msub>
+              <mo>[</mo><msub><mi>f</mi><mtext>CO</mtext></msub><msubsup><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow><mrow><mn>3</mn><mo>/</mo><mn>2</mn></mrow></msubsup>
+              <mo>&#8722;</mo>
+              <mfrac><msub><mi>f</mi><mtext>CH₃OH</mtext></msub><mrow><msubsup><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msubsup><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>A</mi></mrow></msub></mrow></mfrac>
+              <mo>]</mo>
+            </mrow>
+            <mrow>
+              <mo>(</mo><mn>1</mn><mo>+</mo><msub><mi>K</mi><mtext>CO</mtext></msub><msub><mi>f</mi><mtext>CO</mtext></msub><mo>+</mo><msub><mi>K</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msub><mi>f</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><mo>)</mo>
+              <mo>(</mo><msqrt><msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt><mo>+</mo>
+              <mfrac><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msqrt><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt></mfrac>
+              <msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><mo>)</mo>
+            </mrow>
+          </mfrac>
+        </math>
+      </div>
+    </div>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_B &nbsp;(reverse WGS)</span><span class="unit">mol·kg⁻¹·s⁻¹</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mi>B</mi></msub><mo>=</mo>
+          <mfrac>
+            <mrow>
+              <msub><mi>k</mi><mi>B</mi></msub><msub><mi>K</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub>
+              <mo>[</mo><msub><mi>f</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub>
+              <mo>&#8722;</mo>
+              <mfrac><mrow><msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msub><mi>f</mi><mtext>CO</mtext></msub></mrow><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>B</mi></mrow></msub></mfrac>
+              <mo>]</mo>
+            </mrow>
+            <mrow>
+              <mo>(</mo><mn>1</mn><mo>+</mo><msub><mi>K</mi><mtext>CO</mtext></msub><msub><mi>f</mi><mtext>CO</mtext></msub><mo>+</mo><msub><mi>K</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msub><mi>f</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><mo>)</mo>
+              <mo>(</mo><msqrt><msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt><mo>+</mo>
+              <mfrac><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msqrt><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt></mfrac>
+              <msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><mo>)</mo>
+            </mrow>
+          </mfrac>
+        </math>
+      </div>
+    </div>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_C &nbsp;(CO₂ 水素化)</span><span class="unit">mol·kg⁻¹·s⁻¹</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mi>C</mi></msub><mo>=</mo>
+          <mfrac>
+            <mrow>
+              <msub><mi>k</mi><mi>C</mi></msub><msub><mi>K</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub>
+              <mo>[</mo><msub><mi>f</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msubsup><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow><mrow><mn>3</mn><mo>/</mo><mn>2</mn></mrow></msubsup>
+              <mo>&#8722;</mo>
+              <mfrac><mrow><msub><mi>f</mi><mtext>CH₃OH</mtext></msub><msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub></mrow><mrow><msubsup><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow><mrow><mn>3</mn><mo>/</mo><mn>2</mn></mrow></msubsup><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>C</mi></mrow></msub></mrow></mfrac>
+              <mo>]</mo>
+            </mrow>
+            <mrow>
+              <mo>(</mo><mn>1</mn><mo>+</mo><msub><mi>K</mi><mtext>CO</mtext></msub><msub><mi>f</mi><mtext>CO</mtext></msub><mo>+</mo><msub><mi>K</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msub><mi>f</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><mo>)</mo>
+              <mo>(</mo><msqrt><msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt><mo>+</mo>
+              <mfrac><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msqrt><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt></mfrac>
+              <msub><mi>f</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><mo>)</mo>
+            </mrow>
+          </mfrac>
+        </math>
+      </div>
+      <p class="msub-note">3 反応は分母の吸着項を共有する。K<sub>p,A</sub>·K<sub>p,B</sub> = K<sub>p,C</sub>（従属反応）。</p>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <caption>速度・吸着パラメータ（κ = A·exp(B/RT)）</caption>
+        <thead><tr><th>パラメータ</th><th>A</th><th>B [J·mol⁻¹]</th><th class="rolecol">役割</th></tr></thead>
+        <tbody>
+          <tr><td>k<sub>A</sub> (k₁)</td><td>2.69×10⁷</td><td>−109900</td><td class="rolecol">反応 A 速度</td></tr>
+          <tr><td>k<sub>B</sub> (k₂)</td><td>7.31×10⁸</td><td>−123400</td><td class="rolecol">反応 B (rWGS) 速度</td></tr>
+          <tr><td>k<sub>C</sub> (k₃)</td><td>4.36×10²</td><td>−65200</td><td class="rolecol">反応 C 速度</td></tr>
+          <tr><td>K<sub>CO</sub></td><td>7.99×10⁻⁷</td><td>58753</td><td class="rolecol">CO 吸着 [bar⁻¹]</td></tr>
+          <tr><td>K<sub>CO₂</sub></td><td>1.02×10⁻⁷</td><td>67132</td><td class="rolecol">CO₂ 吸着 [bar⁻¹]</td></tr>
+          <tr><td>K<sub>H₂O</sub>/√K<sub>H₂</sub></td><td>4.13×10⁻¹¹</td><td>104500</td><td class="rolecol">水/水素 吸着 [bar⁻⁰·⁵]</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="eqconst" aria-label="Graaf 平衡定数（Graaf 1986）">
+      <div class="row"><span class="rl">K_p,A</span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>A</mi></mrow></msub><mo>=</mo><mfrac><mn>5139</mn><mi>T</mi></mfrac><mo>&#8722;</mo><mn>12.621</mn></math>
+        <span class="rxn-lbl">CO + 2H₂ ⇌ CH₃OH</span>
+      </div>
+      <div class="row"><span class="rl">K_p,B</span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>B</mi></mrow></msub><mo>=</mo><mo>&#8722;</mo><mfrac><mn>2073</mn><mi>T</mi></mfrac><mo>+</mo><mn>2.029</mn></math>
+        <span class="rxn-lbl">CO₂ + H₂ ⇌ CO + H₂O</span>
+      </div>
+      <div class="row"><span class="rl">K_p,C</span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><msub><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>C</mi></mrow></msub><mo>=</mo><mfrac><mn>3066</mn><mi>T</mi></mfrac><mo>&#8722;</mo><mn>10.592</mn></math>
+        <span class="rxn-lbl">CO₂ + 3H₂ ⇌ CH₃OH + H₂O</span>
+      </div>
+    </div>
+    <div class="note">
+      <p class="h">検証メモ</p>
+      <p>前指数因子（7.99, 1.02, 4.13, 2.69, 4.36）は PDF から確認済み。原著はスキャン版のため <b>B（活性化・吸着エネルギー）は Graaf 1988 Table 6 で最終確認を推奨</b>。</p>
+      <p><b>出典（3 式とも一次出典で確認済み）:</b> <b>Graaf 1986 原著</b>（<code>graaf1986.pdf</code>, p.2884）で直接確認 — <b>log₁₀K<sub>p,A</sub> = 5139/T − 12.621</b>（eq11, pressures in bars）, <b>log₁₀K<sub>p,B</sub> = −2073/T + 2.029</b>（eq12）。<b>K<sub>p,C</sub> = 3066/T − 10.592 = K<sub>p,A</sub>·K<sub>p,B</sub></b>（graaf1988 式26）。</p>
+      <p>K<sub>p,B</sub>・K<sub>p,C</sub> は VBF 1996 (p.5) にも印字（"taken from Graaf et al. (1986)"）、KOGAS の K<sub>eq2</sub>・K<sub>eq1</sub> とも同値。</p>
+    </div>
+
+    <h3 class="subhead">平衡定数 — 2016 版（Graaf &amp; Winkelman・高精度オプション）</h3>
+    <p class="cite">Graaf &amp; Winkelman, <i>Ind. Eng. Chem. Res.</i> <b>55</b> 5854 (2016) · <code>graaf_2016_equilibria_IECR.pdf</code> · DOI 10.1021/acs.iecr.6b00815。
+      <b>反応は 1986 と同一</b>なので、コードで 1986（log₁₀ の簡易式）／2016（下記の多項式）を切替可能。両版とも 3 反応に対応。</p>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">一般形（Kp1° と Kp2° で共通・係数のみ差替え）</span><span class="unit">ln, 自然対数</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>ln</mi>
+          <msubsup><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mi>j</mi></mrow><mo>&#8728;</mo></msubsup>
+          <mrow><mo>(</mo><mi>T</mi><mo>)</mo></mrow><mo>=</mo>
+          <mfrac><mn>1</mn><mrow><mi>R</mi><mi>T</mi></mrow></mfrac>
+          <mrow><mo>[</mo>
+            <msub><mi>c</mi><mn>1</mn></msub>
+            <mo>+</mo><msub><mi>c</mi><mn>2</mn></msub><mi>T</mi>
+            <mo>+</mo><msub><mi>c</mi><mn>3</mn></msub><msup><mi>T</mi><mn>2</mn></msup>
+            <mo>+</mo><msub><mi>c</mi><mn>4</mn></msub><msup><mi>T</mi><mn>3</mn></msup>
+            <mo>+</mo><msub><mi>c</mi><mn>5</mn></msub><msup><mi>T</mi><mn>4</mn></msup>
+            <mo>+</mo><msub><mi>c</mi><mn>6</mn></msub><msup><mi>T</mi><mn>5</mn></msup>
+            <mo>+</mo><msub><mi>c</mi><mn>7</mn></msub><mi>T</mi><mi>ln</mi><mi>T</mi>
+          <mo>]</mo></mrow>
+        </math>
+      </div>
+      <p class="msub-note">3 反応目は積で得る（1986 の 式26 と同じ関係）:
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mn>3</mn></mrow><mo>&#8728;</mo></msubsup><mo>=</mo><msubsup><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mn>1</mn></mrow><mo>&#8728;</mo></msubsup><mo>&#183;</mo><msubsup><mi>K</mi><mrow><mi>p</mi><mo>,</mo><mn>2</mn></mrow><mo>&#8728;</mo></msubsup></math>
+      </p>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <caption>2016 版 係数 cₙ（R = 8.314 J·mol⁻¹·K⁻¹, T [K]）</caption>
+        <thead><tr>
+          <th>係数（項）</th>
+          <th>K<sub>p,1</sub>° = K<sub>p,A</sub><br>CO+2H₂⇌CH₃OH [bar⁻²]</th>
+          <th>K<sub>p,2</sub>° = K<sub>p,B</sub><br>CO₂+H₂⇌CO+H₂O [−]</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>c₁</td><td>7.44140×10⁴</td><td>−3.94121×10⁴</td></tr>
+          <tr><td>c₂ (T) <span class="fitmark">※実験fit</span></td><td>1.89260×10²</td><td>−5.41516×10¹</td></tr>
+          <tr><td>c₃ (T²)</td><td>3.2443×10⁻²</td><td>−5.5642×10⁻²</td></tr>
+          <tr><td>c₄ (T³)</td><td>7.0432×10⁻⁶</td><td>2.5760×10⁻⁵</td></tr>
+          <tr><td>c₅ (T⁴)</td><td>−5.6053×10⁻⁹</td><td>−7.6594×10⁻⁹</td></tr>
+          <tr><td>c₆ (T⁵)</td><td>1.0344×10⁻¹²</td><td>1.0161×10⁻¹²</td></tr>
+          <tr><td>c₇ (T·lnT)</td><td>−6.4364×10¹</td><td>1.8429×10¹</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note acc">
+      <p class="h">1986 ↔ 2016 の切替メモ</p>
+      <p><b>対応:</b> K<sub>p,1</sub>°↔K<sub>p,A</sub>、K<sub>p,2</sub>°↔K<sub>p,B</sub>、K<sub>p,3</sub>°=K<sub>p,1</sub>°·K<sub>p,2</sub>°↔K<sub>p,C</sub>。反応式が同じなので、平衡定数の計算部だけ差し替えれば良い。</p>
+      <p><b>注意:</b> 2016 は <b>ln（自然対数）＋ T の多項式</b>、1986 は <b>log₁₀ ＋ 1/T の簡易式</b>で<b>形が異なる</b>。cₙ のうち c₂ のみ実験フィット、他は Haynes ら熱化学データから算出。</p>
+      <p><b>有効範囲:</b> K<sub>p,1</sub>° は 472–623 K、K<sub>p,2</sub>° は 472–1273 K。<b>検算:</b> K<sub>p,1</sub>°(式8) は 200/250/300 ℃ で 1.77×10⁻² / 1.66×10⁻³ / 2.28×10⁻⁴ bar⁻²、K<sub>p,2</sub>° は 523 K で 1.14×10⁻²。</p>
+    </div>
+  </section>
+
+  <!-- ============ VBF & KOGAS ============ -->
+  <section id="vbf">
+    <div class="sec-head">
+      <h2>2 &nbsp;Vanden Bussche–Froment &amp; KOGAS</h2>
+      <span class="tag">unified · KOGAS 表記</span>
+    </div>
+    <p class="cite">VBF: <i>J. Catal.</i> <b>161</b> 1–10 (1996), DOI 10.1006/jcat.1996.0156 ·
+      KOGAS: Song ら <i>Ind. Eng. Chem. Res.</i> <b>47</b> 4553–4559 (2008, Correspondence), DOI 10.1021/ie071589e &amp; <i>Catalysts</i> <b>11</b> 1522 (2021), DOI 10.3390/catal11121522.
+      両者の MS・RWGS 速度式は<b>同一形式</b>（VBF eq[3]）。ここでは KOGAS 表記で統一し、<b>メタノール脱水</b>（Bercič–Levec 1992, DOI 10.1021/ie00004a010）を加えた。</p>
+
+    <ul class="rxns">
+      <li><span class="n">1</span><span class="eq">CO₂ + 3H₂ ⇌ CH₃OH + H₂O</span><span class="lbl">MS</span></li>
+      <li><span class="n">2</span><span class="eq">CO₂ + H₂ ⇌ CO + H₂O</span><span class="lbl">RWGS</span></li>
+      <li><span class="n">3</span><span class="eq">2 CH₃OH ⇌ CH₃OCH₃ + H₂O</span><span class="lbl">MD (脱水)</span></li>
+    </ul>
+
+    <div class="note acc">
+      <p class="h">KOGAS SI からの訂正（VBF と照合）</p>
+      <p><b>① H₂ 項（第3項）:</b> KOGAS 論文は <span class="strike">√(K₃·p<sub>H₂</sub>)</span> と印刷しているが、表の <span class="inl">K₃ = 0.37 (B=17197)</span> は VBF の <span class="inl">√K<sub>H₂</sub> = 0.499 (B=17197)</span> と同じ「√p<sub>H₂</sub> の係数」。よって正しくは <span class="inl">K₃·√p<sub>H₂</sub></span>（VBF の √K<sub>H₂</sub>·√p<sub>H₂</sub> に対応、B 一致・A 相違）。√(K₃·p<sub>H₂</sub>) のままだと係数の B が半分（≈8598）になり VBF と不整合。</p>
+      <p><b>② 単位（要換算・重要／旧注記を訂正）:</b> 実装の統一単位は <span class="inl">mol·kg<sub>cat</sub>⁻¹·s⁻¹</span>（圧力 bar）だが、<b>原著の native 速度単位は源で異なる</b>。VBF（原著 p6）は <span class="inl">mol·kg<sub>cat</sub>⁻¹·s⁻¹</span> で換算不要。一方 <b>KOGAS 値の出所 Ng 1999（原著 p6 nomenclature）は <span class="inl">mol·g<sub>cat</sub>⁻¹·h⁻¹</span></b>。KOGAS の A は Ng 独自フィット（B のみ VBF と共通・下表）なので <b>VBF 単位へラベルを付け替えるだけでは誤り</b> — k₁・k₅ 由来の速度に <span class="inl">×1000/3600（＝÷3.6）</span> の数値換算が必須。省くと 3.6 倍過大（入口で瞬時に平衡到達する非物理な立ち上がり）になる。</p>
+      <p><b>③ 濃度(式3):</b> 式3のみ<b>濃度基準</b>。SI 記載どおり C は <span class="inl">kmol·m⁻³</span> が正（K<sub>CH₃OH</sub>, K<sub>H₂O</sub> は m³·kmol⁻¹）。式1・2 の分圧 p [bar] と<b>基準が異なる</b>ので混同に注意。</p>
+      <p><b>④ A/B:</b> VBF と KOGAS の違いは <b>A のみ</b>（<b>B は一致</b>: 36696 / 17197 / 124119 / −94765）。ただし A は<b>単位基準も異なる</b>（VBF: mol·kg⁻¹·s⁻¹, KOGAS=Ng: mol·g⁻¹·h⁻¹）。同一単位に揃えると k₁ = 1.65×0.278 ≈ <b>0.46</b>（VBF 1.07 の約 0.43 倍）で、KOGAS は実際にはやや低活性。</p>
+    </div>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_MS &nbsp;(メタノール合成)</span><span class="unit">mol·kg⁻¹·s⁻¹, bar</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mtext>MS</mtext></msub><mo>=</mo>
+          <mfrac>
+            <mrow>
+              <msub><mi>k</mi><mn>1</mn></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub><msub><mi>p</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub>
+              <mo>[</mo><mn>1</mn><mo>&#8722;</mo>
+              <mfrac><mn>1</mn><msub><mi>K</mi><mrow><mtext>eq</mtext><mn>1</mn></mrow></msub></mfrac>
+              <mfrac><mrow><msub><mi>p</mi><mtext>CH₃OH</mtext></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub></mrow><mrow><msub><mi>p</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msubsup><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow><mn>3</mn></msubsup></mrow></mfrac>
+              <mo>]</mo>
+            </mrow>
+            <msup>
+              <mrow>
+                <mo>(</mo><mn>1</mn><mo>+</mo>
+                <msub><mi>K</mi><mn>2</mn></msub><mfrac><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></mfrac>
+                <mo>+</mo>
+                <msub><mi>K</mi><mn>3</mn></msub><msqrt><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt>
+                <mo>+</mo><msub><mi>K</mi><mn>4</mn></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><mo>)</mo>
+              </mrow>
+              <mn>3</mn>
+            </msup>
+          </mfrac>
+        </math>
+      </div>
+    </div>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_RWGS &nbsp;(逆水性ガスシフト)</span><span class="unit">mol·kg⁻¹·s⁻¹, bar</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mtext>RWGS</mtext></msub><mo>=</mo>
+          <mfrac>
+            <mrow>
+              <msub><mi>k</mi><mn>5</mn></msub><msub><mi>p</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub>
+              <mo>[</mo><mn>1</mn><mo>&#8722;</mo>
+              <msub><mi>K</mi><mrow><mtext>eq</mtext><mn>2</mn></mrow></msub>
+              <mfrac><mrow><msub><mi>p</mi><mtext>CO</mtext></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub></mrow><mrow><msub><mi>p</mi><mrow><mtext>CO</mtext><mn>2</mn></mrow></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></mrow></mfrac>
+              <mo>]</mo>
+            </mrow>
+            <mrow>
+              <mo>(</mo><mn>1</mn><mo>+</mo>
+              <msub><mi>K</mi><mn>2</mn></msub><mfrac><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></mfrac>
+              <mo>+</mo>
+              <msub><mi>K</mi><mn>3</mn></msub><msqrt><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn></mrow></msub></msqrt>
+              <mo>+</mo><msub><mi>K</mi><mn>4</mn></msub><msub><mi>p</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><mo>)</mo>
+            </mrow>
+          </mfrac>
+        </math>
+      </div>
+      <p class="msub-note">分母は r_MS と共通だが RWGS は <b>1 乗</b>（MS は 3 乗）。</p>
+    </div>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_MD &nbsp;(メタノール脱水 · Bercič–Levec)</span><span class="unit">mol·kg⁻¹·s⁻¹, kmol·m⁻³</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mtext>MD</mtext></msub><mo>=</mo>
+          <mfrac>
+            <mrow>
+              <msub><mi>k</mi><mn>6</mn></msub><msubsup><mi>K</mi><mtext>CH₃OH</mtext><mn>2</mn></msubsup>
+              <mrow><mo>[</mo><msubsup><mi>C</mi><mtext>CH₃OH</mtext><mn>2</mn></msubsup>
+              <mo>&#8722;</mo>
+              <mfrac><mrow><msub><mi>C</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msub><mi>C</mi><mtext>DME</mtext></msub></mrow><msub><mi>K</mi><mrow><mtext>eq</mtext><mn>3</mn></mrow></msub></mfrac>
+              <mo>]</mo></mrow>
+            </mrow>
+            <msup>
+              <mrow>
+                <mo>(</mo><mn>1</mn><mo>+</mo><mn>2</mn>
+                <msqrt><mrow><msub><mi>K</mi><mtext>CH₃OH</mtext></msub><msub><mi>C</mi><mtext>CH₃OH</mtext></msub></mrow></msqrt>
+                <mo>+</mo><msub><mi>K</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><msub><mi>C</mi><mrow><mtext>H</mtext><mn>2</mn><mtext>O</mtext></mrow></msub><mo>)</mo>
+              </mrow>
+              <mn>4</mn>
+            </msup>
+          </mfrac>
+        </math>
+      </div>
+      <p class="msub-note">この式のみ濃度 C [kmol·m⁻³] 基準（他は分圧 p [bar]）。速度の native 単位は KOGAS(=Ng) が mol·g⁻¹·h⁻¹、Bercič–Levec 1993（原著 p6）が kmol·kg⁻¹·h⁻¹ で、<b>どちらも ×1000/3600 で mol·kg⁻¹·s⁻¹ に換算</b>（§2②）。</p>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <caption>速度・吸着パラメータ（κ = A·exp(B/RT)） — KOGAS と VBF の対比</caption>
+        <thead><tr>
+          <th>パラメータ</th><th>KOGAS A</th><th>KOGAS B</th><th>VBF A</th><th>VBF B</th><th class="rolecol">役割 / VBF 記号</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>k₁</td><td class="diff">1.65</td><td class="match">36696</td><td class="diff">1.07</td><td class="match">36696</td><td class="rolecol">MS 速度係数</td></tr>
+          <tr><td>K₂</td><td class="diff">3610</td><td>0</td><td class="diff">3453.38</td><td>—</td><td class="rolecol">K<sub>H₂O</sub>/(K₈K₉K<sub>H₂</sub>)・T 依存なし</td></tr>
+          <tr><td>K₃</td><td class="diff">0.37</td><td class="match">17197</td><td class="diff">0.499</td><td class="match">17197</td><td class="rolecol">√p<sub>H₂</sub> の係数（VBF: √K<sub>H₂</sub>）</td></tr>
+          <tr><td>K₄</td><td class="diff">7.14×10⁻¹¹</td><td class="match">124119</td><td class="diff">6.62×10⁻¹¹</td><td class="match">124119</td><td class="rolecol">K<sub>H₂O</sub> [bar⁻¹]</td></tr>
+          <tr><td>k₅</td><td class="diff">1.09×10¹⁰</td><td class="match">−94765</td><td class="diff">1.22×10¹⁰</td><td class="match">−94765</td><td class="rolecol">RWGS 速度（VBF k′₁）</td></tr>
+          <tr><td>k₆</td><td>3.7×10¹⁰</td><td>−105000</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol">MD 速度（Bercič–Levec）</td></tr>
+          <tr><td>K<sub>CH₃OH</sub></td><td>7.9×10⁻⁴</td><td>70500</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol">MeOH 吸着 [m³·kmol⁻¹]</td></tr>
+          <tr><td>K<sub>H₂O</sub></td><td>0.084</td><td>41100</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol" style="text-align:center">—</td><td class="rolecol">H₂O 吸着 [m³·kmol⁻¹]</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="msub-note" style="padding-left:2px;"><span style="color:#3b82f6;font-family:var(--mono)">青 = 一致</span> ／ <span style="color:var(--amber);font-family:var(--mono)">橙 = 相違</span>。k₆・K<sub>CH₃OH</sub>・K<sub>H₂O</sub> は KOGAS 掲載のメタノール脱水パラメータ（VBF には無い）。<b>Bercič–Levec 原著との照合は下記コールアウト参照。</b> <b>KOGAS A と VBF A は単位基準が異なる</b>（KOGAS=Ng: mol·g⁻¹·h⁻¹, VBF: mol·kg⁻¹·s⁻¹）ため、値の直接比較は ×1000/3600 換算後に行うこと（§2②）。</p>
+
+    <div class="note">
+      <p class="h">Bercič–Levec 原著との照合</p>
+      <p>入手した <b>Bercič–Levec 1993 (Table III, intrinsic eq 1, 濃度基準)</b> の原著値〔T[K], exp(B′/T) 形〕:
+        k<sub>s</sub>=5.35×10¹³·exp(−17280/T), K<sub>M</sub>=5.39×10⁻⁴·exp(8487/T), K<sub>w</sub>=8.47×10⁻²·exp(5070/T)。</p>
+      <p>KOGAS 値を exp(B/RT)→exp(B′/T) に換算: k₆∝exp(−12629/T), K<sub>CH₃OH</sub>=7.9×10⁻⁴·exp(8480/T), K<sub>H₂O</sub>=0.084·exp(4943/T)。
+        <b>→ 完全一致ではない</b>。K<sub>w</sub> の前指数(≈0.084)と K<sub>M</sub> の指数(≈8480)は一致するが、<b>k<sub>s</sub> は前指数・活性化エネルギーとも大きく相違</b>（有効係数 k<sub>s</sub>K<sub>M</sub>² で 550 K で ~7× の差）。</p>
+      <p><b>版の違いに注意:</b> KOGAS が引用するのは <b>1992 年版</b>（ref 16）。<b>1992・1993 年版とも入手済み</b>（1992: IECR 31, 1035 / 1993: IECR 32, 2478）。差異は版差または KOGAS 側の改変の可能性。<b>濃度基準が kmol·m⁻³ である点は 1993 原著の記号表で確定</b>（Cᵢ: kmol/m³, K̄ᵢ: m³/kmol, k<sub>s</sub>: kmol/(kg·h)）。速度計算では出典（KOGAS or 原著）を明示して使い分けを推奨。</p>
+    </div>
+
+    <div class="note">
+      <p class="h">モデル間の差異と値の出典（実装の指針）</p>
+      <p><b>2 つの KOGAS 論文（2008・2021）は完全一致:</b> 全 16 パラメータ・速度式・平衡定数がすべて同一（同一筆頭著者 Song）。よって食い違いは片方の誤植ではなく KOGAS 一貫の値。</p>
+      <p><b>MS / RWGS（合成・逆WGS）:</b> B は VBF と完全一致・A のみ相違。ただし A は単位基準が違う（KOGAS=Ng: mol·g⁻¹·h⁻¹, VBF: mol·kg⁻¹·s⁻¹）ので、<b>同一単位に換算（×1000/3600）してから比較</b>すること。換算後は 250℃ で <b>実効速度 KOGAS/VBF ≈ 1.0（r_MS で 1.04）</b>とほぼ同等（同 E<sub>a</sub>・同形なので当然）。</p>
+      <p><b>MD（メタノール脱水）:</b> 吸着定数は近いが k₆ の活性化エネルギーが違う（<b>105 vs 143.7 kJ/mol</b>）→ 実効速度で <b>KOGAS/BL ≈ 6〜16 倍</b>（低温ほど大）。<b>無視できない大差</b>。BL 1992≈1993（数%〜20%以内）。</p>
+      <p><b>値の出典（確定）:</b> <b>KOGAS の全 8 パラメータ・平衡定数の出典は Ng, Chadwick &amp; Toseland (1999) Table 1 と完全一致</b>（<code>ng1999.pdf</code> で照合済）。Ng は B(1–5) を VBF 1996、B(6・MeOH/H₂O) を Bercič–Levec 1992 から採り、<b>A を自分の実験データ（250℃, 5 MPa, 内部循環反応器）にフィット</b>、さらに<b>脱水の活性化エネルギーを 105 kJ/mol に変更</b>。平衡定数も Ng と同じ Twigg(1986)/Stull(1969) 由来。→ <b>KOGAS は Ng の統合 DME モデルをそのまま採用</b>（VBF/BL を直接使ったのではない）。</p>
+      <p><b>結論・実装方針:</b> KOGAS 値は<b>誤りではなく Ng et al. 1999 の実験フィット値</b>（VBF+BL を自データに適合させた統合モデル）。VBF/BL <b>原著</b>の再現が目的なら KOGAS(=Ng) 値は使わない。<b>特に MD は「KOGAS/Ng」と「BL 原著」で 6〜16 倍違う</b>ので切替可能を推奨。MS/RWGS は VBF・KOGAS どちらでも大差なし。</p>
+    </div>
+
+    <div class="eqconst" aria-label="平衡定数">
+      <div class="row"><span class="rl">K_eq1</span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><msub><mi>K</mi><mrow><mtext>eq</mtext><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mn>3066</mn><mi>T</mi></mfrac><mo>&#8722;</mo><mn>10.592</mn></math>
+      </div>
+      <div class="row"><span class="rl">K_eq2</span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><mfrac><mn>1</mn><msub><mi>K</mi><mrow><mtext>eq</mtext><mn>2</mn></mrow></msub></mfrac><mo>=</mo><mo>&#8722;</mo><mfrac><mn>2073</mn><mi>T</mi></mfrac><mo>+</mo><mn>2.029</mn></math>
+      </div>
+      <div class="row"><span class="rl">K_eq3</span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><msub><mi>K</mi><mrow><mtext>eq</mtext><mn>3</mn></mrow></msub><mo>=</mo><mfrac><mn>10194</mn><mi>T</mi></mfrac><mo>&#8722;</mo><mn>13.91</mn></math>
+      </div>
+    </div>
+    <div class="note">
+      <p class="h">注意 · K_eq3</p>
+      <p>K<sub>eq1</sub>・K<sub>eq2</sub> の値は §1 Graaf 1986 と同一（VBF も "taken from Graaf et al. 1986" と明記, p5）。ただし <b>KOGAS 2008 自身は eq 3a/3b の出所として Twigg(1986) Catalyst Handbook / Stull を引用</b>（参考文献17/18）。<b>K<sub>eq3</sub> は両 KOGAS 論文（2008 本文・2021 SI）とも <span class="inl">10194/T − 13.91</span> と記載</b>だが、523 K で 10<sup>5.6</sup> と過大に見える（平衡的には ~10¹ 程度が妥当）。<b>原著記載のまま掲載</b>。計算前に別ソース（Bercič–Levec / Diep–Wainwright）と要照合。</p>
+    </div>
+  </section>
+
+  <!-- ============ DTU ============ -->
+  <section id="dtu">
+    <div class="sec-head">
+      <h2>3 &nbsp;モルデナイト カルボニル化（DME + CO → 酢酸メチル）</h2>
+      <span class="tag">H-MOR · CO 一次 / DME 零次</span>
+    </div>
+    <p class="cite">発見: Cheung ら <i>Angew. Chem.</i> <b>2006</b> · 速度則: Cheung ら <i>J. Catal.</i> <b>245</b> 110 (2007) / Bhan ら <i>JACS</i> <b>129</b> 4919 (2007) ·
+      完全レート式+DFT: <b>DTU</b>（Rasmussen ら）<i>Catal. Sci. Technol.</i> <b>7</b> 1141 (2017), DOI 10.1039/c6cy01904h ·
+      mol基準+失活: <b>Cheng ら</b>（天津大）<i>Ind. Eng. Chem. Res.</i> <b>56</b> 13618 (2017), DOI 10.1021/acs.iecr.7b03500 · 総説: Chen/Zheng <i>Acc. Chem. Res.</i> <b>2024</b>。</p>
+
+    <ul class="rxns">
+      <li><span class="n">MA</span><span class="eq">CH₃OCH₃ + CO → CH₃COOCH₃</span><span class="lbl">carbonylation</span></li>
+    </ul>
+
+    <div class="note acc">
+      <p class="h">確立した速度則（Cheung 2006/2007・Bhan 2007, Iglesia グループ）</p>
+      <p><b>CO に一次・DME に零次。</b>律速 = <b>8-MR サイドポケット内 Brønsted 酸点上の表面 CH₃（メトキシ）への CO 挿入</b>。速度 <b>∝ 8-MR の OH 数</b>（12-MR のみ／8-MR を持たない骨格は低活性）、MA 選択率 &gt;99%。下記 DTU・Cheng はこの速度則を共有する。</p>
+    </div>
+
+    <h3 class="subhead">DTU 2017 — 完全レート式（bar 基準・MA 阻害）</h3>
+    <p class="cite"><code>dtu_mordenite…2017.pdf</code> · 速度 <b>mol·(mol Al)⁻¹·s⁻¹</b>（Al = Brønsted 酸点）、<b>圧力 bar</b>（k₁ = 2.28×10⁻⁵ mol·(mol Al)⁻¹·s⁻¹·bar⁻¹, <b>p8</b>, Table 4）。反応器では ×酸点密度 [mol Al·kg⁻¹] で mol·kg⁻¹·s⁻¹ に変換（換算係数は不要）。<b>⚠️ DTU 原著は 438 K の単一温度のみ</b>で、温度依存（Arrhenius・活性化エネルギー）は与えていない。他温度での使用は 438 K 実験値の外挿になる。</p>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_MA &nbsp;— eqn (11) 完全形（MA 生成物阻害あり）</span><span class="unit">mol·(mol Al)⁻¹·s⁻¹</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mtext>MA</mtext></msub><mo>=</mo>
+          <mfrac>
+            <mrow><msub><mi>k</mi><mn>1</mn></msub><msub><mi>p</mi><mtext>CO</mtext></msub></mrow>
+            <mrow>
+              <mn>1</mn><mo>+</mo><msub><mi>K</mi><mn>2</mn></msub><msub><mi>p</mi><mtext>MA</mtext></msub>
+              <mo>+</mo><msub><mi>K</mi><mn>3</mn></msub>
+              <mfrac><msub><mi>p</mi><mtext>MA</mtext></msub><msub><mi>p</mi><mtext>DME</mtext></msub></mfrac>
+            </mrow>
+          </mfrac>
+        </math>
+      </div>
+      <p class="msub-note">第2項（K₂ p<sub>MA</sub>）と第3項（K₃ p<sub>MA</sub>/p<sub>DME</sub>）が酢酸メチルによる阻害。微分条件（p<sub>MA</sub>→0）で <b>r<sub>MA</sub> ≈ k₁·p<sub>CO</sub></b>（eqn13）。</p>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <caption>DTU 速度パラメータ（Table 4, 438 K）</caption>
+        <thead><tr><th>パラメータ</th><th>値</th><th class="rolecol">意味</th></tr></thead>
+        <tbody>
+          <tr><td>k₁</td><td>2.28×10⁻⁵ mol·(mol Al)⁻¹·s⁻¹·bar⁻¹</td><td class="rolecol">CO カルボニル化 速度定数</td></tr>
+          <tr><td>K₂</td><td>4.65 bar⁻¹</td><td class="rolecol">MA 阻害（式6 平衡定数）</td></tr>
+          <tr><td>K₃</td><td>1.76 （無次元）</td><td class="rolecol">MA/DME 阻害</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="subhead">Cheng 2017 — mol 基準レート＋失活モデル</h3>
+    <p class="cite"><code>cheng2017.pdf</code>（＋SI）· モル分率 y・接触時間 W/F<sub>DME</sub>・CO フガシティ f<sub>CO</sub> 基準。DTU（圧力基準）と対をなす。</p>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">r_MA &nbsp;— 反応速度 eqn (3)（プラグフロー設計式）</span><span class="unit">CO 一次 / DME 零次</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>r</mi><mtext>MA</mtext></msub><mo>=</mo>
+          <mfrac><mrow><mi>d</mi><msub><mi>y</mi><mtext>MA</mtext></msub></mrow><mrow><mi>d</mi><mo>(</mo><mi>W</mi><mo>/</mo><msub><mi>F</mi><mtext>DME</mtext></msub><mo>)</mo></mrow></mfrac>
+          <mo>=</mo><mi>k</mi><mo>&#8202;</mo><msub><mi>f</mi><mtext>CO</mtext></msub>
+        </math>
+      </div>
+      <p class="msub-note">y<sub>MA</sub>=MA モル分率、W/F<sub>DME</sub>=接触時間、f<sub>CO</sub>=CO フガシティ。DTU の r≈k₁p<sub>CO</sub> と同じ CO 一次則。</p>
+    </div>
+
+    <div class="eqcard">
+      <div class="cap"><span class="name">失活モデル eqn (8)（コーク生成）</span><span class="unit">a = r_MA / (r_MA)₀</span></div>
+      <div class="eqbody">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mo>&#8722;</mo><mfrac><mrow><mi>d</mi><mi>a</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac>
+          <mo>=</mo><munder><mo>&#8721;</mo><mi>i</mi></munder>
+          <msub><mi>k</mi><mrow><mi>d</mi><mi>i</mi></mrow></msub><msub><mi>y</mi><mi>i</mi></msub><msup><mi>a</mi><mi>d</mi></msup>
+        </math>
+      </div>
+      <p class="msub-note">a=相対活性、yᵢ=各成分(DME/CO/MA)のモル分率、k<sub>di</sub>=各成分のコーク失活定数、d=失活次数。DME・CO がコーク前駆体、CO がコーク生成を加速。パラメータは Cheng Table 1。</p>
+    </div>
+
+    <div class="note">
+      <p class="h">各論文の違い — 本質的には同じか？</p>
+      <p><b>結論: 前進反応の intrinsic 速度則は全論文で同一</b>（CO 一次・DME 零次、律速=8-MR での CO 挿入）。違いは「<b>何を足すか</b>」と「<b>基準/単位</b>」だけ。</p>
+      <div class="tbl-scroll" style="margin:12px 0;">
+        <table>
+          <thead><tr><th>論文</th><th>加える要素</th><th class="rolecol">基準・単位</th></tr></thead>
+          <tbody>
+            <tr><td>Cheung 2006/07・Bhan 2007</td><td>速度則の確立・8-MR サイト特異性（TOF/酸点）</td><td class="rolecol">酸点あたり, P<sub>CO</sub></td></tr>
+            <tr><td>DTU 2017</td><td><b>生成物(MA)阻害</b>＋高転化率まで有効な完全式＋DFT 機構</td><td class="rolecol">mol/(mol Al)/s, bar</td></tr>
+            <tr><td>Cheng 2017</td><td><b>失活(コーク)モデル</b></td><td class="rolecol">モル分率・f<sub>CO</sub>・W/F</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>使い分け:</b> 新触媒・微分条件・短時間なら 3 者は実質同一（<b>r ∝ p<sub>CO</sub></b>）。<b>高転化率では DTU の MA 阻害項</b>、<b>長時間運転では Cheng の失活項</b>が必要。総説（Accounts 2024）が機構・速度・失活・拡散を統括。</p>
+    </div>
+  </section>
+
+  <footer>
+    <h3>出典ファイル</h3>
+    <ul>
+      <li><span class="f">graaf1988.pdf</span><span class="d">Graaf 1988 · <a class="doi" href="https://doi.org/10.1016/0009-2509(88)85127-3">10.1016/0009-2509(88)85127-3</a></span></li>
+      <li><span class="f">graaf_2016_equilibria_IECR.pdf</span><span class="d">Graaf &amp; Winkelman 2016（平衡）· <a class="doi" href="https://doi.org/10.1021/acs.iecr.6b00815">10.1021/acs.iecr.6b00815</a></span></li>
+      <li><span class="f">vandenBussche_Froment_1996_JCatal.pdf</span><span class="d">VBF 1996 · <a class="doi" href="https://doi.org/10.1006/jcat.1996.0156">10.1006/jcat.1996.0156</a></span></li>
+      <li><span class="f">numerical-analysis-…-(dme)-synthesis.pdf</span><span class="d">KOGAS 2008（Song ら, IECR 47, 4553–4559, Correspondence）· <a class="doi" href="https://doi.org/10.1021/ie071589e">10.1021/ie071589e</a></span></li>
+      <li><span class="f">catalysts-11-01522.pdf (+ SI)</span><span class="d">KOGAS 2021 · <a class="doi" href="https://doi.org/10.3390/catal11121522">10.3390/catal11121522</a></span></li>
+      <li><span class="f">dtu_mordenite_carbonylation_mechanism_CatSciTech2017.pdf</span><span class="d">DTU 2017 · <a class="doi" href="https://doi.org/10.1039/c6cy01904h">10.1039/c6cy01904h</a></span></li>
+      <li><span class="f">Catalytic_dehydration…1993….pdf</span><span class="d">Bercič &amp; Levec 1993「メタノール脱水 速度式・原著（Table III）」<i>Ind. Eng. Chem. Res.</i> 32, 2478 · <a class="doi" href="https://doi.org/10.1021/ie00023a006">10.1021/ie00023a006</a></span></li>
+      <li><span class="f">Intrinsic_and_global_reaction_rate…_1992….pdf</span><span class="d">Bercič &amp; Levec 1992「同・KOGAS が引用した版」<i>Ind. Eng. Chem. Res.</i> 31, 1035 · <a class="doi" href="https://doi.org/10.1021/ie00004a010">10.1021/ie00004a010</a></span></li>
+      <li><span class="f">graaf1986.pdf</span><span class="d">Graaf ら 1986「メタノール合成の化学平衡（K<sub>p</sub> の一次出典）」<i>Chem. Eng. Sci.</i> 41, 2883 · <a class="doi" href="https://doi.org/10.1016/0009-2509(86)80019-7">10.1016/0009-2509(86)80019-7</a></span></li>
+    </ul>
+  </footer>
+</div>

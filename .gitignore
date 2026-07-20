@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# 生成物（examples から再生成可能）
+figures/
+
+# 参照 PDF / zip（著作権物・大容量。ローカル保管のみ、コミットしない）
+references/*.pdf
+references/*.zip
+
+# OS / editor
+.DS_Store
+*.swp
