@@ -1,8 +1,11 @@
 """触媒配分の最適化: 段1(ハイブリッド)長さ L1 × 段2(カルボニル化)長さ L2 の 2 次元スイープ。
 
 fig_tandem_stages.py の段階タンデム（段1 MeOH/DMEハイブリッド@250℃ → 水/メタノール除去・
-乾燥・新鮮CO添加 → 段2 乾燥DMEカルボニル化@180℃, DTU-Cheung2007-2）で、
+乾燥・新鮮CO添加 → 段2 乾燥DMEカルボニル化@250℃, DTU-Cheung2007-2）で、
 段1・段2 の触媒量を独立に振り、総合 MA 収率の等高線を描く。
+⚠️ 両段を同一 250℃ とした等温評価。250℃ はカルボニル化の検証域(150–190℃)外の
+   外挿（Ea=69.6 で 438K の ~22 倍）なので、段2 は速く MA は過大評価側。
+   180℃版(検証域内)は fig_tandem_stages.py と同系だが、本図は等温比較用。
 
 読み取り:
   ・MA 収率は L1・L2 どちらを増やしても上昇（DME 生成量↑ / DME→MA 転化↑）だが逓減。
@@ -29,7 +32,7 @@ from reaction_rate.reactors import pfr, CatalystBed
 from reaction_rate import plots
 
 FTOT = 0.10
-T1, T2 = 523.15, 453.15                   # 段1 250℃, 段2 180℃
+T1, T2 = 523.15, 523.15                   # 両段 250℃（等温）。段2は検証域外の外挿
 P = 50.0
 RHO = 1200.0
 GEOM = Geometry(area=np.pi / 4 * 0.04**2, bulk_density=RHO, void_fraction=0.40)
@@ -83,7 +86,7 @@ def main():
     cb.set_label("Overall MA yield [%]", color=plots._INK, fontsize=9)
     ax1.set_xlabel("Stage-2 carbonylation length  L2 [m]", color=plots._INK)
     ax1.set_ylabel("Stage-1 hybrid length  L1 [m]", color=plots._INK)
-    ax1.set_title(f"Catalyst allocation map (hybrid 250°C → dry → carbonylation 180°C, {CARB})",
+    ax1.set_title(f"Catalyst allocation map (isothermal 250°C: hybrid → dry → carbonylation, {CARB})",
                   fontsize=9)
 
     # 等総長の対角線と、その上の最適点（★）。ラベルは対角線中央に白背景で置く
