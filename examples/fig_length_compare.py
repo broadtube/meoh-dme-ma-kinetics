@@ -2,8 +2,8 @@
 
 同一 feed・同一温度で、触媒構成だけを変える 3 ケース:
   - MeOH only     : synthesis のみ（10 kg）。CH3OH まで。
-  - DME hybrid    : synthesis:dehydration = 8:2（計 10 kg）。CH3OH→DME。
-  - DME+MA tandem : synthesis:dehydration:carbonylation = 7:2:1（計 10 kg）。CH3OH→DME→MA。
+  - DME hybrid    : synthesis:dehydration = 5:5（計 10 kg）。CH3OH→DME。
+  - DME+MA tandem : synthesis:dehydration:carbonylation = 0.32:0.28:0.40（計 10 kg）。CH3OH→DME→MA。
 
 読み取れること:
   上段 CO 転化率     : 脱水で ~50%→~94%、カルボニル化追加で CO をさらに消費（DME+CO→MA）。
@@ -57,11 +57,11 @@ def co_rate_profile(result, bed, models, k_eq3):
 
 
 def main():
-    # 3 ケース（合成のみ / 合成+脱水 8:2 / 合成+脱水+カルボニル化 7:2:1）。色=ケースで固定。
+    # 3 ケース（合成のみ / 合成+脱水 5:5 / 合成+脱水+カルボニル化 0.32:0.28:0.40）。色=ケースで固定。
     bed_syn = CatalystBed({"synthesis": W})
-    bed_dme = CatalystBed({"synthesis": 0.8 * W, "dehydration": 0.2 * W})
-    bed_tan = CatalystBed({"synthesis": 0.7 * W, "dehydration": 0.2 * W,
-                           "carbonylation": 0.1 * W})
+    bed_dme = CatalystBed({"synthesis": 0.5 * W, "dehydration": 0.5 * W})
+    bed_tan = CatalystBed({"synthesis": 0.32 * W, "dehydration": 0.28 * W,
+                           "carbonylation": 0.40 * W})
     mdl_syn = {"synthesis": "KOGAS"}
     mdl_dme = {"synthesis": "KOGAS", "dehydration": "KOGAS"}
     mdl_tan = {"synthesis": "KOGAS", "dehydration": "KOGAS", "carbonylation": "DTU"}

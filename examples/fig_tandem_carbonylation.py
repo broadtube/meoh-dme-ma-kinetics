@@ -3,8 +3,8 @@
 fig_length_compare.py と同形式（3ケース・3段）だが、カルボニル化に温度依存モデル
 DTU-Cheung2007-2 を使う点が違う（438K固定の 'DTU' より 250℃ で桁違いに速い）。
   MeOH only     : synthesis のみ（10 kg）
-  DME hybrid    : synthesis:dehydration = 8:2（計 10 kg）
-  DME+MA tandem : synthesis:dehydration:carbonylation = 7:2:1、carbonylation=DTU-Cheung2007-2
+  DME hybrid    : synthesis:dehydration = 5:5（計 10 kg）
+  DME+MA tandem : synthesis:dehydration:carbonylation = 0.32:0.28:0.40、carbonylation=DTU-Cheung2007-2
 
 DTU-Cheung2007-2 とは（rate_equations.html §3）:
   DTU の MA阻害式で、k1 を温度依存(Cheung Ea=69.6)・K2 も van't Hoff(DTU DFT ΔH2)で温度依存化。
@@ -53,8 +53,8 @@ def co_rate_profile(result, bed, models, k_eq3):
 
 def main():
     bed_syn = CatalystBed({"synthesis": W})
-    bed_dme = CatalystBed({"synthesis": 0.8 * W, "dehydration": 0.2 * W})
-    bed_tan = CatalystBed({"synthesis": 0.7 * W, "dehydration": 0.2 * W, "carbonylation": 0.1 * W})
+    bed_dme = CatalystBed({"synthesis": 0.5 * W, "dehydration": 0.5 * W})
+    bed_tan = CatalystBed({"synthesis": 0.32 * W, "dehydration": 0.28 * W, "carbonylation": 0.40 * W})
     mdl_syn = {"synthesis": "KOGAS"}
     mdl_dme = {"synthesis": "KOGAS", "dehydration": "KOGAS"}
     mdl_tan = {"synthesis": "KOGAS", "dehydration": "KOGAS", "carbonylation": CARB}

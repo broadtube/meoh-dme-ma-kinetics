@@ -662,7 +662,7 @@
         <b>Cheung2007</b> = 1次・MA阻害なしの温度依存形（<b>8.2e-5 の実値・per kg</b>, 438K で DTU と ~25% 整合）。
         <b>Cheng2017</b> = 同形で Ea のみ Cheng（★混成: Cheng 独自の絶対値は変換不能のため大きさは Cheung に anchor）。
         <b>DTU-Cheung/Cheng 系</b> = DTU の MA 阻害を保ちつつ k₁(-1)/+K₂(-2)/+K₃(-3) を温度依存化。<b>Cheung 系が第一推奨</b>（基礎速度論・438K検証）、Cheng 系は Ea を高めに取る感度用。</p>
-      <p class="msub-note"><b>注意:</b> ① 新しい Cheng 2017 が「より正確」とは限らない（Cheung 2007 が基礎速度論の定番、Cheng は失活が主眼）。両 Ea は ~15% 差で整合。② per-kg 形（Cheung2007/Cheng2017）は反応器で ×酸点密度 をしない（DTU 系の per mol Al と基準が違う）。③ ΔH₂/ΔH₃ は DFT 概算（±10–20 kJ/mol, DTU eqn 5–10 の精読要）。<b>K₃ は ΔH₃ が小さくほぼ温度非依存</b>（-3 の実益は限定的）。④ 2015 論文 p6 の「Cheng et al.」は綴りミスで実体は <b>Cheung 2007</b>（p11=Cheung⁵, 2015 は Cheng 2017 より前）。⑤ standalone（Cheung2007/Cheng2017）は 2015 論文の <b>DME 正則化因子</b> K<sub>DME</sub>p<sub>DME</sub>/(1+K<sub>DME</sub>p<sub>DME</sub>)（K<sub>DME</sub>=1 Pa⁻¹）込み: DME 零次だが枯渇で速度→0（反応器で >100% 転化を防ぐ）。DTU 系は K₃p<sub>MA</sub>/p<sub>DME</sub> 項で自己正則化。</p>
+      <p class="msub-note"><b>注意:</b> ① 新しい Cheng 2017 が「より正確」とは限らない（Cheung 2007 が基礎速度論の定番、Cheng は失活が主眼）。両 Ea は ~15% 差で整合。② per-kg 形（Cheung2007/Cheng2017）は反応器で ×酸点密度 をしない（DTU 系の per mol Al と基準が違う）。③ ΔH₂/ΔH₃ は DFT 概算（±10–20 kJ/mol, DTU eqn 5–10 の精読要）。<b>K₃ は ΔH₃ が小さくほぼ温度非依存</b>（-3 の実益は限定的）。④ 2015 論文 p6 の「Cheng et al.」は綴りミスで実体は <b>Cheung 2007</b>（p11=Cheung⁵, 2015 は Cheng 2017 より前）。⑤ <b>全モデルに</b> 2015 論文の <b>DME 正則化因子</b> K<sub>DME</sub>p<sub>DME</sub>/(1+K<sub>DME</sub>p<sub>DME</sub>)（K<sub>DME</sub>=1 Pa⁻¹）を適用: DME 零次形が反応器で DME 枯渇時に速度→0（負の DME・>100% 転化を防ぐ）。DTU 式の K₃p<sub>MA</sub>/p<sub>DME</sub> は pMA が高いときしか効かないため、この因子で補う（pDME≳1e-4 bar で因子≈1＝微分検証域は不変）。</p>
     </div>
 
     <div class="note">

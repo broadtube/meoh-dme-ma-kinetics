@@ -10,14 +10,15 @@ def test_dtu_params():
 
 
 def test_dtu_differential_first_order_in_CO():
-    # 微分条件(pMA=0)で r_MA = k1·pCO（CO一次・DME零次）
+    # 微分条件(pMA=0, DME存在)で r_MA ≈ k1·pCO（DME正則化因子は pDME≳1e-4bar で ~1）
     s = GasState(438.0, 15.0, {"CO": 0.98, "DME": 0.02, "MA": 0.0})
     r = carbonylation.rate(s, model="DTU")
-    p_CO = s.partial_pressures()["CO"]
-    assert math.isclose(r, carbonylation.DTU_PARAMS["k1"] * p_CO, rel_tol=1e-9)
-    # DME 零次: DME 分圧を変えても微分レートは不変
+    p = s.partial_pressures()
+    expect = carbonylation.DTU_PARAMS["k1"] * p["CO"] * carbonylation._dme_reg(p["DME"])
+    assert math.isclose(r, expect, rel_tol=1e-9)
+    # DME 実質零次: DME 分圧を変えても微分レートはほぼ不変（正則化による差は ~1e-4 以内）
     s2 = GasState(438.0, 15.0, {"CO": 0.98, "DME": 0.5, "MA": 0.0})
-    assert math.isclose(r, carbonylation.rate(s2, "DTU"), rel_tol=1e-9)
+    assert math.isclose(r, carbonylation.rate(s2, "DTU"), rel_tol=1e-3)
 
 
 def test_dtu_MA_inhibition():

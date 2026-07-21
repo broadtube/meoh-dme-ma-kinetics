@@ -91,7 +91,10 @@ def rate_dtu(state, model: str = "DTU") -> float:
     inhibition = 1.0 + K2 * p_MA
     if p_DME > 0.0:                       # 微分条件(pMA→0)では第3項は 0
         inhibition += K3 * p_MA / p_DME
-    return k1 * p_CO / inhibition
+    # DME 正則化: DTU 式は DME 零次で、pMA が低いと K3 項が効かず反応器で DME を過剰消費し得る
+    # （負の DME）。2015 の因子 K_DME·pDME/(1+K_DME·pDME) を掛け、DME 枯渇で速度→0 にする。
+    # pDME≳1e-4 bar で因子≈1 なので微分域(DTU の検証域)の速度は変えない。
+    return k1 * p_CO / inhibition * _dme_reg(p_DME)
 
 
 def rate_cheung2007(state) -> float:

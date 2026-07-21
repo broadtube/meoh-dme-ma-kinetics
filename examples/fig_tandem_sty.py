@@ -49,8 +49,8 @@ def sty_profile(result, species):
 
 def main():
     bed_syn = CatalystBed({"synthesis": W})
-    bed_dme = CatalystBed({"synthesis": 0.8 * W, "dehydration": 0.2 * W})
-    bed_tan = CatalystBed({"synthesis": 0.7 * W, "dehydration": 0.2 * W, "carbonylation": 0.1 * W})
+    bed_dme = CatalystBed({"synthesis": 0.5 * W, "dehydration": 0.5 * W})
+    bed_tan = CatalystBed({"synthesis": 0.32 * W, "dehydration": 0.28 * W, "carbonylation": 0.40 * W})
     res_syn = pfr(feed(), T, P, bed_syn, models={"synthesis": "KOGAS"})
     res_dme = pfr(feed(), T, P, bed_dme, models={"synthesis": "KOGAS", "dehydration": "KOGAS"}, k_eq3="thermo")
     res_tan = pfr(feed(), T, P, bed_tan,
