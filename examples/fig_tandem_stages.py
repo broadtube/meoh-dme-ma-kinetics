@@ -7,10 +7,11 @@
 
   段1  MeOH/DME ハイブリッド PFR @250℃（synthesis:dehydration = 5:5, 長さ L1 可変）
   段間 DME を抽出し H2O・CH3OH を除去（＝蒸留/凝縮で乾燥）、新鮮 CO を CO:DME=R で添加
-  段2  カルボニル化 PFR @180℃（乾燥 DME + CO, 固定触媒 W2, DTU-Cheung2007-2）
+  段2  カルボニル化 PFR @250℃（乾燥 DME + CO, 固定触媒 W2, DTU-Cheung2007-2）
 
-段2は 180℃＝カルボニル化の検証域(150–190℃)内なので、混合ハイブリッド図（250℃外挿）
-より現実的。段間で水を抜くため段2は水阻害なしの DTU-Cheung2007-2 が妥当。
+両段を同一 250℃ とした等温評価。段間で水を抜くため段2は水阻害なしの DTU-Cheung2007-2
+が妥当。⚠️ 250℃ はカルボニル化の検証域(150–190℃)外の外挿（Ea=69.6 で 438K の ~22 倍）
+なので段2は速く MA は過大評価側。180℃(検証域内)なら段2律速で最適 L1 はより短くなる。
 
 横軸 L1 を振り、生成物 MA の収率を見る（＝「どこでハイブリッドを打ち切りカルボニル化に
 繋ぐのが良いか」）。収率定義:
@@ -33,7 +34,7 @@ from reaction_rate.reactors import pfr, CatalystBed
 from reaction_rate import plots
 
 FTOT = 0.10
-T1, T2 = 523.15, 453.15                   # 段1 250℃（ハイブリッド）, 段2 180℃（カルボニル化）
+T1, T2 = 523.15, 523.15                   # 両段 250℃（等温）。段2は検証域外の外挿
 P = 50.0
 RHO = 1200.0
 GEOM = Geometry(area=np.pi / 4 * 0.04**2, bulk_density=RHO, void_fraction=0.40)
@@ -79,22 +80,28 @@ def main():
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6.4, 7.4), dpi=130, sharex=True)
 
     # 上: 段1 CO転化・段1 DME収率・総合 MA収率（すべて %, 単一軸）
+    # 250℃では MA収率≡DME収率で重なるため、MA を破線で重ねて DME(橙)を透かす
     plots.lines(L1_GRID, {"Stage-1 CO conversion": co_conv,
-                          "Stage-1 DME yield": dme_yield,
-                          "Overall MA yield": ma_yield},
+                          "Stage-1 DME yield": dme_yield},
                 "", "Yield / conversion [%]", ax=ax1)
-    ax1.set_title(f"True tandem: hybrid(250°C, L1) → dry → carbonylation(180°C, {CARB})",
+    ax1.plot(L1_GRID, ma_yield, color=plots.OKABE_ITO[2], lw=1.8, ls="--",
+             label="Overall MA yield (≡ DME yield)")
+    ax1.legend(frameon=False, labelcolor=plots._INK, fontsize=9)
+    ax1.set_title(f"True tandem (isothermal 250°C): hybrid(L1) → dry → carbonylation({CARB})",
                   fontsize=9.5)
-    # 推奨分割域 ~1.5–2 m を淡く網掛け（MA 収率が頭打ちに入る手前）
+    # 推奨分割域 ~1.5–2 m を淡く網掛け（DME/MA 収率が頭打ちに入る手前）
     ax1.axvspan(1.5, 2.0, color=plots.OKABE_ITO[2], alpha=0.10, zorder=0)
     ax1.text(1.75, 6, "recommended\nL1 ≈ 1.5–2 m", ha="center", va="bottom",
              fontsize=8, color=plots._INK)
 
-    # 下: 段2 DME→MA 転化（固定 W2 では DME 増で低下＝カルボニル化触媒律速）
+    # 下: 段2 DME→MA 転化。250℃ ではカルボニル化が速く全域 ~100%（DME を完全転化）
+    #     ＝段2は律速でなく、MA 収率 ≡ DME 収率（上段で MA と DME が重なる）。
     plots.lines(L1_GRID, {"Stage-2 DME→MA conversion": stage2_conv},
                 "Stage-1 hybrid length  L1 [m]", "Stage-2 conversion [%]", ax=ax2)
     ax2.axvspan(1.5, 2.0, color=plots.OKABE_ITO[2], alpha=0.10, zorder=0)
     ax2.set_ylim(0, 105)
+    ax2.text(0.5, 0.16, "Carbonylation not limiting at 250°C\n(full DME conversion → MA yield ≡ DME yield)",
+             transform=ax2.transAxes, fontsize=8, color=plots._INK)
 
     fig.tight_layout()
     print("saved", plots.save(fig, "tandem_stages.png"))
