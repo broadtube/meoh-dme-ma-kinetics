@@ -8,13 +8,14 @@
 
 温度依存は基準 438 K の Arrhenius/van't Hoff:  x(T)=x(438)·exp(−E/R·(1/T−1/438))。
 温度依存 Ea の出所は 2 系統（別論文・値は ~15% 差で整合）:
-  Cheung 2007（Iglesia/BP, 基礎速度論）: Ea≈69.6 kJ/mol（2015形 exp(−8370/T)=Cheung データの整形）
+  Cheung 2007（Iglesia/BP, 基礎速度論）: Ea≈69.6 kJ/mol（exp(−8370/T)=Cheung データの整形形。
+                                          primary は Diemer & Luyben 2010 IECR 査読 eq6, 非査読 Miriyam2015 も同形）
   Cheng 2017（天津大, 失活論文）        : Ea=88.65 kJ/mol
 K2,K3 の van't Hoff ΔH は DTU 自身の DFT（Table 2/3）由来（両系統で共通）。
 
 model= で選択（9 種）:
   'DTU'               : k1·pCO/(1+K2·pMA+K3·pMA/pDME)。全定数 438 K 固定。 per mol Al。 [DTU 2017]
-  'Cheung2007'        : k(T)·pCO。MA阻害なし・1次・乾燥。per kg。            [Cheung→2015形, 実値]
+  'Cheung2007'        : k(T)·pCO。MA阻害なし・1次・乾燥。per kg。   [Cheung→Diemer&Luyben2010形, 実値]
                         k = 8.2e-5·exp(−8370/T) kmol·kg⁻¹·s⁻¹·Pa⁻¹（Ea=69.6）を直接使用。
   'Cheng2017'         : 同上 1次形だが Ea=88.65（Cheng）。per kg。★混成★     [混成]
                         大きさは Cheung(8.2e-5) の 438K 値に anchor、温度依存のみ Cheng Ea。
@@ -39,7 +40,7 @@ DTU_PARAMS = {
 T_REF = 438.0       # 温度依存の基準温度 [K]（DTU 実験温度・Cheung 438K 整合点）
 
 # --- 温度依存 Ea（k1, [J/mol]）2 系統 ---
-EA_CHEUNG = 8370.0 * R   # ≈69.6 kJ/mol。2015形 exp(−8370/T)＝Cheung 2007 データ（Cheung Fig8 70–85 と整合）
+EA_CHEUNG = 8370.0 * R   # ≈69.6 kJ/mol。exp(−8370/T)＝Cheung 2007 データの整形（Diemer&Luyben2010, Fig8 70–85 と整合）
 EA_CHENG = 88.65e3       # Cheng 2017（失活論文）の前進速度 Ea
 # --- K2,K3 の van't Hoff ΔH（吸着, ΔH<0。DTU DFT 由来の概算, [J/mol]）---
 #   K2: MA 吸着 −1.01 eV(側pocket) ≈ −97 kJ/mol。 K3: MA≈DME 吸着（差小）→ ほぼ温度非依存。
@@ -47,17 +48,19 @@ EA_CHENG = 88.65e3       # Cheng 2017（失活論文）の前進速度 Ea
 DFT_DH_K2 = -97.0e3
 DFT_DH_K3 = -8.0e3
 
-# --- Cheung/2015 形（per-kg・Pa 基準の温度依存 k, 水阻害は乾燥前提で無視）---
-#   ProductionofMethylAcetate.pdf（2015, Miriyam）が Cheung 2007 データを整形。
+# --- Cheung 整形形（per-kg・Pa 基準の温度依存 k, 水阻害は乾燥前提で無視）---
+#   Diemer & Luyben 2010（IECR 49, 12224, 査読, eq6-7, DOI 10.1021/ie101583j）が
+#   Cheung 2007 データを Aspen 向けに整形。同形は非査読 Miriyam 2015 レポートにも掲載
+#   （2015 は本式を Diemer&Luyben から転記した可能性が高い）。primary は Diemer&Luyben 2010。
 #   r = k·(pCO/(1+K_w·p_w))·(K_DME·pDME/(1+K_DME·pDME))
 #     乾燥前提 K_w=0。DME 因子は零次形の DME>100% 転化を防ぐ正則化（K_DME=1 Pa⁻¹）。
 #     pDME≳1e-4 bar で因子≈1、枯渇で→0。438K・50bar 微分で DTU と ~25% 整合。
-CHEUNG2007 = (8.2e-5, -8370.0)   # (A [kmol·kg⁻¹·s⁻¹·Pa⁻¹], −Ea/R [K])
-K_DME_REG = 1.0e5                # DME 擬似吸着定数 = 1 Pa⁻¹ = 1e5 bar⁻¹（2015 論文の正則化）
+CHEUNG2007 = (8.2e-5, -8370.0)   # (A [kmol·kg⁻¹·s⁻¹·Pa⁻¹], −Ea/R [K]) Diemer&Luyben2010 eq6
+K_DME_REG = 1.0e5                # DME 擬似吸着定数 = 1 Pa⁻¹ = 1e5 bar⁻¹（Diemer&Luyben2010 eq7 の正則化）
 
 
 def _dme_reg(p_DME: float) -> float:
-    """2015 論文の DME 正則化因子 K_DME·pDME/(1+K_DME·pDME)。DME 枯渇で速度→0（>100%転化を防ぐ）。"""
+    """Diemer&Luyben2010 の DME 正則化因子 K_DME·pDME/(1+K_DME·pDME)。DME 枯渇で速度→0（>100%転化を防ぐ）。"""
     x = K_DME_REG * p_DME
     return x / (1.0 + x)
 
@@ -92,13 +95,13 @@ def rate_dtu(state, model: str = "DTU") -> float:
     if p_DME > 0.0:                       # 微分条件(pMA→0)では第3項は 0
         inhibition += K3 * p_MA / p_DME
     # DME 正則化: DTU 式は DME 零次で、pMA が低いと K3 項が効かず反応器で DME を過剰消費し得る
-    # （負の DME）。2015 の因子 K_DME·pDME/(1+K_DME·pDME) を掛け、DME 枯渇で速度→0 にする。
+    # （負の DME）。Diemer&Luyben2010 の因子 K_DME·pDME/(1+K_DME·pDME) を掛け、DME 枯渇で速度→0 にする。
     # pDME≳1e-4 bar で因子≈1 なので微分域(DTU の検証域)の速度は変えない。
     return k1 * p_CO / inhibition * _dme_reg(p_DME)
 
 
 def rate_cheung2007(state) -> float:
-    """Cheung/2015 形: r_MA = k(T)·pCO [mol·kg_cat⁻¹·s⁻¹]（per kg・MA阻害なし・乾燥前提）。
+    """Cheung 整形形(Diemer&Luyben2010): r_MA = k(T)·pCO [mol·kg_cat⁻¹·s⁻¹]（per kg・MA阻害なし・乾燥前提）。
     k=8.2e-5·exp(−8370/T) kmol·kg⁻¹·s⁻¹·Pa⁻¹ を直接使用。network 側で ×酸点密度 しない。"""
     A, mEaR = CHEUNG2007
     p = state.partial_pressures()

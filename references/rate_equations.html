@@ -613,16 +613,16 @@
       <p class="h">温度依存性のまとめ（一次確認済み）</p>
       <p><b>DTU 2017 は 438 K の単一温度で温度依存を持たない</b>が、<b>温度依存（活性化エネルギー）は別論文で確立済み</b>。DTU が続報を出さなかったのは、DFT/機構論文であり Ea が既に Cheung/Cheng にあったため（続報の欠如は不自然ではない）。</p>
       <p><b>① Cheung 2007（一次データ）:</b> <code>cheung2007.pdf</code> Fig 8 が <b>Arrhenius プロット</b>（423–463 K, 930 kPa CO/20 kPa DME, 速度 mol·(g-atom Al)⁻¹·h⁻¹）。本まとめで図の傾きを実読 → <b>E<sub>a</sub> ≈ 70–85 kJ/mol</b>（試料 Si/Al で分布）。</p>
-      <p><b>② プロセス整形形（Cheung データの表現）:</b> <code>ProductionofMethylAcetate.pdf</code>（2015, p6/p11）が Cheung データを Aspen 向けに整形:
+      <p><b>② プロセス整形形（Cheung データの表現）:</b> <b>Diemer &amp; Luyben 2010</b>（<code>diemer2010.pdf</code>, <i>Ind. Eng. Chem. Res.</i> 49, 12224, <b>査読</b>, eq 6）が Cheung データを Aspen 向けに整形:
         <span class="inl">k = 8.2×10⁻⁵·exp(−8370/T) kmol·kg<sub>cat</sub>⁻¹·s⁻¹·Pa⁻¹</span>（E<sub>a</sub>=69.6 kJ/mol）。<b>水阻害・CO 一次・DME 零次</b>: r = k·p<sub>CO</sub>/(1+K<sub>w</sub>p<sub>w</sub>)。E<sub>a</sub>=69.6 は ① の 70–85 kJ/mol と<b>整合（一次確認済み）</b>。
-        <b>⚠️ この式は DTU 由来ではない</b>（旧記述「DTU の Pa 基準形」は帰属誤りで削除済み。正しくは Cheung 2007 → 2015 プロセス論文）。</p>
+        <b>⚠️ この式は DTU 由来ではない</b>（旧記述「DTU の Pa 基準形」は帰属誤りで削除済み。正しくは Cheung 2007 → Diemer &amp; Luyben 2010）。非査読の <code>ProductionofMethylAcetate.pdf</code>（Miriyam 2015, p6/p11）も同形を掲載するが、<b>primary は査読済みの Diemer &amp; Luyben 2010</b>（2010 が 2015 に先行）。</p>
       <p><b>③ Cheng 2017:</b> <code>cheng2017.pdf</code>「Deactivation Kinetics…H-MOR」で <b>E<sub>a</sub> = 88.65±0.93 kJ/mol</b>（基準 g·(g·h·kPa)⁻¹）。</p>
       <div class="tbl-scroll" style="margin:12px 0;">
         <table>
           <caption>報告されている活性化エネルギー（DME カルボニル化）</caption>
           <thead><tr><th>E<sub>a</sub> [kJ/mol]</th><th>出所</th><th class="rolecol">種別</th></tr></thead>
           <tbody>
-            <tr><td>69.6（=8370 K）</td><td>2015 プロセス論文（Cheung データ整形）</td><td class="rolecol">整形</td></tr>
+            <tr><td>69.6（=8370 K）</td><td>Diemer &amp; Luyben 2010（査読, Cheung データ整形）</td><td class="rolecol">整形</td></tr>
             <tr><td>~70–85</td><td>Cheung 2007 Fig 8 の傾き（本まとめで実読）</td><td class="rolecol">実験(図)</td></tr>
             <tr><td>88.65±0.93</td><td>Cheng 2017（実測フィット）</td><td class="rolecol">実験</td></tr>
             <tr><td>99.8</td><td>サイドポケット MA 生成の intrinsic 障壁（DFT）</td><td class="rolecol">計算</td></tr>
@@ -631,7 +631,7 @@
         </table>
       </div>
       <p><b>モデル構造は別物:</b> <b>DTU = MA(生成物)阻害</b> [1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>]・438 K・per mol Al/bar。
-        <b>Cheung/2015 = 水阻害</b> [1+K<sub>w</sub>p<sub>w</sub>]・温度依存 k・per kg/Pa。<b>阻害機構も速度基準も異なる</b>ので混同しない。</p>
+        <b>Cheung整形形 = 水阻害</b> [1+K<sub>w</sub>p<sub>w</sub>]・温度依存 k・per kg/Pa（Diemer &amp; Luyben 2010）。<b>阻害機構も速度基準も異なる</b>ので混同しない。</p>
       <p><b>k₁ への外部 Ea 適用は正当（438 K 整合確認済）:</b> DTU k₁(438 K) の微分速度 0.76 mol·(mol Al)⁻¹·h⁻¹（930 kPa CO）は Cheung Fig 8 の同条件 ≈1 とほぼ一致（~30%以内）。<b>DTU k₁ は Cheung/Cheng の Arrhenius 線上の一点</b>なので、Cheung(70–85) または Cheng(88.65 kJ/mol) の Ea を DTU k₁ に適用する外挿は出所として正当（旧 DTU-T の誤りは未検証Ea・別基準・整合未確認の3点で、正しくやれば問題ない）。</p>
       <p><b>K₂/K₃ の温度依存も DTU 自身の DFT から取れる:</b> K₂・K₃ は CH₃–MA 錯体（阻害種）の準平衡定数で、<b>Table 2 吸着エネルギー</b>（MA −1.01/−1.12 eV, DME −0.98/−0.99 eV; T3-O3 側pocket / T1-O4 主channel）と <b>Table 3 反応エネルギー ΔE</b> が van't Hoff の ΔH を与える: <span class="inl">K(T)=K(438)·exp(−ΔH/R·(1/T−1/438))</span>（大きさは 438 K fit・傾きは DFT, 同一論文/触媒/DFT で自己整合）。<b>MA と DME の吸着はほぼ同強度</b>なので <b>K₃(∝p<sub>MA</sub>/p<sub>DME</sub>) はほぼ温度非依存</b>（ΔH₃ ≈ −2〜−13 kJ/mol）、K₂(∝p<sub>MA</sub>) は MA 吸着 ~−100 kJ/mol に対応し温度依存が強い。</p>
     </div>
@@ -646,7 +646,7 @@
           <thead><tr><th>model</th><th>速度式</th><th>k₁</th><th>K₂</th><th>K₃</th><th>基準</th><th class="rolecol">出所</th></tr></thead>
           <tbody>
             <tr><td><b>DTU</b></td><td>k₁p<sub>CO</sub>/(1+K₂p<sub>MA</sub>+K₃p<sub>MA</sub>/p<sub>DME</sub>)</td><td>438 K 固定</td><td>固定</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">DTU 2017</td></tr>
-            <tr><td><b>Cheung2007</b></td><td>k(T)·p<sub>CO</sub>（MA阻害なし・乾燥）</td><td class="diff">Ea=69.6</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td>mol/kg</td><td class="rolecol">8.2e-5·exp(−8370/T), Cheung→2015</td></tr>
+            <tr><td><b>Cheung2007</b></td><td>k(T)·p<sub>CO</sub>（MA阻害なし・乾燥）</td><td class="diff">Ea=69.6</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td>mol/kg</td><td class="rolecol">8.2e-5·exp(−8370/T), Cheung→Diemer&amp;Luyben2010</td></tr>
             <tr><td><b>Cheng2017</b> ★混成</td><td>k(T)·p<sub>CO</sub>（同上・Ea のみ Cheng）</td><td class="diff">Ea=88.65</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td>mol/kg</td><td class="rolecol">大きさ Cheung@438K + Cheng Ea</td></tr>
             <tr><td><b>DTU-Cheung2007-1</b></td><td>DTU 式</td><td class="diff">Ea=69.6</td><td>固定</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">DTU + Cheung Ea</td></tr>
             <tr><td><b>DTU-Cheung2007-2</b></td><td>DTU 式</td><td class="diff">Ea=69.6</td><td class="diff">ΔH₂(DFT)</td><td>固定</td><td>mol/(mol Al)</td><td class="rolecol">+ DTU DFT</td></tr>
@@ -662,17 +662,17 @@
         <b>Cheung2007</b> = 1次・MA阻害なしの温度依存形（<b>8.2e-5 の実値・per kg</b>, 438K で DTU と ~25% 整合）。
         <b>Cheng2017</b> = 同形で Ea のみ Cheng（★混成: Cheng 独自の絶対値は変換不能のため大きさは Cheung に anchor）。
         <b>DTU-Cheung/Cheng 系</b> = DTU の MA 阻害を保ちつつ k₁(-1)/+K₂(-2)/+K₃(-3) を温度依存化。<b>Cheung 系が第一推奨</b>（基礎速度論・438K検証）、Cheng 系は Ea を高めに取る感度用。</p>
-      <p class="msub-note"><b>注意:</b> ① 新しい Cheng 2017 が「より正確」とは限らない（Cheung 2007 が基礎速度論の定番、Cheng は失活が主眼）。両 Ea は ~15% 差で整合。② per-kg 形（Cheung2007/Cheng2017）は反応器で ×酸点密度 をしない（DTU 系の per mol Al と基準が違う）。③ ΔH₂/ΔH₃ は DFT 概算（±10–20 kJ/mol, DTU eqn 5–10 の精読要）。<b>K₃ は ΔH₃ が小さくほぼ温度非依存</b>（-3 の実益は限定的）。④ 2015 論文 p6 の「Cheng et al.」は綴りミスで実体は <b>Cheung 2007</b>（p11=Cheung⁵, 2015 は Cheng 2017 より前）。⑤ <b>全モデルに</b> 2015 論文の <b>DME 正則化因子</b> K<sub>DME</sub>p<sub>DME</sub>/(1+K<sub>DME</sub>p<sub>DME</sub>)（K<sub>DME</sub>=1 Pa⁻¹）を適用: DME 零次形が反応器で DME 枯渇時に速度→0（負の DME・>100% 転化を防ぐ）。DTU 式の K₃p<sub>MA</sub>/p<sub>DME</sub> は pMA が高いときしか効かないため、この因子で補う（pDME≳1e-4 bar で因子≈1＝微分検証域は不変）。</p>
+      <p class="msub-note"><b>注意:</b> ① 新しい Cheng 2017 が「より正確」とは限らない（Cheung 2007 が基礎速度論の定番、Cheng は失活が主眼）。両 Ea は ~15% 差で整合。② per-kg 形（Cheung2007/Cheng2017）は反応器で ×酸点密度 をしない（DTU 系の per mol Al と基準が違う）。③ ΔH₂/ΔH₃ は DFT 概算（±10–20 kJ/mol, DTU eqn 5–10 の精読要）。<b>K₃ は ΔH₃ が小さくほぼ温度非依存</b>（-3 の実益は限定的）。④ Miriyam 2015 p6 の「Cheng et al.」は綴りミスで実体は <b>Cheung 2007</b>（p11=Cheung⁵, 2015 は Cheng 2017 より前）。⑤ <b>全モデルに</b> <b>Diemer &amp; Luyben 2010（eq 7）</b>の <b>DME 正則化因子</b> K<sub>DME</sub>p<sub>DME</sub>/(1+K<sub>DME</sub>p<sub>DME</sub>)（K<sub>DME</sub>=1 Pa⁻¹）を適用: DME 零次形が反応器で DME 枯渇時に速度→0（負の DME・>100% 転化を防ぐ。同論文も “calculated conversions of DME in excess of 100% … To avoid this … multiplied by a factor” と明記）。DTU 式の K₃p<sub>MA</sub>/p<sub>DME</sub> は pMA が高いときしか効かないため、この因子で補う（pDME≳1e-4 bar で因子≈1＝微分検証域は不変）。</p>
     </div>
 
     <div class="note">
       <p class="h">水(H₂O)阻害とタンデム設計 — 水項は加えない（乾燥前提が正しい）</p>
       <p><b>Cheung 2007 は水阻害を式で扱う</b>（Appendix A, eq 1–3）が、実験と整合する形は
         <span class="inl">r = k₅p<sub>CO</sub> / (1 + p<sub>H2O</sub>/(K₄·p<sub>CH3OH</sub>) + k₅p<sub>CO</sub>/(k₆·p<sub>DME</sub>))</span>
-        で、<b>水項は単純な K<sub>w</sub>·p<sub>H2O</sub> ではなく p<sub>H2O</sub>/(K₄·p<sub>CH3OH</sub>) ＝メタノール分圧と結合</b>（水とメタノールが methoxylation で相互変換するため）。2015 論文の <span class="inl">1+K<sub>w</sub>p<sub>w</sub></span> はこの簡略版。</p>
-      <p><b>数値定数がどの出所にもない:</b> Cheung は機構的な形のみで数値をフィットせず（“rates are not normalized … because of their uncertain identity”）、2015 論文は水項を「乾燥前提で無視」、DTU は乾燥給気で水項なし。<b>→ 定量的に出所づけられる K<sub>w</sub> は存在しない</b>（一次確認済み）。</p>
+        で、<b>水項は単純な K<sub>w</sub>·p<sub>H2O</sub> ではなく p<sub>H2O</sub>/(K₄·p<sub>CH3OH</sub>) ＝メタノール分圧と結合</b>（水とメタノールが methoxylation で相互変換するため）。Diemer &amp; Luyben 2010 の <span class="inl">1+K<sub>w</sub>p<sub>w</sub></span> はこの簡略版。</p>
+      <p><b>数値定数がどの出所にもない:</b> Cheung は機構的な形のみで数値をフィットせず（“rates are not normalized … because of their uncertain identity”）、Diemer &amp; Luyben 2010 は水項を「乾燥前提で無視」（“assumed the DME feed is sufficiently dry that the water adsorption term can be neglected”）、DTU は乾燥給気で水項なし。<b>→ 定量的に出所づけられる K<sub>w</sub> は存在しない</b>（一次確認済み。ただし Cheung 2007 Fig 2 の 1.1 kPa H₂O 添加＝MA 速度 0.034→0.0024 から単純形の見かけ K<sub>w</sub>≈12 kPa⁻¹＝@423K は算出可能）。</p>
       <p><b>機構:</b> DME カルボニル化は<b>定常・乾燥 DME では水を生成しない</b>（methoxylation が CH₃ を水なしで再生）。水は外部供給・湿った DME のときだけ阻害する。実験では 1.1 kPa H₂O 添加で速度が markedly inhibited（強い阻害）。</p>
-      <p><b>結論・タンデム設計指針:</b> 水阻害は severe だが数値化できないので、<b>DTU 式に水項は加えない（乾燥 DME 前提が正しい）</b>。単一床の湿ったタンデムは物理的に成立しにくく、工業 DME→MA と同様、<b>合成/脱水 @250 ℃ → 水分離 → 乾燥 DME をカルボニル化 @~180 ℃</b> の<b>段階反応器</b>が正当（2015 論文も “water must be removed from the DME stream prior to the carbonylation step” と明記）。<code>fig_length_compare</code> の単一等温タンデムは水阻害を無視した概念図である点に留意。</p>
+      <p><b>結論・タンデム設計指針:</b> 水阻害は severe だが数値化できないので、<b>DTU 式に水項は加えない（乾燥 DME 前提が正しい）</b>。単一床の湿ったタンデムは物理的に成立しにくく、工業 DME→MA と同様、<b>合成/脱水 @250 ℃ → 水分離 → 乾燥 DME をカルボニル化 @~180 ℃</b> の<b>段階反応器</b>が正当（<b>Diemer &amp; Luyben 2010</b> も “the inhibiting effect of water is so strong that it must be removed from the DME stream prior to feeding the carbonylation step” と明記。同論文のカルボニル化器は <b>460 K（187 ℃）・30 atm</b> で運転＝検証域 150–190 ℃ 内。よって <code>fig_tandem_stages</code> の 180 ℃ 版が現実的で、等温 250 ℃ は触媒有効域を超えた過大評価）。<code>fig_length_compare</code> の単一等温タンデムは水阻害を無視した概念図である点に留意。</p>
     </div>
   </section>
 
@@ -702,7 +702,8 @@
       <li><span class="f">cheng2017.pdf</span><span class="d">Z. Cheng, S. Huang, Y. Li, J. Lv, K. Cai, X. Ma. “Deactivation Kinetics for Carbonylation of Dimethyl Ether to Methyl Acetate on H-MOR.” <i>Ind. Eng. Chem. Res.</i> <b>56</b>, 13618–13627 (2017). <a class="doi" href="https://doi.org/10.1021/acs.iecr.7b03500">10.1021/acs.iecr.7b03500</a> 〔§3 失活モデル・E<sub>a</sub>=88.65 kJ/mol〕</span></li>
       <li><span class="f">accounts2024_MOR_carbonylation_review.pdf</span><span class="d">W. Chen, Z. Liu, X. Yi, A. Zheng. “Confinement-Driven Dimethyl Ether Carbonylation in Mordenite Zeolite as an Ultramicroscopic Reactor.” <i>Acc. Chem. Res.</i> (2024). <a class="doi" href="https://doi.org/10.1021/acs.accounts.4c00389">10.1021/acs.accounts.4c00389</a> 〔§3 総説(機構・拡散)〕</span></li>
       <li><span class="f">KC129.pdf</span><span class="d">M. A. Kipnis, E. A. Volnina. “Methyl Acetate Synthesis by Dimethyl Ether Carbonylation in the Presence of Zeolites: A Review.” <i>Kinetics and Catalysis</i> <b>63</b>(2), 129–140 (2022). <a class="doi" href="https://doi.org/10.1134/S0023158422020033">10.1134/S0023158422020033</a> 〔§3 総説〕</span></li>
-      <li><span class="f">ProductionofMethylAcetate.pdf</span><span class="d">A. Miriyam. “Production of Methyl Acetate using Carbonylation of Dimethyl Ether.” University of Hartford, March 2015（ResearchGate; 非査読の ASPEN プロセス設計レポート, 全34頁）. <a class="doi" href="https://doi.org/10.13140/RG.2.2.24659.07201">10.13140/RG.2.2.24659.07201</a> 〔温度依存形 <b>k = 8.2×10⁻⁵·exp(−8370/T) kmol·kg⁻¹·s⁻¹·Pa⁻¹</b>（p6/p11）を掲載。本文中で <b>Cheung ら（cheung2007）</b>データの整形と明記＝一次は cheung2007、DTU ではない〕</span></li>
+      <li><span class="f">diemer2010.pdf</span><span class="d">R. B. Diemer, W. L. Luyben. “Design and Control of a Methyl Acetate Process Using Carbonylation of Dimethyl Ether.” <i>Ind. Eng. Chem. Res.</i> <b>49</b>(23), 12224–12241 (2010). <a class="doi" href="https://doi.org/10.1021/ie101583j">10.1021/ie101583j</a> 〔<b>査読 primary</b>。カルボニル化 <b>k = 8.2×10⁻⁵·exp(−8370/T)</b>（eq 6, Cheung データの整形）＋ <b>DME 正則化因子 K<sub>DME</sub>=1 Pa⁻¹</b>（eq 7）を掲載。水は乾燥前提で水項省略。カルボニル化器 460 K・30 atm、脱水 LHHW（Bandiera–Naccache）。2段プロセスの経済最適化＋動的制御。書籍 <i>Principles and Case Studies of Simultaneous Design</i>（Luyben, Wiley 2011）に同ケースを教材化〕</span></li>
+      <li><span class="f">ProductionofMethylAcetate.pdf</span><span class="d">A. Miriyam. “Production of Methyl Acetate using Carbonylation of Dimethyl Ether.” University of Hartford, March 2015（ResearchGate; <b>非査読</b>の ASPEN プロセス設計レポート, 全34頁）. <a class="doi" href="https://doi.org/10.13140/RG.2.2.24659.07201">10.13140/RG.2.2.24659.07201</a> 〔同じ <b>k = 8.2×10⁻⁵·exp(−8370/T)</b>（p6/p11）を掲載するが <b>secondary</b>（primary は上記 Diemer &amp; Luyben 2010, 2010 が先行）。本文で <b>Cheung ら（cheung2007）</b>データの整形と明記＝一次は cheung2007、DTU ではない〕</span></li>
     </ul>
   </footer>
 </div>
