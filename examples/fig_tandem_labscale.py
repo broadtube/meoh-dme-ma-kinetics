@@ -15,8 +15,9 @@
 ★2 SV=5000/h の基準 = **全触媒体積 3.0 mL・STP(0℃,1atm)** の GHSV とみなした。
      → Q_STP = 5000×3.0 mL/h = 15 L/h, n_dot = 15/22.414 = 1.859e-4 mol/s。
      基準が「ハイブリッドのみ 1.0 mL」や 25℃ STP なら流量が変わる。
-★3 充填密度 ρ_bed = 1200 kg/m³ を全触媒共通と仮定（mL→kg 換算・長さ軸に使用）。
-     実際は Cu/ZnO(~1300)・γ-Al2O3(~800)・H-MOR(~700) と異なる。
+★3 充填密度 ρ_bed を触媒別に設定（mL→kg 換算に使用）:
+     合成 Cu/ZnO/Al2O3=1300, 脱水 γ-Al2O3=800, カルボニル化 H-MOR=700 kg/m³（概算）。
+     床長は z=V/A（充填体積÷断面積）で ρ に依らないため長さ軸は密度非依存。
 ★4 段2は水阻害なしの DTU-Cheung2007-2 を使用。だが本構成は段間乾燥が無く MA 床に
      H2O が入る（Cheung2007: 1.1kPa H2O で速度 1/14）。→ **MA は過大評価側**。
 ★5 250℃ はカルボニル化の検証域(150–190℃)外の外挿（Ea≈69.6, 438K の ~22 倍速）。
@@ -26,7 +27,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from reaction_rate import Geometry
 from reaction_rate.reactors import pfr, CatalystBed
 from reaction_rate import plots
 
@@ -37,21 +37,23 @@ H2_CO = 1.5                      # H2/CO [mol/mol]
 Y_CO2 = 0.03                     # ★1 CO2 添加分 [mol%/100]（KOGAS を動かすため）
 SV = 5000.0                      # 空間速度 [1/h]
 
-# ── 触媒（体積 → 質量）★3 共通 ρ_bed ─────────────────────
-RHO = 1200.0                     # 充填密度 [kg/m³] = 1.2 g/mL
+# ── 触媒（体積 → 質量）★3 触媒別 ρ_bed ───────────────────
+RHO_SYN, RHO_DEH, RHO_MA = 1300.0, 800.0, 700.0   # [kg/m³] Cu/ZnO, γ-Al2O3, H-MOR
 V_HYB = 1.0e-6                   # ハイブリッド 1.0 mL [m³]
 V_MA  = 2.0e-6                   # MA 触媒 2.0 mL [m³]
 V_TOT = V_HYB + V_MA             # ★2 SV 基準の全触媒体積 3.0 mL
 R_SYN_DEH = (1.0, 0.9)          # ハイブリッド内 合成:脱水 体積比 1:0.9
 f_syn = R_SYN_DEH[0] / sum(R_SYN_DEH)
-m_syn = RHO * V_HYB * f_syn                 # 合成触媒 [kg]
-m_deh = RHO * V_HYB * (1 - f_syn)           # 脱水触媒 [kg]
-m_ma  = RHO * V_MA                          # MA 触媒 [kg]
+V_syn, V_deh = V_HYB * f_syn, V_HYB * (1 - f_syn)
+m_syn = RHO_SYN * V_syn                      # 合成触媒 [kg]
+m_deh = RHO_DEH * V_deh                      # 脱水触媒 [kg]
+m_ma  = RHO_MA * V_MA                         # MA 触媒 [kg]
 
-# ── 反応管幾何（内径10mm）───────────────────────────────
+# ── 反応管幾何（内径10mm）。床長は z=V/A（ρ 非依存）─────────
 ID = 0.010
 AREA = np.pi / 4 * ID**2
-GEOM = Geometry(area=AREA, bulk_density=RHO, void_fraction=0.40)
+L_HYB = V_HYB / AREA * 1e3        # ハイブリッド床長 [mm]
+L_MA  = V_MA / AREA * 1e3         # MA 床長 [mm]
 
 # ── 供給流量（SV → mol/s）★2 ───────────────────────────
 VM_STP = 22.414e-3               # STP モル体積 [m³/mol] (0℃,1atm)
@@ -82,8 +84,9 @@ def run():
 
 def main():
     res1, res2 = run()
-    z1 = res1.length(GEOM) * 1e3                      # [mm]
-    z2 = res2.length(GEOM) * 1e3 + z1[-1]            # 段2 は段1 長さ分オフセット
+    # 床長は充填体積で決まる（z=V/A, ρ 非依存）。W グリッドを 0..L に線形マップ
+    z1 = res1.W / res1.W[-1] * L_HYB                  # [mm]
+    z2 = res2.W / res2.W[-1] * L_MA + L_HYB           # 段2 は段1 長さ分オフセット
     z_if = z1[-1]                                     # 床境界 [mm]
 
     # 軸方向モル流量 [mmol/s]（段1・段2 を連結）
