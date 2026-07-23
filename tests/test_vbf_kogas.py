@@ -35,3 +35,19 @@ def test_dehydration_kogas_vs_bl_gap():
 def test_ms_positive():
     s = GasState(T, 50.0, {"CO": 0.15, "CO2": 0.08, "H2": 0.72, "H2O": 0.01, "CH3OH": 0.04})
     assert vbf_kogas.rate_ms_rwgs(s, "KOGAS")["r_MS"] > 0
+
+
+def test_dehydration_zsm5_anchor():
+    # ZSM5 前指数は Dalena 2021 の 160℃ TOF/BAS に anchor: r_MD ≈ 2.62e-3 mol/(kg·s)
+    # (160℃, 1 atm, MeOH 5.6mol%, H2O/DME≈0 → 順反応のみ)
+    s = GasState(433.15, 1.01325, {"CH3OH": 0.056, "H2": 0.944})
+    r = vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
+    assert math.isclose(r, 2.62e-3, rel_tol=0.05)
+
+
+def test_dehydration_zsm5_faster_than_gamma():
+    # ZSM-5(可逆2次) は 51 bar/250℃ で γ-アルミナ(KOGAS) より桁違いに速い（>1000倍）
+    s = GasState(T, 51.0, {"CH3OH": 0.05, "H2O": 0.01, "DME": 0.02, "CO": 0.3, "CO2": 0.05, "H2": 0.57})
+    r_zsm5 = vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
+    r_gamma = vbf_kogas.rate_dehydration(s, source="KOGAS", k_eq3="thermo")
+    assert r_zsm5 / r_gamma > 1000.0
