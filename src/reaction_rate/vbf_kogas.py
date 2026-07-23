@@ -70,6 +70,21 @@ MD_PARAMS = {
 #   Ng 1999(=KOGAS): mol/(g·h)→×1000/3600,  BL 1993: kmol/(kg·h)→×1000/3600
 _MD_UNIT_TO_MOL_KG_S = {"KOGAS": 1000.0 / 3600.0, "BercicLevec1993": 1000.0 / 3600.0}
 
+# --- ZSM-5 脱水（可逆2次・Fuel2014形。γ-アルミナより高活性）source="ZSM5" ---
+#   r_MD = k(T)·(C_M² − C_D·C_W/Keq3)   [mol·kg⁻¹·s⁻¹], C は kmol·m⁻³。LHHW 分母なし。
+#   形の出典: Fuel 2014「Two practical equations… Part I: 2nd order rate equation」
+#            (Fuel 135) が HZSM-5 に可逆2次を最良式として提唱。★本文は有料で未入手★。
+#   パラメータは入手できたオープン源 Dalena, Giglio, Giorgianni ら 2021,
+#     Chem. Eng. Trans. 84, 211（DOI 10.3303/CET2184036, ZSM-5, 140–240℃）から:
+#     ・Ea = 93.6 kJ/mol（Table 3, ZSM-5_P の2次フィット）
+#     ・前指数 K0 は同報 160℃ の TOF=49.7 h⁻¹ × Brønsted酸点 379 µmol/g から実効速度
+#       r_MeOH=5.23e-3 mol/(kg·s)（r_MD=その半分）を、常圧・希薄(MeOH 5.6mol%)の C_M=1.58e-3
+#       kmol/m³ で割って k(433K) を求め、Arrhenius 外挿で anchor（K0≈2.05e14）。
+#   ⚠️ 常圧フィットの2次濃度依存を 51 bar に外挿すると速度が急増し、ZSM-5 では脱水が
+#      ほぼ平衡律速になる（＝実験の「段中ほぼ完全DME化」と整合）。絶対値は要実験較正。
+EA_ZSM5 = 93.6e3          # [J/mol]  Dalena 2021 ZSM-5_P 2次フィット
+K0_ZSM5 = 2.05e14        # [mol·kg⁻¹·s⁻¹·(kmol·m⁻³)⁻²]  160℃ TOF×BAS に anchor（上記）
+
 # --- 合成/WGS の平衡定数（KOGAS 2008 eq3a–3b = Twigg(1986)/Stull(1969)） ---
 #   log10 K_eq1 = 3066/T − 10.592
 #   log10 (1/K_eq2) = −2073/T + 2.029    → K_eq2 = 10^(2073/T − 2.029)
@@ -138,17 +153,23 @@ def rate_ms_rwgs(state, model: str = "KOGAS") -> dict[str, float]:
 
 
 def rate_dehydration(state, source: str = "KOGAS", k_eq3: str = "KOGAS") -> float:
-    """r_MD [mol·kg⁻¹·s⁻¹]。source=速度定数('KOGAS'/'BercicLevec1993')、k_eq3=平衡定数('KOGAS'/'BL'/'thermo')。濃度[kmol/m³]基準。"""
+    """r_MD [mol·kg⁻¹·s⁻¹]。source=速度定数('KOGAS'/'BercicLevec1993'=γ-アルミナLHHW, 'ZSM5'=可逆2次)、
+    k_eq3=平衡定数('KOGAS'/'BL'/'thermo')。濃度[kmol/m³]基準。ZSM5 は Fuel2014形＋Dalena2021（上記定数参照）。"""
     T = state.T
     C = state.concentrations(unit="kmol/m3")
     Keq3 = K_eq3(T, k_eq3)
-    par = MD_PARAMS[source]
+    C_M = C.get("CH3OH", 0.0)
+    C_W, C_D = C.get("H2O", 0.0), C.get("DME", 0.0)   # 生成物: 欠損=0 濃度
 
+    if source == "ZSM5":
+        # ZSM-5: 可逆2次（Fuel2014形・Dalena2021パラメータ, LHHW分母なし）。既に mol·kg⁻¹·s⁻¹。
+        k = K0_ZSM5 * math.exp(-EA_ZSM5 / (R * T))
+        return k * (C_M ** 2 - C_W * C_D / Keq3)
+
+    par = MD_PARAMS[source]
     k6 = _arrhenius(par["k6"], T)
     K_M = _arrhenius(par["K_CH3OH"], T)
     K_W = _arrhenius(par["K_H2O"], T)
-
-    C_M, C_W, C_D = C["CH3OH"], C["H2O"], C["DME"]
     num = k6 * K_M ** 2 * (C_M ** 2 - C_W * C_D / Keq3)
     den = (1.0 + 2.0 * (K_M * C_M) ** 0.5 + K_W * C_W) ** 4
     return (num / den) * _MD_UNIT_TO_MOL_KG_S[source]   # 源の速度単位 → mol·kg⁻¹·s⁻¹

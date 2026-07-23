@@ -497,6 +497,15 @@
       <p><b>結論・実装方針:</b> KOGAS 値は<b>誤りではなく Ng et al. 1999 の実験フィット値</b>（VBF+BL を自データに適合させた統合モデル）。VBF/BL <b>原著</b>の再現が目的なら KOGAS(=Ng) 値は使わない。<b>特に MD は「KOGAS/Ng」と「BL 原著」で 6〜16 倍違う</b>ので切替可能を推奨。MS/RWGS は VBF・KOGAS どちらでも大差なし。</p>
     </div>
 
+    <div class="note">
+      <p class="h">ZSM-5 脱水（可逆2次・<code>source="ZSM5"</code>）— 実触媒が ZSM-5 の場合</p>
+      <p>上記 KOGAS/Ng・Bercič–Levec は<b>γ-アルミナ</b>専用のフィット。実験で <b>H-ZSM-5</b>（強 Brønsted 酸）を使う場合、脱水は γ-アルミナより桁違いに速く、単管でも段中でほぼ完全に DME 化する。ZSM-5 では LHHW ではなく<b>可逆2次形</b>を採用（<code>vbf_kogas.rate_dehydration(source="ZSM5")</code>）:</p>
+      <p style="font-family:var(--mono);padding-left:8px">r<sub>MD</sub> = k(T)·(C<sub>M</sub>² − C<sub>D</sub>·C<sub>W</sub>/K<sub>eq3</sub>),&nbsp;&nbsp; k(T)=K₀·exp(−E<sub>a</sub>/RT),&nbsp;&nbsp; E<sub>a</sub>=93.6 kJ/mol,&nbsp; K₀≈2.05×10¹⁴&nbsp;[mol·kg⁻¹·s⁻¹·(kmol·m⁻³)⁻²]&nbsp; (C は kmol·m⁻³)</p>
+      <p><b>式の出典:</b> <b>Fuel 2014</b>「Two practical equations… Part I: Second order rate equation」（<i>Fuel</i> 135）が HZSM-5 に可逆2次を最良式として提唱。<b style="color:var(--amber)">★本文は有料・未入手★</b>（要旨のみ: E<sub>a</sub>≈75 kJ/mol, 可逆2次, 純メタノール・工業条件）。</p>
+      <p><b>実装パラメータの出典:</b> 入手できたオープン源 <b>Dalena et al. 2021</b>（<i>Chem. Eng. Trans.</i> <b>84</b>, 211, DOI 10.3303/CET2184036, ZSM-5, 140–240℃, <code>取得済</code>）の2次フィット <b>E<sub>a</sub>=93.6 kJ/mol</b>（Table 3, ZSM-5_P）を採用。前指数 K₀ は同報 160℃ の <b>TOF=49.7 h⁻¹ × Brønsted 酸点 379 µmol/g</b>（→ r<sub>MeOH</sub>=5.23×10⁻³ mol·kg⁻¹·s⁻¹, r<sub>MD</sub>=半分）を、常圧・希薄(MeOH 5.6 mol%)の C<sub>M</sub>=1.58×10⁻³ kmol·m⁻³ で割って k(433 K) を得、Arrhenius で anchor。検算: 160℃ で r<sub>MD</sub>=2.62×10⁻³（目標一致）。</p>
+      <p><b style="color:var(--amber)">⚠️ 注意:</b> Dalena は ~1 atm・希薄 MeOH の常圧フィット。2次の濃度依存を <b>51 bar</b> に外挿すると 250℃ で実効速度が γ-アルミナ(KOGAS)の <b>~4×10⁴ 倍</b>となり、<b>ZSM-5 では脱水がほぼ平衡律速</b>（段中 MeOH→DME ~96%, ハイブリッド1.0mL基準）。これは実験の「段中ほぼ完全 DME 化」と整合するが、<b>絶対値は要実験較正</b>（段中 DME 収率が分かれば K₀ を合わせ込む）。厳密には <b>Chem. Eng. J. 2018</b>（ZSM-5 の LHHW 固有速度・無勾配循環反応器, <b>未入手</b>）等の本文入手が望ましい。</p>
+    </div>
+
     <div class="eqconst" aria-label="平衡定数">
       <div class="row"><span class="rl">K_eq1</span>
         <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mtext>log</mtext><mn>10</mn></msub><msub><mi>K</mi><mrow><mtext>eq</mtext><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mn>3066</mn><mi>T</mi></mfrac><mo>&#8722;</mo><mn>10.592</mn></math>
@@ -692,6 +701,16 @@
       <li><span class="f">catalysts-11-01522.pdf (+ SI)</span><span class="d">D. Song, S. Y. Cho, T. T. Vu, Y. H. P. Duong, E. Kim. “Validation of a Fixed Bed Reactor Model for Dimethyl Ether Synthesis Using Pilot-Scale Plant Data.” <i>Catalysts</i> <b>11</b>, 1522 (2021). <a class="doi" href="https://doi.org/10.3390/catal11121522">10.3390/catal11121522</a> 〔§2 KOGAS 2021〕</span></li>
       <li><span class="f">Catalytic_dehydration…1993….pdf</span><span class="d">G. Bercič, J. Levec. “Catalytic Dehydration of Methanol to Dimethyl Ether. Kinetic Investigation and Reactor Simulation on a Packed Bed Reactor.” <i>Ind. Eng. Chem. Res.</i> <b>32</b>, 2478–2484 (1993). <a class="doi" href="https://doi.org/10.1021/ie00023a006">10.1021/ie00023a006</a> 〔§2 脱水 原著〕</span></li>
       <li><span class="f">Intrinsic_and_global_reaction_rate…_1992….pdf</span><span class="d">G. Bercič, J. Levec. “Intrinsic and Global Reaction Rate of Methanol Dehydration over γ-Al₂O₃ Pellets.” <i>Ind. Eng. Chem. Res.</i> <b>31</b>, 1035–1040 (1992). <a class="doi" href="https://doi.org/10.1021/ie00004a010">10.1021/ie00004a010</a> 〔§2 脱水 KOGAS 引用版〕</span></li>
+    </ul>
+    <p class="foot-grp">§2b ZSM-5 メタノール脱水（<code>source="ZSM5"</code> 関連）</p>
+    <ul>
+      <li><span class="f">dalena2021_zsm5_dme_CET.pdf ✅取得済（オープン）</span><span class="d">F. Dalena, E. Giglio, G. Giorgianni, D. Cozza, A. Marino, A. Aloise. “DME Production via Methanol Dehydration with H form and Desilicated ZSM-5 Type Zeolitic Catalysts.” <i>Chem. Eng. Trans.</i> <b>84</b>, 211–216 (2021). <a class="doi" href="https://doi.org/10.3303/CET2184036">10.3303/CET2184036</a> 〔<b>§2b 実装パラメータ源</b>: 可逆2次 E<sub>a</sub>=93.6 kJ/mol, 160℃ TOF/BAS で前指数を anchor〕</span></li>
+      <li><span class="f">❌未入手（有料, Fuel 135）</span><span class="d">“Two practical equations for methanol dehydration reaction over HZSM-5 catalyst – Part I: Second order rate equation.” <i>Fuel</i> <b>135</b> (2014). <a class="doi" href="https://www.sciencedirect.com/science/article/abs/pii/S0016236114010734">ScienceDirect S0016236114010734</a> 〔<b>§2b 可逆2次形の一次出典</b>。本文有料・未入手（要旨: E<sub>a</sub>≈75 kJ/mol）〕</span></li>
+      <li><span class="f">❌未入手（有料）</span><span class="d">“Methanol to dimethyl ether conversion over a ZSM-5 catalyst: Intrinsic kinetic study on an external recycle reactor.” <i>Chem. Eng. J.</i> (2018). <a class="doi" href="https://www.sciencedirect.com/science/article/pii/S1385894718307332">ScienceDirect S1385894718307332</a> 〔§2b ZSM-5 LHHW 固有速度（無勾配循環）。<b>厳密実装の第一候補</b>・未入手〕</span></li>
+      <li><span class="f">❌未入手（有料）</span><span class="d">“A kinetic study on the methanol conversion to dimethyl ether over H-ZSM-5 zeolite.” <i>Chem. Papers</i> (2021). <a class="doi" href="https://doi.org/10.1007/s11696-021-01586-y">10.1007/s11696-021-01586-y</a> 〔§2b ZSM-5 脱水速度論・未入手〕</span></li>
+      <li><span class="f">❌未入手（有料）</span><span class="d">“Effect of H-ZSM-5 zeolite content on the intrinsic kinetics of methanol dehydration to DME over H-ZSM-5/Al₂O₃ molded catalyst.” <i>React. Chem. Eng.</i> (2022). <a class="doi" href="https://doi.org/10.1039/D1RE00468A">10.1039/D1RE00468A</a> 〔§2b 成形 ZSM-5/Al₂O₃ 固有速度・未入手〕</span></li>
+      <li><span class="f">❌未入手（有料, Catal. Today 227）</span><span class="d">M. Migliori, A. Aloise, G. Giordano. “Methanol to dimethyl ether on H-MFI catalyst: The influence of the Si/Al ratio on kinetic parameters.” <i>Catal. Today</i> <b>227</b>, 138–143 (2014). <a class="doi" href="https://doi.org/10.1016/j.cattod.2013.09.033">10.1016/j.cattod.2013.09.033</a> 〔§2b ZSM-5(MFI) 脱水 Si/Al 依存・未入手〕</span></li>
+      <li><span class="f">❌未入手（有料, Appl. Catal. A）</span><span class="d">“Methanol dehydration into dimethylether over ZSM-5 type zeolites: Raise in the operational temperature range.” <i>Appl. Catal. A</i> (2011). <a class="doi" href="https://www.sciencedirect.com/science/article/abs/pii/S0926860X11003322">ScienceDirect S0926860X11003322</a> 〔§2b ZSM-5 脱水・運転温度域・未入手〕</span></li>
     </ul>
     <p class="foot-grp">§3 モルデナイト カルボニル化</p>
     <ul>
