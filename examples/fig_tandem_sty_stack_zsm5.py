@@ -1,7 +1,7 @@
 """単管タンデムの出口生成物 STY を積み上げ棒で示す（ZSM-5 脱水・全触媒基準版）。
 
 fig_tandem_sty_stack.py からの変更点:
-  1. 脱水触媒を γ-アルミナ(KOGAS/LHHW) → **ZSM-5(可逆2次・高活性)** に変更。
+  1. 脱水触媒を γ-アルミナ(KOGAS/LHHW) → **ZSM-5(Ortega 2018 厳密 LHHW)** に変更。
   2. MA(カルボニル化)触媒の充填密度 RHO_MA を 700 → **837 kg/m³**。
   3. STY 基準体積を MA触媒 2.0 mL(V_MA) → **全触媒 3.0 mL(V_TOT)** に変更。
 
@@ -9,18 +9,13 @@ STY(空時収率) = net生成量[g/h] / 基準体積[L]。基準体積 = 全触�
 各セグメント = 主生成物 MA・副生 CH3OH・残 DME・副生 CO2。
 CO2 は feed にも 3mol% 含むため net（出口−入口）で計上（他 3 種は feed=0）。
 
-【脱水の反応式はどこが変わるか】
-  KOGAS(γ-Al2O3, LHHW):
-     r_MD = k6·K_M²·(C_M² − C_W·C_D/Keq3) / (1 + 2·√(K_M·C_M) + K_W·C_W)⁴
-  ZSM-5(可逆2次, Fuel2014形):
-     r_MD = k(T)·(C_M² − C_W·C_D/Keq3),   k(T)=K0·exp(−Ea/RT), Ea=93.6 kJ/mol
-  → 駆動力項 (C_M² − C_W·C_D/Keq3) は両者共通で不変。変わるのは
-    ・LHHW 吸着分母 (1+2√(K_M C_M)+K_W C_W)⁴ が消える（=1。水/メタノール吸着阻害なし）
-    ・分子の Langmuir 係数 k6·K_M² を単一の Arrhenius k(T) に畳み込む
-    つまり「LHHW律速」→「純2次べき乗律速」。高圧では脱水がほぼ平衡律速になる。
+【脱水モデル source="ZSM5"】= Ortega et al., Chem. Eng. J. 347 (2018) 741 の厳密 LHHW
+  （modified Klusáček & Schneider・解離吸着＋表面反応律速・水阻害・分圧 bar 基準）。
+   r_MeOH = k·K_M·p_M·(1 − p_D·p_W/(p_M²·Keq)) / (1 + 2·K_M·p_M + K_W·p_W)²
+   ※γ-アルミナ(KOGAS) との出口比較は examples/fig_tandem_catalyst_compare.py 参照。
 
-⚠️ 値は fig_tandem_labscale.py の仮定（CO2添加/SV基準/触媒別ρ/水阻害なし/
-   250℃外挿）を引き継ぐ。ZSM-5 の絶対速度は常圧フィットの高圧外挿で要実験較正。
+⚠️ 値は fig_tandem_labscale.py の仮定（CO2添加/SV基準/触媒別ρ/250℃外挿）を引き継ぐ。
+   Ortega のフィット域は 140–190℃・~1 bar。250℃/51bar は外挿だが LHHW は飽和し有界。
 
 実行: PYTHONPATH=src python3 examples/fig_tandem_sty_stack_zsm5.py
 """

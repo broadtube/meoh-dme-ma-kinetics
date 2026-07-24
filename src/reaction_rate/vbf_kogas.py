@@ -70,20 +70,28 @@ MD_PARAMS = {
 #   Ng 1999(=KOGAS): mol/(g·h)→×1000/3600,  BL 1993: kmol/(kg·h)→×1000/3600
 _MD_UNIT_TO_MOL_KG_S = {"KOGAS": 1000.0 / 3600.0, "BercicLevec1993": 1000.0 / 3600.0}
 
-# --- ZSM-5 脱水（可逆2次・Fuel2014形。γ-アルミナより高活性）source="ZSM5" ---
-#   r_MD = k(T)·(C_M² − C_D·C_W/Keq3)   [mol·kg⁻¹·s⁻¹], C は kmol·m⁻³。LHHW 分母なし。
-#   形の出典: Fuel 2014「Two practical equations… Part I: 2nd order rate equation」
-#            (Fuel 135) が HZSM-5 に可逆2次を最良式として提唱。★本文は有料で未入手★。
-#   パラメータは入手できたオープン源 Dalena, Giglio, Giorgianni ら 2021,
-#     Chem. Eng. Trans. 84, 211（DOI 10.3303/CET2184036, ZSM-5, 140–240℃）から:
-#     ・Ea = 93.6 kJ/mol（Table 3, ZSM-5_P の2次フィット）
-#     ・前指数 K0 は同報 160℃ の TOF=49.7 h⁻¹ × Brønsted酸点 379 µmol/g から実効速度
-#       r_MeOH=5.23e-3 mol/(kg·s)（r_MD=その半分）を、常圧・希薄(MeOH 5.6mol%)の C_M=1.58e-3
-#       kmol/m³ で割って k(433K) を求め、Arrhenius 外挿で anchor（K0≈2.05e14）。
-#   ⚠️ 常圧フィットの2次濃度依存を 51 bar に外挿すると速度が急増し、ZSM-5 では脱水が
-#      ほぼ平衡律速になる（＝実験の「段中ほぼ完全DME化」と整合）。絶対値は要実験較正。
-EA_ZSM5 = 93.6e3          # [J/mol]  Dalena 2021 ZSM-5_P 2次フィット
-K0_ZSM5 = 2.05e14        # [mol·kg⁻¹·s⁻¹·(kmol·m⁻³)⁻²]  160℃ TOF×BAS に anchor（上記）
+# --- ZSM-5 脱水（厳密 LHHW）source="ZSM5" ---
+#   Ortega, Rezaei, Hessel, Kolb, Chem. Eng. J. 347 (2018) 741–753（無勾配循環反応器・取得済
+#   ortega2018_zsm5_dme_intrinsic_LHHW_CEJ.pdf）。速度則は下記すべて本論文内から出典明記:
+#   採用式 = modified Klusáček & Schneider＝【Table 4, Eq.(16)】解離吸着＋表面反応律速・水阻害・DME吸着無視:
+#     r_MeOH = k·K_M·p_M·(1 − p_D·p_W/(p_M²·Keq)) / (1 + 2·K_M·p_M + K_W·p_W)²   [mol_MeOH·kg⁻¹·s⁻¹]
+#     p は bar、K_i は bar⁻¹（論文 nomenclature）。r_MD = r_MeOH/2（量論 2MeOH→DME、論文外の自明変換）。
+#   k は再パラメータ化 Arrhenius【Eq.(10)】、K_i は吸着 S/H 形【Eq.(11)】。定数はすべて【Table 5】:
+#     k   = kT0·exp[−(Eapp/R)(1/T − 1/T0)],  kT0=0.0816(=8.16×10⁻² 表記) mol·kg⁻¹·s⁻¹,  Eapp=109.3 kJ/mol
+#     K_M = exp(ΔS_M/R)·exp(−ΔH_M/RT),  ΔS_M=−137 J/mol/K,  ΔH_M=−70.3 kJ/mol
+#     K_W = exp(ΔS_W/R)·exp(−ΔH_W/RT),  ΔS_W=−153 J/mol/K,  ΔH_W=−73.1 kJ/mol
+#     T0 = 438.15 K（基準温度・【§3.5.2】明記）
+#   ★唯一の論文外入力 = Keq★: 本論文は Keq を閉形式で持たず「ΔG°f から算出、相関は ref[41,66,67]
+#     ＝Froment/Perry/SVA の標準教科書」とのみ記す。Keq は純熱力学量（触媒非依存）なので、本コードの
+#     K_eq3(dimensionless, Δn=0 で Kp=Kc)で代替。独立相関(Tavan Eq.6)と 250℃で <1% 一致・教科書取得不要。
+#     ＝速度定数・吸着定数・式形は 100% Ortega 由来、平衡定数のみ標準熱力学(プロジェクト thermo)。
+#   実測レンジ 0.001–0.07 mol·kg⁻¹·s⁻¹(140–190℃)。低圧の絶対活性は Dalena 2021（TOF/BAS）とも ~15%一致。
+#   ⚠️ フィット域は 140–190℃・~1 bar。250℃/51bar はなお外挿だが LHHW は飽和し物理的に有界。
+#   ※旧 source="ZSM5"(可逆2次・Fuel形+Dalena anchor) は高圧で暴走するため廃止（git 履歴参照）。
+T0_ORT = 438.15                    # [K] 基準温度（Ortega §3.5.2）
+KT0_ORT, EAPP_ORT = 0.0816, 109.3e3        # Table 5: kT0[mol·kg⁻¹·s⁻¹], Eapp[J/mol]
+DS_M_ORT, DH_M_ORT = -137.0, -70.3e3       # Table 5: メタノール吸着 [J/mol/K], [J/mol]
+DS_W_ORT, DH_W_ORT = -153.0, -73.1e3       # Table 5: 水吸着       [J/mol/K], [J/mol]
 
 # --- 合成/WGS の平衡定数（KOGAS 2008 eq3a–3b = Twigg(1986)/Stull(1969)） ---
 #   log10 K_eq1 = 3066/T − 10.592
@@ -153,18 +161,29 @@ def rate_ms_rwgs(state, model: str = "KOGAS") -> dict[str, float]:
 
 
 def rate_dehydration(state, source: str = "KOGAS", k_eq3: str = "KOGAS") -> float:
-    """r_MD [mol·kg⁻¹·s⁻¹]。source=速度定数('KOGAS'/'BercicLevec1993'=γ-アルミナLHHW, 'ZSM5'=可逆2次)、
-    k_eq3=平衡定数('KOGAS'/'BL'/'thermo')。濃度[kmol/m³]基準。ZSM5 は Fuel2014形＋Dalena2021（上記定数参照）。"""
+    """r_MD [mol·kg⁻¹·s⁻¹]。source=速度定数('KOGAS'/'BercicLevec1993'=γ-アルミナLHHW,
+    'ZSM5'=ZSM-5厳密LHHW[Ortega 2018・分圧bar基準・飽和/水阻害])、
+    k_eq3=平衡定数('KOGAS'/'BL'/'thermo')。濃度[kmol/m³]基準（ZSM5 のみ分圧[bar]基準）。"""
     T = state.T
-    C = state.concentrations(unit="kmol/m3")
-    Keq3 = K_eq3(T, k_eq3)
-    C_M = C.get("CH3OH", 0.0)
-    C_W, C_D = C.get("H2O", 0.0), C.get("DME", 0.0)   # 生成物: 欠損=0 濃度
+    Keq3 = K_eq3(T, k_eq3)   # Δn=0 なので Kp=Kc（分圧/濃度どちらの駆動力にも共用可）
 
     if source == "ZSM5":
-        # ZSM-5: 可逆2次（Fuel2014形・Dalena2021パラメータ, LHHW分母なし）。既に mol·kg⁻¹·s⁻¹。
-        k = K0_ZSM5 * math.exp(-EA_ZSM5 / (R * T))
-        return k * (C_M ** 2 - C_W * C_D / Keq3)
+        # ZSM-5 厳密 LHHW（Ortega 2018, modified Klusáček & Schneider・分圧bar基準・上記定数）。
+        p = state.partial_pressures()          # [bar]
+        p_M = p.get("CH3OH", 0.0)
+        if p_M <= 0.0:
+            return 0.0
+        p_W, p_D = p.get("H2O", 0.0), p.get("DME", 0.0)
+        k = KT0_ORT * math.exp(-(EAPP_ORT / R) * (1.0 / T - 1.0 / T0_ORT))
+        K_M = math.exp(DS_M_ORT / R) * math.exp(-DH_M_ORT / (R * T))
+        K_W = math.exp(DS_W_ORT / R) * math.exp(-DH_W_ORT / (R * T))
+        df = 1.0 - p_D * p_W / (p_M ** 2 * Keq3)      # 駆動力（無次元）
+        r_meoh = k * K_M * p_M * df / (1.0 + 2.0 * K_M * p_M + K_W * p_W) ** 2
+        return r_meoh / 2.0                            # r_MeOH → r_MD
+
+    C = state.concentrations(unit="kmol/m3")
+    C_M = C.get("CH3OH", 0.0)
+    C_W, C_D = C.get("H2O", 0.0), C.get("DME", 0.0)   # 生成物: 欠損=0 濃度
 
     par = MD_PARAMS[source]
     k6 = _arrhenius(par["k6"], T)

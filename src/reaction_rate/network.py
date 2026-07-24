@@ -11,7 +11,8 @@
 触媒の役割(role)と反応:
   'synthesis'     : Cu/ZnO/Al2O3。model='KOGAS'(既定)/'VBF'/'Graaf1988'。MS/RWGS。
                     ※ Graaf はフガシティ基準・純メタノール合成向け（ハイブリッドでは非推奨）。
-  'dehydration'   : γ-Al2O3 or ZSM-5。model='KOGAS'(既定)/'BercicLevec1993'=γ-アルミナ/'ZSM5'=可逆2次(高活性)。MD。
+  'dehydration'   : γ-Al2O3 or ZSM-5。model='KOGAS'(既定)/'BercicLevec1993'=γ-アルミナ/
+                    'ZSM5'=ZSM-5厳密LHHW(Ortega 2018・飽和・水阻害)。MD。
   'carbonylation' : H-MOR。model= DTU / Cheung2007 / Cheng2017 / DTU-Cheung2007-{1,2,3} /
                     DTU-Cheng2017-{1,2,3}（計9種。carbonylation.py 参照）。
                     DTU系は per mol Al ×acid_site_density、Cheung2007/Cheng2017 は既に per kg。

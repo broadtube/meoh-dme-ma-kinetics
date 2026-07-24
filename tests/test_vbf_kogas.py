@@ -37,17 +37,31 @@ def test_ms_positive():
     assert vbf_kogas.rate_ms_rwgs(s, "KOGAS")["r_MS"] > 0
 
 
-def test_dehydration_zsm5_anchor():
-    # ZSM5 前指数は Dalena 2021 の 160℃ TOF/BAS に anchor: r_MD ≈ 2.62e-3 mol/(kg·s)
-    # (160℃, 1 atm, MeOH 5.6mol%, H2O/DME≈0 → 順反応のみ)
-    s = GasState(433.15, 1.01325, {"CH3OH": 0.056, "H2": 0.944})
-    r = vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
-    assert math.isclose(r, 2.62e-3, rel_tol=0.05)
+def test_dehydration_zsm5_in_measured_range():
+    # ZSM5=Ortega 2018 LHHW。実測レンジ r_MeOH=0.001–0.07 mol/(kg·s)(140–190℃)に入る（190℃,p_M=1bar 純）
+    s = GasState(463.15, 1.0, {"CH3OH": 1.0})
+    r_meoh = 2.0 * vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
+    assert 0.001 <= r_meoh <= 0.07
 
 
-def test_dehydration_zsm5_faster_than_gamma():
-    # ZSM-5(可逆2次) は 51 bar/250℃ で γ-アルミナ(KOGAS) より桁違いに速い（>1000倍）
-    s = GasState(T, 51.0, {"CH3OH": 0.05, "H2O": 0.01, "DME": 0.02, "CO": 0.3, "CO2": 0.05, "H2": 0.57})
+def test_dehydration_zsm5_matches_dalena_lowP():
+    # 低圧の絶対活性は独立の Dalena 2021（160℃・希薄 p_M≈0.057bar で r_MeOH=5.23e-3）と ~15% 一致
+    s = GasState(433.15, 0.057, {"CH3OH": 1.0})
+    r_meoh = 2.0 * vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
+    assert math.isclose(r_meoh, 5.23e-3, rel_tol=0.16)
+
+
+def test_dehydration_zsm5_saturates_at_high_pressure():
+    # LHHW（水/メタノール吸着）は高 p_M で飽和 → 速度が p_M と共に減少（純2次なら増加するはず）
+    y = {"CH3OH": 1.0}
+    r_lo = vbf_kogas.rate_dehydration(GasState(433.15, 0.5, y), source="ZSM5", k_eq3="thermo")
+    r_hi = vbf_kogas.rate_dehydration(GasState(433.15, 5.0, y), source="ZSM5", k_eq3="thermo")
+    assert r_hi < r_lo
+
+
+def test_dehydration_zsm5_faster_than_gamma_at_low_T():
+    # ZSM-5 は低温で γ-アルミナ(KOGAS)より高活性（190℃・1bar 混合で ~19倍）
+    s = GasState(463.15, 1.0, {"CH3OH": 0.5, "H2O": 0.05, "DME": 0.05, "N2": 0.4})
     r_zsm5 = vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
     r_gamma = vbf_kogas.rate_dehydration(s, source="KOGAS", k_eq3="thermo")
-    assert r_zsm5 / r_gamma > 1000.0
+    assert r_zsm5 / r_gamma > 10.0
