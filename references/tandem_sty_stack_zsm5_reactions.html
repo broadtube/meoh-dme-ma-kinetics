@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tandem_sty_stack_zsm5 — 反応式・速度式・パラメータ・出典</title>
+<style>
+  :root{
+    --ink:#1b242c; --muted:#5b6873; --faint:#8a95a0;
+    --paper:#f5f6f3; --panel:#ffffff; --panel-2:#eef1ee; --line:#dbe0dd;
+    --accent:#0d6d72; --accent-soft:#e2efef; --accent-ink:#0a5155;
+    --amber:#a15c11; --amber-soft:#f6ecdc; --amber-line:#e4c79a;
+    --green:#0f7d54;
+    --code-bg:#f0f2ef; --shadow:0 1px 2px rgba(20,30,40,.05),0 8px 24px rgba(20,30,40,.05);
+    --sans:ui-sans-serif,"Segoe UI",system-ui,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Code","Roboto Mono",Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ink:#e7edf0; --muted:#9aa7b1; --faint:#71808b;
+      --paper:#0f151a; --panel:#161e25; --panel-2:#1c262e; --line:#2a353e;
+      --accent:#45b6bb; --accent-soft:#12312f; --accent-ink:#7fd4d7;
+      --amber:#d69848; --amber-soft:#2b2113; --amber-line:#5a441f;
+      --green:#3fbe86;
+      --code-bg:#1a232b; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --ink:#1b242c; --muted:#5b6873; --paper:#f5f6f3; --panel:#ffffff; --panel-2:#eef1ee;
+    --line:#dbe0dd; --accent:#0d6d72; --accent-soft:#e2efef; --amber:#a15c11;
+    --amber-soft:#f6ecdc; --amber-line:#e4c79a; --green:#0f7d54; --code-bg:#f0f2ef;
+  }
+  :root[data-theme="dark"]{
+    --ink:#e7edf0; --muted:#9aa7b1; --paper:#0f151a; --panel:#161e25; --panel-2:#1c262e;
+    --line:#2a353e; --accent:#45b6bb; --accent-soft:#12312f; --amber:#d69848;
+    --amber-soft:#2b2113; --amber-line:#5a441f; --green:#3fbe86; --code-bg:#1a232b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;font-size:16px;}
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px 96px;}
+  header{padding:40px 0 8px;}
+  h1{font-size:1.5rem;margin:0 0 6px;line-height:1.25;}
+  .sub{color:var(--muted);font-size:.95rem;}
+  .cond{margin:20px 0 8px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);font-size:.9rem;}
+  .cond b{color:var(--accent-ink);}
+  .cond span{display:inline-block;margin-right:18px;white-space:nowrap;}
+  .stage{margin:34px 0 10px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;border-bottom:2px solid var(--accent-soft);padding-bottom:6px;}
+  .rx{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin:16px 0;box-shadow:var(--shadow);}
+  .rx h2{font-size:1.06rem;margin:0 0 4px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .tag{font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent-ink);text-transform:none;}
+  .eqn{font-family:var(--mono);font-size:1.02rem;margin:6px 0 4px;color:var(--ink);}
+  .rate{font-family:var(--mono);font-size:.92rem;background:var(--code-bg);border:1px solid var(--line);
+    border-radius:8px;padding:10px 12px;margin:10px 0;overflow-x:auto;white-space:nowrap;}
+  .lbl{font-size:.74rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 4px;}
+  table{border-collapse:collapse;width:100%;font-size:.86rem;margin:4px 0;}
+  th,td{text-align:left;padding:5px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{color:var(--muted);font-weight:600;font-size:.78rem;}
+  td.mono,.mono{font-family:var(--mono);}
+  .src{font-size:.84rem;color:var(--muted);margin-top:10px;border-left:3px solid var(--accent-soft);
+    padding-left:10px;}
+  .src b{color:var(--ink);}
+  .note{background:var(--amber-soft);border:1px solid var(--amber-line);border-radius:8px;
+    padding:8px 12px;margin:10px 0 0;font-size:.83rem;color:var(--ink);}
+  .ok{color:var(--green);font-weight:600;}
+  sub{font-size:.72em;} sup{font-size:.72em;}
+  code{font-family:var(--mono);background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;}
+  .foot{margin-top:40px;font-size:.82rem;color:var(--muted);}
+  a{color:var(--accent-ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>tandem_sty_stack_zsm5 — 反応式・速度式・パラメータ・出典</h1>
+  <div class="sub">単管タンデム（ハイブリッド合成床 → H-MOR カルボニル化床）で計算される全反応。
+    <code>examples/fig_tandem_sty_stack_zsm5.py</code> が使用するモデルに対応。</div>
+</header>
+
+<div class="cond">
+  <span><b>温度</b> 250 °C (523.15 K)</span>
+  <span><b>圧力</b> 51 bar</span>
+  <span><b>SV</b> 5000 h⁻¹</span>
+  <span><b>供給</b> H₂/CO=1.5, CO₂ 3 mol%</span>
+  <span><b>床①</b> Cu/ZnO + ZSM-5（合成＋脱水）</span>
+  <span><b>床②</b> H-MOR（カルボニル化）</span>
+  <span><b>平衡定数</b> <code>k_eq3="thermo"</code></span>
+</div>
+<div class="sub" style="margin:6px 2px 0;font-size:.82rem;">R = 8.314 J·mol⁻¹·K⁻¹。分圧 p は bar。速度はすべて mol·kg⁻¹·s⁻¹ に統一（native 単位からの換算係数を各所に明記）。「値@250℃」は本条件での定数値。</div>
+
+<!-- ============ STAGE 1 ============ -->
+<div class="stage">床① ハイブリッド合成床 — メタノール合成 / RWGS / 脱水</div>
+
+<!-- MS -->
+<div class="rx">
+  <h2>① メタノール合成 (MS) <span class="tag">model = KOGAS</span></h2>
+  <div class="eqn">CO₂ + 3 H₂ ⇌ CH₃OH + H₂O</div>
+  <div class="lbl">速度式（分圧 bar 基準）</div>
+  <div class="rate">r<sub>MS</sub> = k₁·p<sub>H₂</sub>·p<sub>CO₂</sub>·[ 1 − (1/K<sub>eq1</sub>)·(p<sub>CH₃OH</sub>·p<sub>H₂O</sub>)/(p<sub>CO₂</sub>·p<sub>H₂</sub>³) ] / DEN³ &nbsp;×&nbsp;(1000/3600)</div>
+  <div class="rate">DEN = 1 + K₂·(p<sub>H₂O</sub>/p<sub>H₂</sub>) + K₃·√p<sub>H₂</sub> + K₄·p<sub>H₂O</sub></div>
+  <div class="lbl">パラメータ &nbsp;κ = A·exp(B/RT)</div>
+  <table>
+    <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>意味</th></tr>
+    <tr><td class="mono">k₁</td><td class="mono">1.65</td><td class="mono">36696</td><td>MS 速度係数</td></tr>
+    <tr><td class="mono">K₂</td><td class="mono">3610</td><td class="mono">0</td><td>K<sub>H₂O</sub>/(K₈K₉K<sub>H₂</sub>)</td></tr>
+    <tr><td class="mono">K₃</td><td class="mono">0.37</td><td class="mono">17197</td><td>√p<sub>H₂</sub> の係数（VBF の √K<sub>H₂</sub>）</td></tr>
+    <tr><td class="mono">K₄</td><td class="mono">7.14×10⁻¹¹</td><td class="mono">124119</td><td>K<sub>H₂O</sub> [bar⁻¹]</td></tr>
+  </table>
+  <div class="note">native 単位 mol·g⁻¹·h⁻¹ → <b>×1000/3600</b> で mol·kg⁻¹·s⁻¹ に換算（k₁ が背負う次元）。分母第3項は <b>K₃·√p<sub>H₂</sub></b>（原論文の印字 √(K₃·p<sub>H₂</sub>) だと B が半分になり VBF と不整合）。</div>
+  <div class="src"><b>出典:</b> KOGAS 2008/2021 掲載値 ＝ <b>Ng, Chadwick &amp; Toseland 1999</b>, Chem. Eng. Sci. 54, 3587（Table 1）。式形は <b>Vanden Bussche &amp; Froment 1996</b>, J. Catal. 161, 1（B₁–₅ 共通、A のみ相違）。<span class="mono">vbf_kogas.MS_PARAMS["KOGAS"]</span></div>
+</div>
+
+<!-- RWGS -->
+<div class="rx">
+  <h2>② 逆水性ガスシフト (RWGS) <span class="tag">model = KOGAS</span></h2>
+  <div class="eqn">CO + H₂O ⇌ CO₂ + H₂</div>
+  <div class="lbl">速度式（DEN は MS と共通）</div>
+  <div class="rate">r<sub>RWGS</sub> = k₅·p<sub>CO₂</sub>·[ 1 − K<sub>eq2</sub>·(p<sub>CO</sub>·p<sub>H₂O</sub>)/(p<sub>CO₂</sub>·p<sub>H₂</sub>) ] / DEN &nbsp;×&nbsp;(1000/3600)</div>
+  <div class="lbl">パラメータ</div>
+  <table>
+    <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>値@250℃ (native)</th></tr>
+    <tr><td class="mono">k₅</td><td class="mono">1.09×10¹⁰</td><td class="mono">−94765</td><td class="mono">3.76</td></tr>
+  </table>
+  <div class="src"><b>出典:</b> 同上（KOGAS = Ng 1999 / VBF 1996）。RWGS は正反応、駆動力に K<sub>eq2</sub>。<span class="mono">vbf_kogas.rate_ms_rwgs</span></div>
+</div>
+
+<!-- MD -->
+<div class="rx">
+  <h2>③ メタノール脱水 (MD) <span class="tag">model = ZSM5（Ortega 2018 LHHW）</span></h2>
+  <div class="eqn">2 CH₃OH ⇌ CH₃OCH₃ + H₂O</div>
+  <div class="lbl">速度式 — modified Klusáček &amp; Schneider（解離吸着＋表面反応律速・水阻害・分圧 bar 基準）</div>
+  <div class="rate">r<sub>MeOH</sub> = k·K<sub>M</sub>·p<sub>M</sub>·( 1 − p<sub>D</sub>·p<sub>W</sub>/(p<sub>M</sub>²·K<sub>eq3</sub>) ) / ( 1 + 2·√(K<sub>M</sub>·p<sub>M</sub>) + K<sub>W</sub>·p<sub>W</sub> )²</div>
+  <div class="rate">r<sub>MD</sub> = r<sub>MeOH</sub> / 2 &nbsp;&nbsp;（量論 2 MeOH → DME）</div>
+  <div class="note">分母のメタノール項は <b>2·√(K<sub>M</sub>·p<sub>M</sub>)</b>（<b>解離吸着</b>の平方根依存）。反応次数 n<sub>M</sub>=1−2√(K<sub>M</sub>p<sub>M</sub>)/DEN が論文の <b>n<sub>M</sub>=0.07–0.45</b> と一致（線形 2K<sub>M</sub>p<sub>M</sub> だと n<sub>M</sub>&lt;0 で矛盾）。水項は線形（Eq.21 n<sub>W</sub>=−2K<sub>W</sub>p<sub>W</sub>/DEN で確認）。</div>
+  <div class="lbl">パラメータ &nbsp; k = k<sub>T0</sub>·exp[−(E<sub>app</sub>/R)(1/T−1/T₀)],&nbsp; K<sub>i</sub> = exp(ΔS°<sub>i</sub>/R)·exp(−ΔH°<sub>i</sub>/RT)</div>
+  <table>
+    <tr><th>定数</th><th>値</th><th>出典位置</th><th>値@250℃</th></tr>
+    <tr><td class="mono">k<sub>T0</sub></td><td class="mono">0.0816 mol·kg⁻¹·s⁻¹</td><td>Table 5</td><td class="mono">k = 10.7</td></tr>
+    <tr><td class="mono">E<sub>app</sub></td><td class="mono">109.3 kJ/mol</td><td>Table 5</td><td class="mono">—</td></tr>
+    <tr><td class="mono">T₀</td><td class="mono">438.15 K</td><td>§3.5.2</td><td class="mono">—</td></tr>
+    <tr><td class="mono">ΔS°<sub>M</sub> / ΔH°<sub>M</sub></td><td class="mono">−137 J·mol⁻¹·K⁻¹ / −70.3 kJ/mol</td><td>Table 5</td><td class="mono">K<sub>M</sub> = 0.73 bar⁻¹</td></tr>
+    <tr><td class="mono">ΔS°<sub>W</sub> / ΔH°<sub>W</sub></td><td class="mono">−153 J·mol⁻¹·K⁻¹ / −73.1 kJ/mol</td><td>Table 5</td><td class="mono">K<sub>W</sub> = 0.20 bar⁻¹</td></tr>
+  </table>
+  <div class="note"><span class="ok">✅</span> 速度定数・吸着定数・式形は <b>100% Ortega 由来</b>。平衡定数 K<sub>eq3</sub> のみ論文外（Ortega は ΔG°<sub>f</sub> から算出・標準教科書に委譲）＝下表の <code>thermo</code> を使用。フィット域 140–190℃・~1 bar、250℃/51bar は外挿だが LHHW は高 p で飽和し有界。</div>
+  <div class="src"><b>出典:</b> <b>Ortega, Rezaei, Hessel, Kolb, Chem. Eng. J. 347 (2018) 741–753</b>（無勾配循環反応器の固有速度）。式=Table 4, Eq.(16) / 定数=Table 5 / T₀=§3.5.2。<span class="mono">vbf_kogas.rate_dehydration(source="ZSM5")</span>。独立裏付け: Trypolskyi 2021・Zhokh 2022（同型 dissociative LHHW, E<sub>a</sub>≈113–123）、低圧で Dalena 2021 と ~15% 一致。</div>
+</div>
+
+<!-- ============ STAGE 2 ============ -->
+<div class="stage">床② H-MOR カルボニル化床</div>
+
+<!-- Carbonylation -->
+<div class="rx">
+  <h2>④ カルボニル化 <span class="tag">model = DTU-Cheung2007-2</span></h2>
+  <div class="eqn">CH₃OCH₃ + CO → CH₃COOCH₃ &nbsp;（DME + CO → 酢酸メチル）</div>
+  <div class="lbl">速度式（per mol Al。CO 一次・DME 零次・MA 阻害）</div>
+  <div class="rate">r<sub>MA</sub> = k₁·p<sub>CO</sub> / ( 1 + K₂·p<sub>MA</sub> + K₃·p<sub>MA</sub>/p<sub>DME</sub> ) · f<sub>reg</sub>(p<sub>DME</sub>) &nbsp;×&nbsp;酸点密度</div>
+  <div class="rate">f<sub>reg</sub> = K<sub>DME</sub>·p<sub>DME</sub> / (1 + K<sub>DME</sub>·p<sub>DME</sub>),&nbsp; K<sub>DME</sub> = 10⁵ bar⁻¹ &nbsp;（DME 枯渇で速度→0 の正則化）</div>
+  <div class="lbl">パラメータ &nbsp;（438 K 基準の van't Hoff: x(T)=x(438)·exp[−E/R·(1/T−1/438)]）</div>
+  <table>
+    <tr><th>定数</th><th>x(438 K)</th><th>温度依存 E [kJ/mol]</th><th>値@250℃</th><th>出典</th></tr>
+    <tr><td class="mono">k₁</td><td class="mono">2.28×10⁻⁵ mol·(mol Al)⁻¹·s⁻¹·bar⁻¹</td><td class="mono">69.6（Cheung）</td><td class="mono">5.11×10⁻⁴</td><td>DTU / Cheung</td></tr>
+    <tr><td class="mono">K₂</td><td class="mono">4.65 bar⁻¹</td><td class="mono">ΔH₂ = −97（DTU DFT）</td><td class="mono">0.061</td><td>DTU DFT</td></tr>
+    <tr><td class="mono">K₃</td><td class="mono">1.76（無次元）</td><td class="mono">固定（tier 2 では温度非依存）</td><td class="mono">1.76</td><td>DTU</td></tr>
+  </table>
+  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂, DTU DFT）。K₃ は固定（温度依存を入れるのは tier 3）。DTU 系は <b>per mol Al</b> のため、reactor 側で <b>×酸点密度</b>（Cheung2007/Cheng2017 は既に per kg）。</div>
+  <div class="src"><b>出典:</b> 基準式・K₂/K₃ = <b>DTU (mordenite carbonylation) 2017</b>, Catal. Sci. Technol.（Table 4, 438 K, per mol Al）。k₁ の温度依存 E<sub>a</sub> = <b>Cheung 2007</b>（Iglesia/BP）→ 整形形は <b>Diemer &amp; Luyben 2010</b>, IECR 49, 12224（査読, eq6-7, DOI 10.1021/ie101583j）。K₂ の van't Hoff ΔH₂ = DTU 自身の DFT。速度則(CO 一次・DME 零次・律速=8-MR 側ポケット Brønsted 酸点への CO 挿入)は Cheung 2006/07・Bhan 2007 で確立。<span class="mono">carbonylation.rate(model="DTU-Cheung2007-2")</span></div>
+</div>
+
+<!-- ============ EQUILIBRIA ============ -->
+<div class="stage">平衡定数 &nbsp;K = 10^(c₀/T + c₁)</div>
+<div class="rx">
+  <table>
+    <tr><th>反応</th><th>相関</th><th>値@250℃</th><th>出典</th></tr>
+    <tr><td>MS &nbsp;<span class="mono">K<sub>eq1</sub></span></td><td class="mono">10^(3066/T − 10.592)</td><td class="mono">1.86×10⁻⁵</td><td>KOGAS 2008 = Twigg(1986)/Stull(1969)</td></tr>
+    <tr><td>RWGS &nbsp;<span class="mono">K<sub>eq2</sub></span></td><td class="mono">10^(2073/T − 2.029)</td><td class="mono">85.8</td><td>同上（log₁₀(1/K<sub>eq2</sub>)=−2073/T+2.029）</td></tr>
+    <tr><td>MD &nbsp;<span class="mono">K<sub>eq3</sub></span> <code>thermo</code></td><td class="mono">10^(1121/T − 0.888)</td><td class="mono">18.0</td><td>Cantera(NASA 熱力学)由来 fit（BL とほぼ一致）</td></tr>
+  </table>
+  <div class="note">脱水 K<sub>eq3</sub> は本 example では <code>thermo</code>（≈18 @250℃、純熱力学量で触媒非依存）。独立相関 Tavan Eq.6 と 250℃で &lt;1% 一致。<code>KOGAS</code> 版（10^(10194/T−13.91)）は 523 K で 10^5.6 と過大なので不使用。</div>
+</div>
+
+<div class="foot">
+  実装: <span class="mono">src/reaction_rate/vbf_kogas.py</span>（MS/RWGS/MD）, <span class="mono">src/reaction_rate/carbonylation.py</span>（カルボニル化）。<br>
+  例: <span class="mono">examples/fig_tandem_sty_stack_zsm5.py</span> → <span class="mono">figures/tandem_sty_stack_zsm5.png</span>。触媒比較は <span class="mono">examples/fig_tandem_catalyst_compare.py</span>。<br>
+  完全な速度論リファレンスは <span class="mono">references/rate_equations.html</span> を参照。
+</div>
+</div>
+</body>
+</html>

@@ -74,8 +74,10 @@ _MD_UNIT_TO_MOL_KG_S = {"KOGAS": 1000.0 / 3600.0, "BercicLevec1993": 1000.0 / 36
 #   Ortega, Rezaei, Hessel, Kolb, Chem. Eng. J. 347 (2018) 741–753（無勾配循環反応器・取得済
 #   ortega2018_zsm5_dme_intrinsic_LHHW_CEJ.pdf）。速度則は下記すべて本論文内から出典明記:
 #   採用式 = modified Klusáček & Schneider＝【Table 4, Eq.(16)】解離吸着＋表面反応律速・水阻害・DME吸着無視:
-#     r_MeOH = k·K_M·p_M·(1 − p_D·p_W/(p_M²·Keq)) / (1 + 2·K_M·p_M + K_W·p_W)²   [mol_MeOH·kg⁻¹·s⁻¹]
+#     r_MeOH = k·K_M·p_M·(1 − p_D·p_W/(p_M²·Keq)) / (1 + 2·√(K_M·p_M) + K_W·p_W)²   [mol_MeOH·kg⁻¹·s⁻¹]
 #     p は bar、K_i は bar⁻¹（論文 nomenclature）。r_MD = r_MeOH/2（量論 2MeOH→DME、論文外の自明変換）。
+#     ※分母のメタノール項は √（解離吸着）。反応次数 n_M=1−2√(K_M p_M)/DEN が論文の n_M=0.07–0.45 と一致
+#       （線形 2·K_M·p_M だと n_M<0 で矛盾）。水項は線形 K_W·p_W（Eq.21 n_W=−2K_W p_W/DEN で確認）。
 #   k は再パラメータ化 Arrhenius【Eq.(10)】、K_i は吸着 S/H 形【Eq.(11)】。定数はすべて【Table 5】:
 #     k   = kT0·exp[−(Eapp/R)(1/T − 1/T0)],  kT0=0.0816(=8.16×10⁻² 表記) mol·kg⁻¹·s⁻¹,  Eapp=109.3 kJ/mol
 #     K_M = exp(ΔS_M/R)·exp(−ΔH_M/RT),  ΔS_M=−137 J/mol/K,  ΔH_M=−70.3 kJ/mol
@@ -178,7 +180,8 @@ def rate_dehydration(state, source: str = "KOGAS", k_eq3: str = "KOGAS") -> floa
         K_M = math.exp(DS_M_ORT / R) * math.exp(-DH_M_ORT / (R * T))
         K_W = math.exp(DS_W_ORT / R) * math.exp(-DH_W_ORT / (R * T))
         df = 1.0 - p_D * p_W / (p_M ** 2 * Keq3)      # 駆動力（無次元）
-        r_meoh = k * K_M * p_M * df / (1.0 + 2.0 * K_M * p_M + K_W * p_W) ** 2
+        # 分母のメタノール項は 2·√(K_M·p_M)（解離吸着の平方根依存, Eq.16）。
+        r_meoh = k * K_M * p_M * df / (1.0 + 2.0 * math.sqrt(K_M * p_M) + K_W * p_W) ** 2
         return r_meoh / 2.0                            # r_MeOH → r_MD
 
     C = state.concentrations(unit="kmol/m3")
