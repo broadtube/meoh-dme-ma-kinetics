@@ -105,6 +105,31 @@
 </div>
 <div class="sub" style="margin:6px 2px 0;font-size:.82rem;">R = 8.314 J·mol⁻¹·K⁻¹。分圧 p は bar。速度はすべて mol·kg⁻¹·s⁻¹ に統一（native 単位からの換算係数を各所に明記）。「値@250℃」は本条件での定数値。</div>
 
+<!-- ============ REACTOR SETUP ============ -->
+<div class="stage">反応器設定 — 触媒充填・流量（この example 固有）</div>
+<div class="rx">
+  <div class="lbl">触媒充填（等温・一定圧の<b>質量基準 PFR</b>: \(dF_i/dW\), W=触媒質量 [kg]）</div>
+  <table>
+    <tr><th>床 / 触媒</th><th>体積</th><th>充填密度 ρ [kg/m³]</th><th>質量 [g]</th></tr>
+    <tr><td>床① 合成 Cu/ZnO/Al₂O₃</td><td class="mono">（床①内・f_syn 配分）</td><td class="mono">1300</td><td class="mono">0.684</td></tr>
+    <tr><td>床① 脱水 ZSM-5</td><td class="mono">V<sub>HYB</sub> = 1.0 mL</td><td class="mono">800</td><td class="mono">0.379</td></tr>
+    <tr><td>床② カルボニル化 H-MOR</td><td class="mono">V<sub>MA</sub> = 2.0 mL</td><td class="mono">837</td><td class="mono">1.674</td></tr>
+    <tr><td><b>合計</b></td><td class="mono">V<sub>TOT</sub> = 3.0 mL</td><td>—</td><td class="mono">2.74</td></tr>
+  </table>
+  <div class="sub" style="font-size:.82rem;margin:4px 2px 0;">床① は合成＋脱水の<b>混合床</b>（体積 V<sub>HYB</sub>=1.0 mL を質量比 <b>f<sub>syn</sub>=1/1.9</b> で 合成:脱水 に配分）。STY の基準体積 = V<sub>TOT</sub> = 3.0 mL。</div>
+
+  <div class="lbl">供給流量（SV＋組成 → モル流。内径は不使用）</div>
+  <div class="rate">\[ N = \frac{\mathrm{SV}\cdot V_\mathrm{TOT}}{3600\cdot V_\mathrm{m}}, \qquad V_\mathrm{m} = 22.414\times10^{-3}\ \mathrm{m^3/mol\ (STP)} \]</div>
+  <table>
+    <tr><th>成分</th><th>モル流 [mol/s]</th><th>mol%</th><th>備考</th></tr>
+    <tr><td>CO</td><td class="mono">7.21×10⁻⁵</td><td class="mono">38.8</td><td>y<sub>CO</sub>=(1−y<sub>CO₂</sub>)/(1+H₂/CO)</td></tr>
+    <tr><td>H₂</td><td class="mono">1.08×10⁻⁴</td><td class="mono">58.2</td><td>H₂/CO = 1.5</td></tr>
+    <tr><td>CO₂</td><td class="mono">5.58×10⁻⁶</td><td class="mono">3.0</td><td>Y<sub>CO₂</sub> = 3 mol%</td></tr>
+    <tr><td><b>合計 N</b></td><td class="mono">1.86×10⁻⁴</td><td class="mono">100</td><td>SV=5000 h⁻¹, V<sub>TOT</sub>=3.0 mL</td></tr>
+  </table>
+  <div class="note"><b>反応管の内径について:</b> モル流 N は <b>GHSV（SV=5000 h⁻¹）× 触媒体積 V<sub>TOT</sub> から決まり、内径は式に現れない</b>（等温・一定圧・質量基準 PFR で ΔP・線速度・伝熱を計算しないため）。<b>内径を 10 mm と仮定すると</b> V<sub>TOT</sub>=3.0 mL は <b>床長 L = 38.2 mm</b> に相当（空塔線速度 ≈ 53 mm/s, STP）。これは幾何の参考値で<b>結果には影響しない＝内径の指定は任意</b>（ΔP や伝熱を扱う CFD/1D 非等温モデルに拡張する場合のみ必要）。</div>
+</div>
+
 <!-- ============ STAGE 1 ============ -->
 <div class="stage">床① ハイブリッド合成床 — メタノール合成 / RWGS / 脱水</div>
 
