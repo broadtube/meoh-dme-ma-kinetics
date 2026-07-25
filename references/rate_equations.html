@@ -456,7 +456,7 @@
           </mfrac>
         </math>
       </div>
-      <p class="msub-note">この式のみ濃度 C [kmol·m⁻³] 基準（他は分圧 p [bar]）。速度の native 単位は KOGAS(=Ng) が mol·g⁻¹·h⁻¹、Bercič–Levec 1993（原著 p6）が kmol·kg⁻¹·h⁻¹ で、<b>どちらも ×1000/3600 で mol·kg⁻¹·s⁻¹ に換算</b>（§2②）。</p>
+      <p class="msub-note">この式のみ濃度 C [kmol·m⁻³] 基準（他は分圧 p [bar]）。速度の native 単位は KOGAS(=Ng) が mol·g⁻¹·h⁻¹、Bercič–Levec 1993（原著 p6）が kmol·kg⁻¹·h⁻¹ で、<b>どちらも ×1000/3600 で mol·kg⁻¹·s⁻¹ に換算</b>（§2②）。<b>⚠️ 基準:</b> 上式は BL/Ng の<b>メタノール消失速度</b>（BL1993: rM=rate of methanol disappearance）。<code>rate_dehydration()</code> は反応器の量論 {CH3OH:−2·r<sub>MD</sub>, DME:+r<sub>MD</sub>} に合わせ、この値を <b>÷2 して DME 生成速度 r<sub>MD</sub></b> を返す（KOGAS/BL/ZSM5 全 source 共通）。</p>
     </div>
 
     <div class="tbl-scroll">

@@ -13,6 +13,8 @@
        原論文は √(K3·pH2) と印字するが、それだと B が半分になり VBF と不整合。
   r_MD   = k6·K_CH3OH²·[C_CH3OH² − C_H2O·C_DME/Keq3] / (1 + 2√(K_CH3OH·C_CH3OH) + K_H2O·C_H2O)⁴
     ⚠️ 濃度 C は kmol/m³（state.concentrations の既定）。速度[mol·kg⁻¹·s⁻¹]。
+    ⚠️ この式は BL/Ng の「メタノール消失速度」。rate_dehydration() は network の量論に合わせ
+       ÷2 して DME 生成速度(r_MD)を返す（KOGAS/BL/ZSM5 全 source 共通の基準）。
 
 出所: KOGAS(2008/2021) の値は Ng, Chadwick & Toseland 1999 Table 1 と完全一致
       （VBF の B(1–5) ＋ Bercič–Levec の脱水を Ng が自データにフィット）。
@@ -163,9 +165,13 @@ def rate_ms_rwgs(state, model: str = "KOGAS") -> dict[str, float]:
 
 
 def rate_dehydration(state, source: str = "KOGAS", k_eq3: str = "KOGAS") -> float:
-    """r_MD [mol·kg⁻¹·s⁻¹]。source=速度定数('KOGAS'/'BercicLevec1993'=γ-アルミナLHHW,
+    """r_MD [mol·kg⁻¹·s⁻¹] = **DME 生成速度**（＝反応進行度基準, 2CH3OH→DME+H2O）。
+    ⚠️ 原著の速度則はいずれも「メタノール消失速度」基準（BL1993: rM=rate of methanol
+    disappearance / Ortega: r_MeOH）なので、network の量論 {CH3OH:-2·rMD, DME:+rMD} に
+    合わせて **全 source で ÷2 して DME 生成速度に統一** する（KOGAS/BL/ZSM5 とも）。
+    source=速度定数('KOGAS'/'BercicLevec1993'=γ-アルミナLHHW,
     'ZSM5'=ZSM-5厳密LHHW[Ortega 2018・分圧bar基準・飽和/水阻害])、
-    k_eq3=平衡定数('KOGAS'/'BL'/'thermo')。濃度[kmol/m³]基準（ZSM5 のみ分圧[bar]基準）。"""
+    k_eq3=平衡定数('KOGAS'(過大・非推奨)/'BL'/'thermo'(推奨))。濃度[kmol/m³]基準（ZSM5 のみ分圧[bar]基準）。"""
     T = state.T
     Keq3 = K_eq3(T, k_eq3)   # Δn=0 なので Kp=Kc（分圧/濃度どちらの駆動力にも共用可）
 
@@ -194,4 +200,5 @@ def rate_dehydration(state, source: str = "KOGAS", k_eq3: str = "KOGAS") -> floa
     K_W = _arrhenius(par["K_H2O"], T)
     num = k6 * K_M ** 2 * (C_M ** 2 - C_W * C_D / Keq3)
     den = (1.0 + 2.0 * (K_M * C_M) ** 0.5 + K_W * C_W) ** 4
-    return (num / den) * _MD_UNIT_TO_MOL_KG_S[source]   # 源の速度単位 → mol·kg⁻¹·s⁻¹
+    r_meoh = (num / den) * _MD_UNIT_TO_MOL_KG_S[source]   # BL/Ng eq(10)=メタノール消失速度 → mol·kg⁻¹·s⁻¹
+    return r_meoh / 2.0                                   # r_MeOH → r_MD（DME 生成基準に統一）

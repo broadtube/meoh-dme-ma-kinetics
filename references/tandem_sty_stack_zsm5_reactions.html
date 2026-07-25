@@ -122,7 +122,7 @@
   <div class="rate">r<sub>RWGS</sub> = k₅·p<sub>CO₂</sub>·[ 1 − K<sub>eq2</sub>·(p<sub>CO</sub>·p<sub>H₂O</sub>)/(p<sub>CO₂</sub>·p<sub>H₂</sub>) ] / DEN &nbsp;×&nbsp;(1000/3600)</div>
   <div class="lbl">パラメータ</div>
   <table>
-    <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>値@250℃ (native)</th></tr>
+    <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>A·exp(B/RT)@250℃<br>(×1000/3600 前)</th></tr>
     <tr><td class="mono">k₅</td><td class="mono">1.09×10¹⁰</td><td class="mono">−94765</td><td class="mono">3.76</td></tr>
   </table>
   <div class="src"><b>出典:</b> 同上（KOGAS = Ng 1999 / VBF 1996）。RWGS は正反応、駆動力に K<sub>eq2</sub>。<span class="mono">vbf_kogas.rate_ms_rwgs</span></div>
@@ -166,8 +166,8 @@
     <tr><td class="mono">K₂</td><td class="mono">4.65 bar⁻¹</td><td class="mono">ΔH₂ = −97（DTU DFT）</td><td class="mono">0.061</td><td>DTU DFT</td></tr>
     <tr><td class="mono">K₃</td><td class="mono">1.76（無次元）</td><td class="mono">固定（tier 2 では温度非依存）</td><td class="mono">1.76</td><td>DTU</td></tr>
   </table>
-  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂, DTU DFT）。K₃ は固定（温度依存を入れるのは tier 3）。DTU 系は <b>per mol Al</b> のため、reactor 側で <b>×酸点密度</b>（Cheung2007/Cheng2017 は既に per kg）。</div>
-  <div class="src"><b>出典:</b> 基準式・K₂/K₃ = <b>DTU (mordenite carbonylation) 2017</b>, Catal. Sci. Technol.（Table 4, 438 K, per mol Al）。k₁ の温度依存 E<sub>a</sub> = <b>Cheung 2007</b>（Iglesia/BP）→ 整形形は <b>Diemer &amp; Luyben 2010</b>, IECR 49, 12224（査読, eq6-7, DOI 10.1021/ie101583j）。K₂ の van't Hoff ΔH₂ = DTU 自身の DFT。速度則(CO 一次・DME 零次・律速=8-MR 側ポケット Brønsted 酸点への CO 挿入)は Cheung 2006/07・Bhan 2007 で確立。<span class="mono">carbonylation.rate(model="DTU-Cheung2007-2")</span></div>
+  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂）＋ K₃ 固定（温度依存は tier 3）。<b>実装上の注意:</b> ① DTU 系は <b>per mol Al</b> なので reactor 側で <b>×酸点密度</b>＝<b>1.43 mmol/g（=1.43 mol Al/kg, CBV21A モルデナイト）</b>を掛ける（Cheung2007/Cheng2017 は既に per kg）。② 第3項 K₃·p<sub>MA</sub>/p<sub>DME</sub> は <b>p<sub>DME</sub>→0 でゼロ除算</b>になるため、実装では p<sub>DME</sub>=0 のとき第3項を 0 とする。③ f<sub>reg</sub> は DTU 公表式にはない移植項（Diemer&amp;Luyben の DME 正則化）で、検証域 p<sub>DME</sub>≳10⁻⁴ bar では ≈1 で速度不変。</div>
+  <div class="src"><b>出典:</b> 基準式・K₂/K₃ = <b>DTU (mordenite carbonylation) 2017</b>, Catal. Sci. Technol.（Table 4, 438 K, per mol Al）。k₁ の温度依存 E<sub>a</sub> = <b>Cheung 2007</b>（Iglesia/BP）→ 整形形は <b>Diemer &amp; Luyben 2010</b>, IECR 49, 12224（査読, eq6-7, DOI 10.1021/ie101583j）。K₂ の van't Hoff ΔH₂=−97 kJ/mol は <b>DTU の DFT 吸着エネルギー（−1.01 eV）由来の近似</b>、<b>K₃ の ΔH₃=−8 kJ/mol は論文の直接裏付けなしの見積り</b>（tier 2 では K₃ 固定なので本 example の結果には無影響）。速度則(CO 一次・DME 零次・律速=8-MR 側ポケット Brønsted 酸点への CO 挿入)は Cheung 2006/07・Bhan 2007 で確立。<span class="mono">carbonylation.rate(model="DTU-Cheung2007-2")</span></div>
 </div>
 
 <!-- ============ EQUILIBRIA ============ -->
@@ -175,7 +175,7 @@
 <div class="rx">
   <table>
     <tr><th>反応</th><th>相関</th><th>値@250℃</th><th>出典</th></tr>
-    <tr><td>MS &nbsp;<span class="mono">K<sub>eq1</sub></span></td><td class="mono">10^(3066/T − 10.592)</td><td class="mono">1.86×10⁻⁵</td><td>KOGAS 2008 = Twigg(1986)/Stull(1969)</td></tr>
+    <tr><td>MS &nbsp;<span class="mono">K<sub>eq1</sub></span></td><td class="mono">10^(3066/T − 10.592)</td><td class="mono">1.86×10⁻⁵</td><td>VBF1996/Graaf1986（KOGAS は Twigg 引用のみ・数値非掲載）</td></tr>
     <tr><td>RWGS &nbsp;<span class="mono">K<sub>eq2</sub></span></td><td class="mono">10^(2073/T − 2.029)</td><td class="mono">85.8</td><td>同上（log₁₀(1/K<sub>eq2</sub>)=−2073/T+2.029）</td></tr>
     <tr><td>MD &nbsp;<span class="mono">K<sub>eq3</sub></span> <code>thermo</code></td><td class="mono">10^(1121/T − 0.888)</td><td class="mono">18.0</td><td>Cantera(NASA 熱力学)由来 fit（BL とほぼ一致）</td></tr>
   </table>
