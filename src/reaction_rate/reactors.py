@@ -25,10 +25,15 @@ class CatalystBed:
              例) 単一   : {"synthesis": 50.0}
                  DME合成: {"synthesis": 4.0, "dehydration": 1.0}   # 8:2
                  タンデム: {"synthesis": .., "dehydration": .., "carbonylation": ..}
-    acid_site_density : mol Al/kg（'carbonylation' の DTU レート変換に使用）。
+    acid_site_density : mol Al/kg（'carbonylation' の DTU per-mol-Al → per-kg 変換に使用）。
+        既定 1.43 = 1.43 mmol/g の全 Al 量。出典: Rasmussen, Christensen ら, Catal. Sci.
+        Technol. 2017（DTU mordenite carbonylation）§2 Experimental「Mordenite (SiO2/Al2O3=20)
+        obtained from Zeolyst (CBV21A) and all Al sites (1.43×10⁻³ mol Al/g)」。DTU は TOF を
+        全 Al 基準で定義しているため、per-mol-Al 速度定数 k1 とこの値は同一基準で整合。
+        （公称 SiO2/Al2O3=20 の理想値は ~1.51 mmol/g、報告値 1.43 は実効 ~22 相当）。
     """
     masses: dict[str, float]
-    acid_site_density: float = 1.43   # =1.43 mmol/g (DTU CBV21A)
+    acid_site_density: float = 1.43   # [mol Al/kg] =1.43 mmol/g。DTU2017 §2, Zeolyst CBV21A(SiO2/Al2O3=20)
 
     def total(self) -> float:
         return sum(self.masses.values())
