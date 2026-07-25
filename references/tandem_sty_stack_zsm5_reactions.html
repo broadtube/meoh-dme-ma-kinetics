@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>tandem_sty_stack_zsm5 — 反応式・速度式・パラメータ・出典</title>
+<script>
+  window.MathJax = {
+    loader: { load: ['[tex]/mhchem'] },
+    tex: {
+      packages: { '[+]': ['mhchem'] },
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['\\[', '\\]']]
+    },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <style>
   :root{
     --ink:#1b242c; --muted:#5b6873; --faint:#8a95a0;
@@ -53,9 +65,10 @@
   .rx h2{font-size:1.06rem;margin:0 0 4px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
   .tag{font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:999px;
     background:var(--accent-soft);color:var(--accent-ink);text-transform:none;}
-  .eqn{font-family:var(--mono);font-size:1.02rem;margin:6px 0 4px;color:var(--ink);}
-  .rate{font-family:var(--mono);font-size:.92rem;background:var(--code-bg);border:1px solid var(--line);
-    border-radius:8px;padding:10px 12px;margin:10px 0;overflow-x:auto;white-space:nowrap;}
+  .eqn{margin:4px 0 2px;}                 /* 反応式（mhchem） */
+  .rate{background:var(--code-bg);border:1px solid var(--line);
+    border-radius:8px;padding:6px 12px;margin:10px 0;overflow-x:auto;}
+  .rate mjx-container[display="true"]{margin:.35em 0;}
   .lbl{font-size:.74rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 4px;}
   table{border-collapse:collapse;width:100%;font-size:.86rem;margin:4px 0;}
   th,td{text-align:left;padding:5px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
@@ -78,7 +91,7 @@
 <header>
   <h1>tandem_sty_stack_zsm5 — 反応式・速度式・パラメータ・出典</h1>
   <div class="sub">単管タンデム（ハイブリッド合成床 → H-MOR カルボニル化床）で計算される全反応。
-    <code>examples/fig_tandem_sty_stack_zsm5.py</code> が使用するモデルに対応。</div>
+    <code>examples/fig_tandem_sty_stack_zsm5.py</code> が使用するモデルに対応。数式は MathJax(CDN) で描画（オフライン時は LaTeX ソースが表示されます）。</div>
 </header>
 
 <div class="cond">
@@ -98,11 +111,11 @@
 <!-- MS -->
 <div class="rx">
   <h2>① メタノール合成 (MS) <span class="tag">model = KOGAS</span></h2>
-  <div class="eqn">CO₂ + 3 H₂ ⇌ CH₃OH + H₂O</div>
+  <div class="eqn">\[ \ce{CO2 + 3H2 <=> CH3OH + H2O} \]</div>
   <div class="lbl">速度式（分圧 bar 基準）</div>
-  <div class="rate">r<sub>MS</sub> = k₁·p<sub>H₂</sub>·p<sub>CO₂</sub>·[ 1 − (1/K<sub>eq1</sub>)·(p<sub>CH₃OH</sub>·p<sub>H₂O</sub>)/(p<sub>CO₂</sub>·p<sub>H₂</sub>³) ] / DEN³ &nbsp;×&nbsp;(1000/3600)</div>
-  <div class="rate">DEN = 1 + K₂·(p<sub>H₂O</sub>/p<sub>H₂</sub>) + K₃·√p<sub>H₂</sub> + K₄·p<sub>H₂O</sub></div>
-  <div class="lbl">パラメータ &nbsp;κ = A·exp(B/RT)</div>
+  <div class="rate">\[ r_\mathrm{MS} = \frac{k_1\,p_\mathrm{H_2}\,p_\mathrm{CO_2}\left[\,1 - \dfrac{1}{K_\mathrm{eq1}}\dfrac{p_\mathrm{CH_3OH}\,p_\mathrm{H_2O}}{p_\mathrm{CO_2}\,p_\mathrm{H_2}^{3}}\right]}{\mathrm{DEN}^{3}}\times\frac{1000}{3600} \]</div>
+  <div class="rate">\[ \mathrm{DEN} = 1 + K_2\frac{p_\mathrm{H_2O}}{p_\mathrm{H_2}} + K_3\sqrt{p_\mathrm{H_2}} + K_4\,p_\mathrm{H_2O} \]</div>
+  <div class="lbl">パラメータ &nbsp;\(\kappa = A\exp(B/RT)\)</div>
   <table>
     <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>意味</th></tr>
     <tr><td class="mono">k₁</td><td class="mono">1.65</td><td class="mono">36696</td><td>MS 速度係数</td></tr>
@@ -110,19 +123,19 @@
     <tr><td class="mono">K₃</td><td class="mono">0.37</td><td class="mono">17197</td><td>√p<sub>H₂</sub> の係数（VBF の √K<sub>H₂</sub>）</td></tr>
     <tr><td class="mono">K₄</td><td class="mono">7.14×10⁻¹¹</td><td class="mono">124119</td><td>K<sub>H₂O</sub> [bar⁻¹]</td></tr>
   </table>
-  <div class="note">native 単位 mol·g⁻¹·h⁻¹ → <b>×1000/3600</b> で mol·kg⁻¹·s⁻¹ に換算（k₁ が背負う次元）。分母第3項は <b>K₃·√p<sub>H₂</sub></b>（原論文の印字 √(K₃·p<sub>H₂</sub>) だと B が半分になり VBF と不整合）。</div>
+  <div class="note">native 単位 mol·g⁻¹·h⁻¹ → <b>×1000/3600</b> で mol·kg⁻¹·s⁻¹ に換算（k₁ が背負う次元）。分母第3項は <b>\(K_3\sqrt{p_\mathrm{H_2}}\)</b>（原論文の印字 \(\sqrt{K_3\,p_\mathrm{H_2}}\) だと B が半分になり VBF と不整合）。</div>
   <div class="src"><b>出典:</b> KOGAS 2008/2021 掲載値 ＝ <b>Ng, Chadwick &amp; Toseland 1999</b>, Chem. Eng. Sci. 54, 3587（Table 1）。式形は <b>Vanden Bussche &amp; Froment 1996</b>, J. Catal. 161, 1（B₁–₅ 共通、A のみ相違）。<span class="mono">vbf_kogas.MS_PARAMS["KOGAS"]</span></div>
 </div>
 
 <!-- RWGS -->
 <div class="rx">
   <h2>② 逆水性ガスシフト (RWGS) <span class="tag">model = KOGAS</span></h2>
-  <div class="eqn">CO + H₂O ⇌ CO₂ + H₂</div>
+  <div class="eqn">\[ \ce{CO + H2O <=> CO2 + H2} \]</div>
   <div class="lbl">速度式（DEN は MS と共通）</div>
-  <div class="rate">r<sub>RWGS</sub> = k₅·p<sub>CO₂</sub>·[ 1 − K<sub>eq2</sub>·(p<sub>CO</sub>·p<sub>H₂O</sub>)/(p<sub>CO₂</sub>·p<sub>H₂</sub>) ] / DEN &nbsp;×&nbsp;(1000/3600)</div>
+  <div class="rate">\[ r_\mathrm{RWGS} = \frac{k_5\,p_\mathrm{CO_2}\left[\,1 - K_\mathrm{eq2}\dfrac{p_\mathrm{CO}\,p_\mathrm{H_2O}}{p_\mathrm{CO_2}\,p_\mathrm{H_2}}\right]}{\mathrm{DEN}}\times\frac{1000}{3600} \]</div>
   <div class="lbl">パラメータ</div>
   <table>
-    <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>A·exp(B/RT)@250℃<br>(×1000/3600 前)</th></tr>
+    <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>\(A\exp(B/RT)\)@250℃<br>(×1000/3600 前)</th></tr>
     <tr><td class="mono">k₅</td><td class="mono">1.09×10¹⁰</td><td class="mono">−94765</td><td class="mono">3.76</td></tr>
   </table>
   <div class="src"><b>出典:</b> 同上（KOGAS = Ng 1999 / VBF 1996）。RWGS は正反応、駆動力に K<sub>eq2</sub>。<span class="mono">vbf_kogas.rate_ms_rwgs</span></div>
@@ -131,12 +144,12 @@
 <!-- MD -->
 <div class="rx">
   <h2>③ メタノール脱水 (MD) <span class="tag">model = ZSM5（Ortega 2018 LHHW）</span></h2>
-  <div class="eqn">2 CH₃OH ⇌ CH₃OCH₃ + H₂O</div>
+  <div class="eqn">\[ \ce{2 CH3OH <=> CH3OCH3 + H2O} \]</div>
   <div class="lbl">速度式 — modified Klusáček &amp; Schneider（解離吸着＋表面反応律速・水阻害・分圧 bar 基準）</div>
-  <div class="rate">r<sub>MeOH</sub> = k·K<sub>M</sub>·p<sub>M</sub>·( 1 − p<sub>D</sub>·p<sub>W</sub>/(p<sub>M</sub>²·K<sub>eq3</sub>) ) / ( 1 + 2·√(K<sub>M</sub>·p<sub>M</sub>) + K<sub>W</sub>·p<sub>W</sub> )²</div>
-  <div class="rate">r<sub>MD</sub> = r<sub>MeOH</sub> / 2 &nbsp;&nbsp;（量論 2 MeOH → DME）</div>
-  <div class="note">分母のメタノール項は <b>2·√(K<sub>M</sub>·p<sub>M</sub>)</b>（<b>解離吸着</b>の平方根依存）。反応次数 n<sub>M</sub>=1−2√(K<sub>M</sub>p<sub>M</sub>)/DEN が論文の <b>n<sub>M</sub>=0.07–0.45</b> と一致（線形 2K<sub>M</sub>p<sub>M</sub> だと n<sub>M</sub>&lt;0 で矛盾）。水項は線形（Eq.21 n<sub>W</sub>=−2K<sub>W</sub>p<sub>W</sub>/DEN で確認）。</div>
-  <div class="lbl">パラメータ &nbsp; k = k<sub>T0</sub>·exp[−(E<sub>app</sub>/R)(1/T−1/T₀)],&nbsp; K<sub>i</sub> = exp(ΔS°<sub>i</sub>/R)·exp(−ΔH°<sub>i</sub>/RT)</div>
+  <div class="rate">\[ r_\mathrm{MeOH} = \frac{k\,K_M\,p_M\left(1 - \dfrac{p_D\,p_W}{p_M^{2}\,K_\mathrm{eq3}}\right)}{\left(1 + 2\sqrt{K_M\,p_M} + K_W\,p_W\right)^{2}}, \qquad r_\mathrm{MD} = \tfrac{1}{2}\,r_\mathrm{MeOH} \]</div>
+  <div class="note">分母のメタノール項は <b>\(2\sqrt{K_M\,p_M}\)</b>（<b>解離吸着</b>の平方根依存）。反応次数 \(n_M = 1 - 2\sqrt{K_M p_M}/\mathrm{DEN}\) が論文の <b>\(n_M = 0.07\text{–}0.45\)</b> と一致（線形 \(2K_M p_M\) だと \(n_M<0\) で矛盾）。水項は線形（Eq.21 \(n_W = -2K_W p_W/\mathrm{DEN}\) で確認）。</div>
+  <div class="lbl">パラメータ</div>
+  <div class="rate">\[ k = k_\mathrm{T0}\exp\!\left[-\frac{E_\mathrm{app}}{R}\!\left(\frac1T-\frac1{T_0}\right)\right], \qquad K_i = \exp\!\frac{\Delta S^\circ_i}{R}\,\exp\!\left(-\frac{\Delta H^\circ_i}{RT}\right) \]</div>
   <table>
     <tr><th>定数</th><th>値</th><th>出典位置</th><th>値@250℃</th></tr>
     <tr><td class="mono">k<sub>T0</sub></td><td class="mono">0.0816 mol·kg⁻¹·s⁻¹</td><td>Table 5</td><td class="mono">k = 10.7</td></tr>
@@ -155,31 +168,34 @@
 <!-- Carbonylation -->
 <div class="rx">
   <h2>④ カルボニル化 <span class="tag">model = DTU-Cheung2007-2</span></h2>
-  <div class="eqn">CH₃OCH₃ + CO → CH₃COOCH₃ &nbsp;（DME + CO → 酢酸メチル）</div>
+  <div class="eqn">\[ \ce{CH3OCH3 + CO -> CH3COOCH3} \]</div>
+  <div class="sub" style="margin:-2px 0 4px;font-size:.85rem;">（DME + CO → 酢酸メチル）</div>
   <div class="lbl">速度式（per mol Al。CO 一次・DME 零次・MA 阻害）</div>
-  <div class="rate">r<sub>MA</sub> = k₁·p<sub>CO</sub> / ( 1 + K₂·p<sub>MA</sub> + K₃·p<sub>MA</sub>/p<sub>DME</sub> ) · f<sub>reg</sub>(p<sub>DME</sub>) &nbsp;×&nbsp;酸点密度</div>
-  <div class="rate">f<sub>reg</sub> = K<sub>DME</sub>·p<sub>DME</sub> / (1 + K<sub>DME</sub>·p<sub>DME</sub>),&nbsp; K<sub>DME</sub> = 10⁵ bar⁻¹ &nbsp;（DME 枯渇で速度→0 の正則化）</div>
-  <div class="lbl">パラメータ &nbsp;（438 K 基準の van't Hoff: x(T)=x(438)·exp[−E/R·(1/T−1/438)]）</div>
+  <div class="rate">\[ r_\mathrm{MA} = \frac{k_1\,p_\mathrm{CO}}{1 + K_2\,p_\mathrm{MA} + K_3\,p_\mathrm{MA}/p_\mathrm{DME}}\;f_\mathrm{reg}(p_\mathrm{DME})\;\times\;\rho_\mathrm{acid} \]</div>
+  <div class="rate">\[ f_\mathrm{reg} = \frac{K_\mathrm{DME}\,p_\mathrm{DME}}{1 + K_\mathrm{DME}\,p_\mathrm{DME}}, \qquad K_\mathrm{DME} = 10^{5}\ \mathrm{bar^{-1}} \]</div>
+  <div class="sub" style="margin:-2px 0 4px;font-size:.85rem;">（DME 枯渇で速度 → 0 の正則化）</div>
+  <div class="lbl">パラメータ &nbsp;（438 K 基準の van't Hoff）</div>
+  <div class="rate">\[ x(T) = x(438)\exp\!\left[-\frac{E}{R}\!\left(\frac1T-\frac1{438}\right)\right] \]</div>
   <table>
     <tr><th>定数</th><th>x(438 K)</th><th>温度依存 E [kJ/mol]</th><th>値@250℃</th><th>出典</th></tr>
     <tr><td class="mono">k₁</td><td class="mono">2.28×10⁻⁵ mol·(mol Al)⁻¹·s⁻¹·bar⁻¹</td><td class="mono">69.6（Cheung）</td><td class="mono">5.11×10⁻⁴</td><td>DTU / Cheung</td></tr>
     <tr><td class="mono">K₂</td><td class="mono">4.65 bar⁻¹</td><td class="mono">ΔH₂ = −97（DTU DFT）</td><td class="mono">0.061</td><td>DTU DFT</td></tr>
     <tr><td class="mono">K₃</td><td class="mono">1.76（無次元）</td><td class="mono">固定（tier 2 では温度非依存）</td><td class="mono">1.76</td><td>DTU</td></tr>
   </table>
-  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂）＋ K₃ 固定（温度依存は tier 3）。<b>実装上の注意:</b> ① DTU 系は <b>per mol Al</b> なので reactor 側で <b>×酸点密度</b>＝<b>1.43 mmol/g（=1.43 mol Al/kg, CBV21A モルデナイト）</b>を掛ける（Cheung2007/Cheng2017 は既に per kg）。② 第3項 K₃·p<sub>MA</sub>/p<sub>DME</sub> は <b>p<sub>DME</sub>→0 でゼロ除算</b>になるため、実装では p<sub>DME</sub>=0 のとき第3項を 0 とする。③ f<sub>reg</sub> は DTU 公表式にはない移植項（Diemer&amp;Luyben の DME 正則化）で、検証域 p<sub>DME</sub>≳10⁻⁴ bar では ≈1 で速度不変。</div>
+  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂）＋ K₃ 固定（温度依存は tier 3）。<b>実装上の注意:</b> ① DTU 系は <b>per mol Al</b> なので reactor 側で <b>×酸点密度 \(\rho_\mathrm{acid}\)</b>＝<b>1.43 mmol/g（=1.43 mol Al/kg, CBV21A モルデナイト）</b>を掛ける（Cheung2007/Cheng2017 は既に per kg）。② 第3項 \(K_3\,p_\mathrm{MA}/p_\mathrm{DME}\) は <b>\(p_\mathrm{DME}\to 0\) でゼロ除算</b>になるため、実装では \(p_\mathrm{DME}=0\) のとき第3項を 0 とする。③ \(f_\mathrm{reg}\) は DTU 公表式にはない移植項（Diemer&amp;Luyben の DME 正則化）で、検証域 \(p_\mathrm{DME}\gtrsim 10^{-4}\) bar では ≈1 で速度不変。</div>
   <div class="src"><b>出典:</b> 基準式・K₂/K₃ = <b>DTU (mordenite carbonylation) 2017</b>, Catal. Sci. Technol.（Table 4, 438 K, per mol Al）。k₁ の温度依存 E<sub>a</sub> = <b>Cheung 2007</b>（Iglesia/BP）→ 整形形は <b>Diemer &amp; Luyben 2010</b>, IECR 49, 12224（査読, eq6-7, DOI 10.1021/ie101583j）。K₂ の van't Hoff ΔH₂=−97 kJ/mol は <b>DTU の DFT 吸着エネルギー（−1.01 eV）由来の近似</b>、<b>K₃ の ΔH₃=−8 kJ/mol は論文の直接裏付けなしの見積り</b>（tier 2 では K₃ 固定なので本 example の結果には無影響）。速度則(CO 一次・DME 零次・律速=8-MR 側ポケット Brønsted 酸点への CO 挿入)は Cheung 2006/07・Bhan 2007 で確立。<span class="mono">carbonylation.rate(model="DTU-Cheung2007-2")</span></div>
 </div>
 
 <!-- ============ EQUILIBRIA ============ -->
-<div class="stage">平衡定数 &nbsp;K = 10^(c₀/T + c₁)</div>
+<div class="stage">平衡定数 &nbsp;\(K = 10^{\,c_0/T + c_1}\)</div>
 <div class="rx">
   <table>
     <tr><th>反応</th><th>相関</th><th>値@250℃</th><th>出典</th></tr>
-    <tr><td>MS &nbsp;<span class="mono">K<sub>eq1</sub></span></td><td class="mono">10^(3066/T − 10.592)</td><td class="mono">1.86×10⁻⁵</td><td>VBF1996/Graaf1986（KOGAS は Twigg 引用のみ・数値非掲載）</td></tr>
-    <tr><td>RWGS &nbsp;<span class="mono">K<sub>eq2</sub></span></td><td class="mono">10^(2073/T − 2.029)</td><td class="mono">85.8</td><td>同上（log₁₀(1/K<sub>eq2</sub>)=−2073/T+2.029）</td></tr>
-    <tr><td>MD &nbsp;<span class="mono">K<sub>eq3</sub></span> <code>thermo</code></td><td class="mono">10^(1121/T − 0.888)</td><td class="mono">18.0</td><td>Cantera(NASA 熱力学)由来 fit（BL とほぼ一致）</td></tr>
+    <tr><td>MS &nbsp;\(K_\mathrm{eq1}\)</td><td>\(10^{\,3066/T - 10.592}\)</td><td class="mono">1.86×10⁻⁵</td><td>VBF1996/Graaf1986（KOGAS は Twigg 引用のみ・数値非掲載）</td></tr>
+    <tr><td>RWGS &nbsp;\(K_\mathrm{eq2}\)</td><td>\(10^{\,2073/T - 2.029}\)</td><td class="mono">85.8</td><td>同上（\(\log_{10}(1/K_\mathrm{eq2}) = -2073/T + 2.029\)）</td></tr>
+    <tr><td>MD &nbsp;\(K_\mathrm{eq3}\) <code>thermo</code></td><td>\(10^{\,1121/T - 0.888}\)</td><td class="mono">18.0</td><td>Cantera(NASA 熱力学)由来 fit（BL とほぼ一致）</td></tr>
   </table>
-  <div class="note">脱水 K<sub>eq3</sub> は本 example では <code>thermo</code>（≈18 @250℃、純熱力学量で触媒非依存）。独立相関 Tavan Eq.6 と 250℃で &lt;1% 一致。<code>KOGAS</code> 版（10^(10194/T−13.91)）は 523 K で 10^5.6 と過大なので不使用。</div>
+  <div class="note">脱水 K<sub>eq3</sub> は本 example では <code>thermo</code>（≈18 @250℃、純熱力学量で触媒非依存）。独立相関 Tavan Eq.6 と 250℃で &lt;1% 一致。<code>KOGAS</code> 版（\(10^{\,10194/T-13.91}\)）は 523 K で \(10^{5.6}\) と過大なので不使用。</div>
 </div>
 
 <div class="foot">
