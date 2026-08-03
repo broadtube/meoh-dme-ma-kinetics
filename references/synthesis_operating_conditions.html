@@ -113,7 +113,7 @@
       <tr><td class="item">温度 [°C]</td>
         <td><span class="nrm">230–260</span></td><td><span class="nrm">290–360</span></td>
         <td><span class="nrm">200–280</span></td><td><span class="nrm">230–280</span></td>
-        <td><span class="nrm">210–300</span><br><span class="sub" style="font-size:.72rem">(学術 165–190)</span></td></tr>
+        <td><span class="nrm">~200</span><br><span class="sub" style="font-size:.72rem">(範囲 165–300)</span></td></tr>
       <tr><td class="item">圧力 [MPa]</td>
         <td><span class="nrm">5–10</span></td><td><span class="nrm">0.15–1</span></td>
         <td><span class="nrm">常圧</span></td><td><span class="nrm">4–6</span></td>
@@ -131,7 +131,7 @@
         <td>水（阻害）</td><td>S（合成側）</td>
         <td><b style="color:var(--red)">実質無水必須</b></td></tr>
       <tr><td class="item">1パス転化率</td>
-        <td>15–25%（→循環）</td><td>~80%（平衡）</td>
+        <td>20–50%（→循環）</td><td>~80%（平衡）</td>
         <td>~82%（平衡）</td><td>CO 68→96%</td>
         <td>DME 9–33%</td></tr>
       <tr><td class="item">選択率</td>
@@ -177,17 +177,17 @@
       <tr><td class="item">不純物</td><td>—</td><td class="nrm">S &lt;0.1 ppm</td><td>Cl ppb級</td>
         <td>S→Cu/Zn硫化物で不可逆被毒（ZnO がスカベンジ）。Cl→ZnCl₂で焼結促進（硫黄より深刻）</td>
         <td><span class="b bh">高</span>(S) <span class="b bl">低</span>(Cl 閾値は定性) ／Web</td></tr>
-      <tr><td class="item">触媒</td><td colspan="3">CuO 60 / ZnO 30 / Al₂O₃ 10 wt%（Cu=活性相, ZnO=構造/被毒スカベンジ, Al₂O₃=分散）。寿命 2–5年</td>
-        <td><span class="b bm">中</span> ICI 51-2, 市販Cu-Zn-Al／Web</td></tr>
-      <tr><td class="item">1パス転化率</td><td>—</td><td class="nrm">15–25%</td><td>平衡値</td>
-        <td>発熱・モル減で平衡律速 → リサイクル運転（total &gt;90%）</td>
-        <td><span class="b bm">中</span> 一般値（プラント一次値は未取得）</td></tr>
-      <tr><td class="item">選択率 / STY</td><td colspan="3">MeOH 選択率 &gt;99%。STY 0.5–1.3（工業）〜2.7 kg/(kg<sub>cat</sub>·h)（ラボ）</td>
-        <td><span class="b bh">高</span>(選択率) <span class="b bm">中</span>(STY 幅大)</td></tr>
+      <tr><td class="item">触媒</td><td colspan="3">CuO 60 / ZnO 30 / Al₂O₃ 10 wt%。市販: JM Katalco 51, Clariant MegaMax 700/800, Haldor Topsøe MK-121/151, MGC M5/M6, Casale。運転例（Dieterich Table 6）: 230–264℃ / 50–100 bar（Topsøe MK-121 は 200–310℃/39–122 bar）。寿命 2–5年</td>
+        <td><span class="b bh">高</span> Dieterich2020 Table 6 <span class="b ind">工</span></td></tr>
+      <tr><td class="item">1パス転化率</td><td>20%</td><td class="nrm">36–50%</td><td>55–67%（超変換器）</td>
+        <td>発熱・モル減で平衡律速 → リサイクル運転（total &gt;90%）。CO₂-rich feed は平衡収率が低い（CO₂ 18–58% @200–250℃/50–100bar）</td>
+        <td><span class="b bh">高</span> Dieterich2020 レビュー「per pass 20–50%」<span class="b ind">工</span></td></tr>
+      <tr><td class="item">選択率 / STY</td><td colspan="3">MeOH 選択率 &gt;99%。STY <b>0.7–2.3 kg/(L<sub>cat</sub>·h)</b>（CO シンガス）／ 0.4–0.8（CO₂ ベース feed）。反応器=<b>準等温スチーム発生固定床（SRC）</b>（Lurgi/Linde Variobar/Toyo MRF/Casale/Mitsubishi）</td>
+        <td><span class="b bh">高</span> Dieterich2020 Table 6 <span class="b ind">工</span></td></tr>
     </tbody>
   </table></div>
   <div class="note"><b>平衡（定量）:</b> \(\log_{10}K_1^\ast = 3066/T - 10.592\)（CO₂水素化, T↑で K↓＝平衡不利）。両主反応とも発熱＋モル減のため<b>低温・高圧が平衡有利</b>で、速度（高温有利）との妥協点が Normal 230–260℃。上限は焼結と平衡の二重制約。</div>
-  <div class="src"><b>出典:</b> local <span class="mono">vandenBussche_Froment_1996, graaf1988, graaf_2016_equilibria, ng1999</span>（いずれもラボ/ベンチ速度論）／web: Lurgi・Johnson Matthey・Casale の工業レビュー、硫黄・塩素被毒・触媒寿命。</div>
+  <div class="src"><b>出典:</b> <b>local レビュー <span class="mono">dieterich2020_ptl_meoh_dme_ft_review_EES</span></b>（EES 13:3207, 商用 Table 6: T/P/GHSV/per-pass/STY）＋速度論 <span class="mono">vandenBussche_Froment_1996, graaf1988/2016, ng1999</span>（ラボ）／web: 硫黄・塩素被毒・触媒寿命。</div>
 </div>
 
 <!-- ============ DME ============ -->
@@ -247,8 +247,8 @@
       <tr><td class="item">供給 H₂/CO</td><td>1.0</td><td class="nrm">1.0–1.3</td><td>2.0</td>
         <td>CO-rich が直接法に整合（水は WGS で CO₂化し循環）。最大 STY は H₂/CO=1.0</td>
         <td><span class="b bh">高</span> KOGAS 1.2–1.3, JFE 1.0</td></tr>
-      <tr><td class="item">反応器 / 性能</td><td colspan="3">スラリー（JFE, 三相・鉱物油）または多管固定床＋沸騰水（KOGAS）。CO 転化率 67.7%（260℃/4.3MPa/GHSV3000, KOGAS）〜96%（JFE demo）、DME 選択率 93%、純度 99.6%。STY 281 kg/(m³<sub>cat</sub>·h)</td>
-        <td><span class="b bm">中</span>(STY 触媒依存) JFE 100t/d, KOGAS 10t/d <span class="b ind">工</span></td></tr>
+      <tr><td class="item">反応器 / 性能</td><td colspan="3">反応器: スラリー（JFE/Air Products, 三相・鉱物油）／多管固定床＋沸騰水（KOGAS）／等温固定床（Linde Variobar・Toyo・Casale・Mitsubishi が licence）。二元機能=Cu/ZnO/Al₂O₃＋固体酸のハイブリッド/担持。CO 転化率 67.7%（260℃/4.3MPa/GHSV3000, KOGAS）〜96%（JFE demo）、DME 選択率 93%、純度 99.6%</td>
+        <td><span class="b bh">高</span> Dieterich2020(200–300℃)／JFE, KOGAS <span class="b ind">工</span></td></tr>
     </tbody>
   </table></div>
 </div>
@@ -260,30 +260,31 @@
   <div class="scroll"><table>
     <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
     <tbody>
-      <tr><td class="item">温度 [°C]</td><td>150</td><td class="nrm">学術 165–190 ／ <b>工業 210–300</b></td><td>300</td>
-        <td>学術速度論は失活回避で低温（150–210）に測定窓を取る／<b>工業 BP SaaBre は 210–300℃</b>（高スループット・再生前提）。上限=コーク失活・MTH・脱カルボニル化。Kipnis レビュー「H-MOR は 150–300℃ で最活性・最選択」</td>
-        <td><span class="b bh">高</span> Cheung/DTU/Cheng(150–210)<span class="b lab">ラ</span>／<b>BP SaaBre 210–300</b><span class="b ind">工</span>／KC129 review(150–300)</td></tr>
-      <tr><td class="item">圧力 [MPa]</td><td>~1.0</td><td class="nrm">1.5–3.0</td><td>7（BP SaaBre）</td>
-        <td>CO 分圧に<b>1次</b>（\(r=k\,p_\mathrm{CO}\)）→高圧有利／BP SaaBre は 1–7 MPa。上限=装置＋CO によるコーク加速</td>
-        <td><span class="b bh">高</span> Cheng(1.5), DTU(1–10), BP SaaBre(1–7)</td></tr>
-      <tr><td class="item">供給（CO/DME）</td><td>—</td><td class="nrm"><b>CO/DME 7–10</b>（工業）〜 46（学術・DME希薄）</td><td>—</td>
-        <td>DME は<b>0次</b>（酸点が CH₃ で飽和＝MARI）。工業 BP SaaBre は CO/DME=7–10、学術速度論は DME 希薄（DME/N₂/CO=2/5/93＝CO/DME≈46）で 0次域を測定</td>
-        <td><span class="b bh">高</span> Cheung(0次), <b>BP SaaBre(7–10)</b></td></tr>
-      <tr><td class="item">接触時間</td><td colspan="3">W/F ≈ 3.9 g<sub>cat</sub>·h/g<sub>DME</sub>（Cheng）。<b>GHSV/WHSV の明示値は文献未収載</b></td>
-        <td><span class="b bl">低</span> GHSV 記載なし</td></tr>
+      <tr><td class="item">温度 [°C]</td><td>150</td><td class="nrm">~200（学術・工業の共通中心）</td><td>300</td>
+        <td>報告レンジ 165–300℃。<b>工業は2系統に分岐</b>：①<b>低温 ~200℃＋失活サイト遮蔽</b>（DICP のピリジン修飾等）で長寿命／②<b>高温 ~300℃＋定期酸化再生</b>（BP 特許系）。&gt;190–210℃でホモロゲーション/コーク副反応が急増するのを、修飾か再生で管理</td>
+        <td><span class="b bh">高</span> ~200℃中心は学術/工業一致(Kipnis/Cheung/Cheng/DTU)。低温=DICP<span class="b ind">工</span>／高温=BP</td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td>0.1（常圧も可）</td><td class="nrm">1.5–2.0</td><td>10（DTU 実験）／7（BP）</td>
+        <td>CO 分圧に<b>1次</b>（\(r=k\,p_\mathrm{CO}\)、~1 MPa まで線形）→高圧有利。ゼオライト系は<b>常圧運転可</b>が均一系(Monsanto/Cativa)に対する売り。上限=装置＋CO によるコーク加速</td>
+        <td><span class="b bh">高</span> Cheung, DTU(1–10), BP(~7)</td></tr>
+      <tr><td class="item">供給（CO/DME）</td><td>~7（工業特許）</td><td class="nrm">19–49</td><td>~490（DTU 極希薄）</td>
+        <td>DME は<b>0次</b>（酸点 CH₃ 飽和＝MARI）。高 CO/DME＝細孔内 CO 濃度↑で MA 速度↑・DME 副反応↓。工業はスループット確保で CO/DME を下げ、<b>H₂ 共供給も一般的</b>（速度ほぼ不活性だが benign-coke 戦略）</td>
+        <td><span class="b bh">高</span> Cheung, DTU, BP特許(7)</td></tr>
+      <tr><td class="item">空間速度</td><td>1500 mL/h</td><td class="nrm">GHSV 3000–6000 h⁻¹</td><td>工業 ~4000／FER 2000 L/h</td>
+        <td>単位系が論文で不統一（mL/h・h⁻¹・mL/g/h）で直接比較困難。失活との相関は文献間で不一致（Cheng は相関なしと報告）</td>
+        <td><span class="b bl">低</span> 単位不統一（Dong 6000, 工業特許 ~4000）</td></tr>
       <tr><td class="item">水（決定的）</td><td colspan="3"><b style="color:var(--red)">実質無水必須</b>。~1000 ppm（0.5 kPa@0.5MPa）で速度 <b>約1/4</b>、~7000 ppm で <b>約1/14</b>。<b>可逆</b>阻害（除去で ~4h かけ回復）。<b>明確な許容 ppm 閾値は一次文献に無い</b></td>
         <td><span class="b bl">低</span> 閾値未確定／定量は Cheung 添加実験のみ</td></tr>
       <tr><td class="item">誘導期</td><td>短（DME前ドーズ/高温で消失）</td><td class="nrm">~4 h @438K</td><td>~8 h（低温・脱Al過多）</td>
         <td>酸点 H⁺ のメチル基置換＋副生水の除去に要する時間</td>
         <td><span class="b bh">高</span> Cheung(4h), Cheng</td></tr>
-      <tr><td class="item">触媒 H-MOR</td><td colspan="3">至適 Si/Al ~10（ZSM-5/FER/BEA は低活性〜不検出）。活性点=8員環側ポケット（3.4×4.8 Å）の Brønsted 酸点。DME 吸着 ~0.5/Al。<b>コーク失活</b>（CO が加速）→ 再生 <b>~773K（500℃）乾燥空気/O₂</b>。H₂ 共供給 5–19% で失活抑制</td>
-        <td><span class="b bh">高</span> Cheung, Bhan, Cheng, DTU, review2024</td></tr>
-      <tr><td class="item">性能 / Ea</td><td colspan="3">MA 選択率 <b>&gt;99%</b>（無水条件）。DME 転化率 9–33%（希薄ほど高）。Ea=88.65 kJ/mol（Cheng）</td>
+      <tr><td class="item">触媒・修飾</td><td colspan="3">活性順 <b>H-MOR（Si/Al~10）≫ H-FER &gt; ZSM-5/MFI</b>（BEA/USY/SiO₂-Al₂O₃ は不活性、SSZ-13/EU-12 は中程度）。活性点=<b>8員環側ポケット</b>（3.4×4.8 Å）の Brønsted 酸点、12員環はコーク源。<b>運転域を広げる修飾</b>: Cu-Zn/H-MOR（寿命 25→86h）・<b>ピリジン修飾</b>（12員環=失活源を遮蔽＝DICP 主戦略）・脱Al・ナノ結晶/階層細孔・H₂-benign coke。再生 ~773K(500℃) 酸化／工業 300℃</td>
+        <td><span class="b bh">高</span> Cheung, Bhan, Dong2023, Li, Kipnis review</td></tr>
+      <tr><td class="item">性能 / Ea</td><td colspan="3">MA 選択率 <b>≈99–100%</b>（無水・安定域）。DME 転化率 15–94%（触媒/SV/温度依存, 商用 MOR ~20%）。Ea ≈ <b>70–89 kJ/mol</b>（Cheng 88.65 が査読実測、設計例の 69.6 はやや低め）</td>
         <td><span class="b bh">高</span></td></tr>
     </tbody>
   </table></div>
-  <div class="note"><b>工業プロセス（2系統）:</b> ① <b>BP SaaBre プロセス</b>（syngas→DME→カルボニル化→加水分解で酢酸）。DME カルボニル化は <b>210–300℃, 1–7 MPa, CO/DME=7–10</b> の気相 H-MOR ＝<b>学術速度論窓（150–210℃）より明確に高温</b>。② DICP（大連化物研）×陝西延長石油の<b>世界初 石炭→エタノール商業プラント（無水エタノール 10万 t/年, 2017 稼働）</b>で、DME→酢酸メチル→水素化→エタノールの中核工程。技術系譜は BP Chemicals（Cheung–Iglesia のハロゲンフリー間接酢酸）。<br><b>学術 vs 工業の温度差の理由:</b> 学術は失活・誘導期を避けクリーンな固有速度を得るため 150–190℃で測る。工業は<b>スループット優先で高温（〜300℃）</b>で運転し、失活はコーク燃焼再生（~773K）や Cu-Zn/H-MOR 等の安定化触媒で管理する。<br><b style="color:var(--red)">⚠️ 唯一の失活律速系:</b> 平衡ではなく<b>触媒コーク寿命が実用上限温度を決める</b>。上限温度・水管理・再生サイクルが設計の要。</div>
-  <div class="src"><b>出典:</b> local <span class="mono">KC129(Kipnis 2022 review), accounts2024_MOR_carbonylation_review, cheung2006/2007, bhan2007, cheng2017, dtu_...2017, ProductionofMethylAcetate(~190–200℃/3.2MPa), catalysts-13-01049</span>／web: <b>BP SaaBre プロセス（210–300℃/1–7MPa/CO/DME 7–10）</b>, DICP 石炭→エタノール(2017)。</div>
+  <div class="note"><b>工業の全体像（BP SaaBre は一例）:</b> ① <b>DICP（大連化物研）×陝西延長石油の石炭→エタノール商業プラント</b>（無水エタノール 10万 t/年, 2017 稼働）＝<b>分野最大の商業化</b>（DME→MA→水素化→EtOH の中核）。<b>低温 ~200℃＋ピリジン修飾</b>で長寿命化する路線。② <b>BP SaaBre</b>（半商業, syngas→DME→カルボニル化→加水分解で酢酸, 100万 t/y 構想）＝<b>高温 ~300℃/70bar＋定期酸化再生（300℃/1–2%O₂/8–18h）</b>の路線。③ 合成ガス直接→MA 多機能触媒（研究段階, 473K/3MPa, 選択率~95%）。<br><b>温度の分岐＝失活対策の思想差</b>（低温＋サイト遮蔽 vs 高温＋再生）で、<b>~200℃ が学術・工業の共通中心</b>。SaaBre の 210–300℃ は高温・再生グループの一例であり分野代表値ではない。技術系譜は BP Chemicals（Cheung–Iglesia のハロゲンフリー間接酢酸）。<br><b style="color:var(--red)">⚠️ 唯一の失活律速系:</b> 平衡でなく<b>コーク寿命が実用上限を決める</b>。触媒修飾（Cu-Zn・ピリジン・脱Al・ナノ結晶）が運転温度域を左右する。</div>
+  <div class="src"><b>出典:</b> local <span class="mono">KC129(Kipnis 2022 分野レビュー), accounts2024(Chen/Zheng 2024), cheung2006/2007, bhan2007, cheng2017, dtu_...2017, catalysts-13-01049(Dong2023 473K/1.5MPa/DME:CO=1:49/GHSV6000), ProductionofMethylAcetate(設計 475K/32atm)</span>／web: DICP 石炭→エタノール(2017・低温+ピリジン修飾), BP SaaBre(高温~300℃/70bar+再生), 合成ガス直接→MA(研究), US特許 8624054/8158815, benign-coke 戦略。</div>
 </div>
 
 <!-- ============ EQUILIBRIUM ============ -->
@@ -308,14 +309,14 @@
     <thead><tr><th>信頼度</th><th>項目</th></tr></thead>
     <tbody>
       <tr><td><span class="b bh">高</span></td><td>各反応の温度/圧力 Normal・選択率・律速機構・MA の水の可逆阻害・脱水平衡の温度依存・MeOH の S 許容・低温高圧が平衡有利</td></tr>
-      <tr><td><span class="b bm">中</span></td><td>STY 絶対値（触媒依存で数倍）・GHSV レンジ（単位系不統一）・直接法の圧力層（熱力学最適 20–70 vs 実機 40–61 bar）・MeOH 1パス転化率（一次プラント値は推定）</td></tr>
-      <tr><td><span class="b bl">低</span></td><td><b>MA の水許容 ppm 閾値</b>（一次文献に定量閾値なし＝「実質無水」とだけ言える）・<b>MA / DME間接の工業 GHSV/WHSV 公称値</b>（公開乏しい）・MeOH の Cl 許容 ppb 具体値・焼結開始温度の厳密値</td></tr>
+      <tr><td><span class="b bm">中</span></td><td>DME 直接法の STY 絶対値（触媒依存で数倍）・DME 間接の工業 WHSV・MA の寿命/再生の代表値（触媒で1桁変動）・MA の Ea（70–89 で幅）</td></tr>
+      <tr><td><span class="b bl">低</span></td><td><b>MA の水許容 ppm 閾値</b>（一次文献に定量閾値なし＝「実質無水」とだけ）・<b>MA の GHSV</b>（単位系不統一で比較不能）・MeOH の Cl 許容 ppb 具体値</td></tr>
     </tbody>
   </table>
 </div>
 
 <div class="foot">
-  ローカル一次論文（<span class="mono">references/</span>）＋ Web（工業/デモ）を突き合わせて作成。ラボ論文は運転「域」ではなく測定「窓」を示す点に注意（工業域は Web 由来）。<br>
+  ローカル文献（<span class="mono">references/</span>）＋Web を突き合わせて作成。工業域の主軸は<b>レビュー</b>: MeOH/DME=Dieterich 2020 (EES 13:3207)、MA=Kipnis 2022 (Kinet. Catal.)＋Chen/Zheng 2024 (Acc. Chem. Res.)。速度論一次論文は測定「窓」を、レビューは工業「域」を与える。<br>
   反応部のみ（MB・フローシート・分離・除熱設計は別プロジェクト範囲）。数値は出典間で幅がある場合 Normal を代表値とした。
 </div>
 </div>
