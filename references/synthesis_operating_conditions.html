@@ -113,7 +113,7 @@
       <tr><td class="item">温度 [°C]</td>
         <td><span class="nrm">230–260</span></td><td><span class="nrm">290–360</span></td>
         <td><span class="nrm">200–280</span></td><td><span class="nrm">230–280</span></td>
-        <td><span class="nrm">165–190</span></td></tr>
+        <td><span class="nrm">210–300</span><br><span class="sub" style="font-size:.72rem">(学術 165–190)</span></td></tr>
       <tr><td class="item">圧力 [MPa]</td>
         <td><span class="nrm">5–10</span></td><td><span class="nrm">0.15–1</span></td>
         <td><span class="nrm">常圧</span></td><td><span class="nrm">4–6</span></td>
@@ -260,15 +260,15 @@
   <div class="scroll"><table>
     <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
     <tbody>
-      <tr><td class="item">温度 [°C]</td><td>~150</td><td class="nrm">165–190</td><td>~210（限界 250）</td>
-        <td>下限=速度不足・誘導期長大／上限=<b>コーク失活加速・MTH副生・脱カルボニル化（MeOH増）</b></td>
-        <td><span class="b bh">高</span> Cheung(150–190), Cheng(195–210), DTU(165) <span class="b lab">ラ</span></td></tr>
-      <tr><td class="item">圧力 [MPa]</td><td>~1.0</td><td class="nrm">1.5–3.0</td><td>~10（実験上限）</td>
-        <td>CO 分圧に<b>1次</b>（\(r=k\,p_\mathrm{CO}\)）→高圧有利／上限=装置＋CO によるコーク加速</td>
-        <td><span class="b bh">高</span> Cheng(1.5), DTU(1–10)</td></tr>
-      <tr><td class="item">供給（CO/DME）</td><td>DME 0.8 kPa</td><td class="nrm">DME 0.2–2%＋CO大過剰</td><td>DME 66.8 kPa</td>
-        <td>DME は<b>0次</b>（酸点が CH₃ で飽和＝MARI）。標準 DME/N₂/CO = 2/5/93</td>
-        <td><span class="b bh">高</span> Cheung(0次域), Cheng</td></tr>
+      <tr><td class="item">温度 [°C]</td><td>150</td><td class="nrm">学術 165–190 ／ <b>工業 210–300</b></td><td>300</td>
+        <td>学術速度論は失活回避で低温（150–210）に測定窓を取る／<b>工業 BP SaaBre は 210–300℃</b>（高スループット・再生前提）。上限=コーク失活・MTH・脱カルボニル化。Kipnis レビュー「H-MOR は 150–300℃ で最活性・最選択」</td>
+        <td><span class="b bh">高</span> Cheung/DTU/Cheng(150–210)<span class="b lab">ラ</span>／<b>BP SaaBre 210–300</b><span class="b ind">工</span>／KC129 review(150–300)</td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td>~1.0</td><td class="nrm">1.5–3.0</td><td>7（BP SaaBre）</td>
+        <td>CO 分圧に<b>1次</b>（\(r=k\,p_\mathrm{CO}\)）→高圧有利／BP SaaBre は 1–7 MPa。上限=装置＋CO によるコーク加速</td>
+        <td><span class="b bh">高</span> Cheng(1.5), DTU(1–10), BP SaaBre(1–7)</td></tr>
+      <tr><td class="item">供給（CO/DME）</td><td>—</td><td class="nrm"><b>CO/DME 7–10</b>（工業）〜 46（学術・DME希薄）</td><td>—</td>
+        <td>DME は<b>0次</b>（酸点が CH₃ で飽和＝MARI）。工業 BP SaaBre は CO/DME=7–10、学術速度論は DME 希薄（DME/N₂/CO=2/5/93＝CO/DME≈46）で 0次域を測定</td>
+        <td><span class="b bh">高</span> Cheung(0次), <b>BP SaaBre(7–10)</b></td></tr>
       <tr><td class="item">接触時間</td><td colspan="3">W/F ≈ 3.9 g<sub>cat</sub>·h/g<sub>DME</sub>（Cheng）。<b>GHSV/WHSV の明示値は文献未収載</b></td>
         <td><span class="b bl">低</span> GHSV 記載なし</td></tr>
       <tr><td class="item">水（決定的）</td><td colspan="3"><b style="color:var(--red)">実質無水必須</b>。~1000 ppm（0.5 kPa@0.5MPa）で速度 <b>約1/4</b>、~7000 ppm で <b>約1/14</b>。<b>可逆</b>阻害（除去で ~4h かけ回復）。<b>明確な許容 ppm 閾値は一次文献に無い</b></td>
@@ -282,8 +282,8 @@
         <td><span class="b bh">高</span></td></tr>
     </tbody>
   </table></div>
-  <div class="note"><b>工業化:</b> DICP（大連化物研）×陝西延長石油による<b>世界初の石炭→エタノール商業プラント（無水エタノール 10万 t/年）が 2017 年稼働</b>。DME→酢酸メチル（H-MOR）→水素化→エタノールの間接ルートの中核工程。技術系譜は BP Chemicals（Cheung–Iglesia のハロゲンフリー間接酢酸プロセス）。<br><b style="color:var(--red)">⚠️ 唯一の失活律速系:</b> 平衡ではなく<b>触媒コーク寿命が上限温度を決める</b>。工業化の最大障壁も急速失活で、上限温度・水管理・再生サイクルが設計の要。</div>
-  <div class="src"><b>出典:</b> local <span class="mono">accounts2024_MOR_carbonylation_review, cheung2006/2007, bhan2007, cheng2017, dtu_...2017, ProductionofMethylAcetate</span>／web: DICP 石炭→エタノールプラント(2017), BP/Iglesia 系譜, DME carbonylation レビュー。</div>
+  <div class="note"><b>工業プロセス（2系統）:</b> ① <b>BP SaaBre プロセス</b>（syngas→DME→カルボニル化→加水分解で酢酸）。DME カルボニル化は <b>210–300℃, 1–7 MPa, CO/DME=7–10</b> の気相 H-MOR ＝<b>学術速度論窓（150–210℃）より明確に高温</b>。② DICP（大連化物研）×陝西延長石油の<b>世界初 石炭→エタノール商業プラント（無水エタノール 10万 t/年, 2017 稼働）</b>で、DME→酢酸メチル→水素化→エタノールの中核工程。技術系譜は BP Chemicals（Cheung–Iglesia のハロゲンフリー間接酢酸）。<br><b>学術 vs 工業の温度差の理由:</b> 学術は失活・誘導期を避けクリーンな固有速度を得るため 150–190℃で測る。工業は<b>スループット優先で高温（〜300℃）</b>で運転し、失活はコーク燃焼再生（~773K）や Cu-Zn/H-MOR 等の安定化触媒で管理する。<br><b style="color:var(--red)">⚠️ 唯一の失活律速系:</b> 平衡ではなく<b>触媒コーク寿命が実用上限温度を決める</b>。上限温度・水管理・再生サイクルが設計の要。</div>
+  <div class="src"><b>出典:</b> local <span class="mono">KC129(Kipnis 2022 review), accounts2024_MOR_carbonylation_review, cheung2006/2007, bhan2007, cheng2017, dtu_...2017, ProductionofMethylAcetate(~190–200℃/3.2MPa), catalysts-13-01049</span>／web: <b>BP SaaBre プロセス（210–300℃/1–7MPa/CO/DME 7–10）</b>, DICP 石炭→エタノール(2017)。</div>
 </div>
 
 <!-- ============ EQUILIBRIUM ============ -->
