@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeOH / DME / 酢酸メチル 合成 — 典型運転条件（下限・Normal・上限）</title>
+<script>
+  window.MathJax = {
+    loader: { load: ['[tex]/mhchem'] },
+    tex: { packages: { '[+]': ['mhchem'] }, inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --ink:#1b242c; --muted:#5b6873; --faint:#8a95a0;
+    --paper:#f5f6f3; --panel:#ffffff; --panel-2:#eef1ee; --line:#dbe0dd;
+    --accent:#0d6d72; --accent-soft:#e2efef; --accent-ink:#0a5155;
+    --amber:#a15c11; --amber-soft:#f6ecdc; --amber-line:#e4c79a;
+    --green:#0f7d54; --green-soft:#e0f0e6; --red:#b3402e; --red-soft:#f7e6e2;
+    --code-bg:#f0f2ef; --shadow:0 1px 2px rgba(20,30,40,.05),0 8px 24px rgba(20,30,40,.05);
+    --sans:ui-sans-serif,"Segoe UI",system-ui,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Code","Roboto Mono",Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ink:#e7edf0; --muted:#9aa7b1; --faint:#71808b;
+      --paper:#0f151a; --panel:#161e25; --panel-2:#1c262e; --line:#2a353e;
+      --accent:#45b6bb; --accent-soft:#12312f; --accent-ink:#7fd4d7;
+      --amber:#d69848; --amber-soft:#2b2113; --amber-line:#5a441f;
+      --green:#3fbe86; --green-soft:#123024; --red:#e0755f; --red-soft:#331a15;
+      --code-bg:#1a232b; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{ --ink:#1b242c; --paper:#f5f6f3; --panel:#ffffff; --panel-2:#eef1ee;
+    --line:#dbe0dd; --accent:#0d6d72; --accent-soft:#e2efef; --amber:#a15c11; --amber-soft:#f6ecdc;
+    --green:#0f7d54; --green-soft:#e0f0e6; --red:#b3402e; --red-soft:#f7e6e2; --muted:#5b6873; --code-bg:#f0f2ef;}
+  :root[data-theme="dark"]{ --ink:#e7edf0; --paper:#0f151a; --panel:#161e25; --panel-2:#1c262e;
+    --line:#2a353e; --accent:#45b6bb; --accent-soft:#12312f; --amber:#d69848; --amber-soft:#2b2113;
+    --green:#3fbe86; --green-soft:#123024; --red:#e0755f; --red-soft:#331a15; --muted:#9aa7b1; --code-bg:#1a232b;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;font-size:16px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px;}
+  header{padding:40px 0 8px;}
+  h1{font-size:1.5rem;margin:0 0 6px;line-height:1.25;}
+  .sub{color:var(--muted);font-size:.92rem;}
+  .stage{margin:38px 0 12px;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;border-bottom:2px solid var(--accent-soft);padding-bottom:6px;}
+  .rx{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin:14px 0;box-shadow:var(--shadow);}
+  .rx h2{font-size:1.05rem;margin:0 0 4px;}
+  .rx .rxn{margin:2px 0 8px;font-size:.95rem;}
+  .scroll{overflow-x:auto;}
+  table{border-collapse:collapse;width:100%;font-size:.85rem;margin:6px 0;}
+  th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{color:var(--muted);font-weight:600;font-size:.76rem;white-space:nowrap;}
+  thead th{border-bottom:2px solid var(--line);}
+  td.item{font-weight:600;white-space:nowrap;}
+  .nrm{color:var(--accent-ink);font-weight:700;}
+  .mono,td.mono{font-family:var(--mono);}
+  .note{background:var(--amber-soft);border:1px solid var(--amber-line);border-radius:8px;
+    padding:8px 12px;margin:10px 0 0;font-size:.83rem;color:var(--ink);}
+  .src{font-size:.82rem;color:var(--muted);margin-top:8px;border-left:3px solid var(--accent-soft);padding-left:10px;}
+  .src b{color:var(--ink);}
+  .legend{font-size:.82rem;color:var(--muted);margin:10px 0;}
+  .b{display:inline-block;font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:999px;margin-right:2px;}
+  .bh{background:var(--green-soft);color:var(--green);}
+  .bm{background:var(--amber-soft);color:var(--amber);}
+  .bl{background:var(--red-soft);color:var(--red);}
+  .ind{background:var(--accent-soft);color:var(--accent-ink);}
+  .lab{background:var(--panel-2);color:var(--muted);}
+  sub{font-size:.72em;} sup{font-size:.72em;}
+  code{font-family:var(--mono);background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;}
+  .foot{margin-top:40px;font-size:.8rem;color:var(--muted);}
+  a{color:var(--accent-ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>MeOH / DME / 酢酸メチル 合成 — 典型運転条件（下限・Normal・上限）</h1>
+  <div class="sub">石炭/天然ガス/バイオマス由来シンガス経路（syngas → メタノール → DME → 酢酸メチル）の各反応工程について、
+    ローカル一次論文（速度論・ラボ／ベンチ）と Web（工業・デモ）を突き合わせた運転条件のまとめ。
+    <b>反応部のみ</b>（物質収支・フローシート・分離は対象外）。</div>
+  <div class="legend">
+    <b>信頼度:</b> <span class="b bh">高</span>複数出典一致
+    <span class="b bm">中</span>出典間で幅／条件依存
+    <span class="b bl">低</span>文献未確定・要注意 &nbsp;|&nbsp;
+    <b>スケール:</b> <span class="b ind">工</span>工業/デモ <span class="b lab">ラ</span>ラボ/ベンチ
+  </div>
+</header>
+
+<!-- ============ MASTER ============ -->
+<div class="stage">横断比較（Normal 値・律速レジーム）</div>
+<div class="rx scroll">
+  <table>
+    <thead><tr>
+      <th>項目</th>
+      <th>MeOH合成<br>Cu/ZnO/Al₂O₃</th>
+      <th>DME間接<br>γ-Al₂O₃</th>
+      <th>DME間接<br>H-ZSM-5</th>
+      <th>DME直接<br>二元機能</th>
+      <th>酢酸メチル<br>H-モルデナイト</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="item">反応</td>
+        <td>\(\ce{CO + 2H2 -> CH3OH}\)</td>
+        <td colspan="2">\(\ce{2CH3OH <=> CH3OCH3 + H2O}\)</td>
+        <td>syngas → DME（＋合成＋WGS）</td>
+        <td>\(\ce{CH3OCH3 + CO -> CH3COOCH3}\)</td></tr>
+      <tr><td class="item">温度 [°C]</td>
+        <td><span class="nrm">230–260</span></td><td><span class="nrm">290–360</span></td>
+        <td><span class="nrm">200–280</span></td><td><span class="nrm">230–280</span></td>
+        <td><span class="nrm">165–190</span></td></tr>
+      <tr><td class="item">圧力 [MPa]</td>
+        <td><span class="nrm">5–10</span></td><td><span class="nrm">0.15–1</span></td>
+        <td><span class="nrm">常圧</span></td><td><span class="nrm">4–6</span></td>
+        <td><span class="nrm">1.5–3</span></td></tr>
+      <tr><td class="item">空間速度</td>
+        <td class="mono">GHSV ~1万/h</td><td class="mono">WHSV 数十</td>
+        <td class="mono">WHSV 15–40/h</td><td class="mono">GHSV ~3000/h</td>
+        <td class="mono">W/F~3.9 g·h/g</td></tr>
+      <tr><td class="item">供給の要</td>
+        <td>M値 2.0–2.05<br>CO₂ 2–5%</td><td>純MeOH</td>
+        <td>純MeOH</td><td>H₂/CO 1.0–1.3<br>（CO rich）</td>
+        <td>DME 0.2–2%<br>＋CO大過剰</td></tr>
+      <tr><td class="item">決定的不純物</td>
+        <td>S &lt;0.1 ppm<br>Cl ppb級</td><td>水（生成物阻害）</td>
+        <td>水（阻害）</td><td>S（合成側）</td>
+        <td><b style="color:var(--red)">実質無水必須</b></td></tr>
+      <tr><td class="item">1パス転化率</td>
+        <td>15–25%（→循環）</td><td>~80%（平衡）</td>
+        <td>~82%（平衡）</td><td>CO 68→96%</td>
+        <td>DME 9–33%</td></tr>
+      <tr><td class="item">選択率</td>
+        <td>MeOH &gt;99%</td><td>DME ~100%</td>
+        <td>DME &gt;90%</td><td>DME 93%</td>
+        <td><b>MA &gt;99%</b></td></tr>
+      <tr><td class="item">上限を決めるもの</td>
+        <td>Cu焼結＋平衡</td><td>MTH副生＋平衡</td>
+        <td>MTH/コーク失活</td><td>Cu焼結＋除熱</td>
+        <td><b style="color:var(--red)">コーク失活</b>＋MTH</td></tr>
+      <tr><td class="item">律速レジーム</td>
+        <td>平衡律速</td><td>平衡律速</td>
+        <td>平衡律速</td><td>平衡解除→速度</td>
+        <td><b>失活律速</b></td></tr>
+      <tr><td class="item">工業化</td>
+        <td><span class="b ind">工</span>確立</td><td><span class="b ind">工</span>確立</td>
+        <td><span class="b lab">ラ</span>準工業</td><td><span class="b ind">工</span>demo</td>
+        <td><span class="b ind">工</span>確立(2017)</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>律速レジームで読む:</b> MeOH合成と DME 脱水はともに<b>発熱・平衡律速</b>（低温有利 vs 速度のトレードオフで Normal が決まる）。MeOH はモル減 \(\ce{CO + 2H2 -> CH3OH}\) で<b>高圧有利</b>、DME 脱水は \(\Delta n=0\) で<b>圧力鈍感</b>。DME 直接法は脱水で平衡を解除し CO 転化率を稼ぐ（モル減→高圧必然）。<b>酢酸メチルだけは平衡でなく触媒コーク失活が上限を決める</b>（＝失活律速）唯一の系。</div>
+</div>
+
+<!-- ============ MeOH ============ -->
+<div class="stage">§1 メタノール合成 — Cu/ZnO/Al₂O₃</div>
+<div class="rx">
+  <div class="rxn">\[ \ce{CO + 2H2 <=> CH3OH} \quad(\Delta H\approx-91\,\mathrm{kJ/mol}), \qquad \ce{CO2 + 3H2 <=> CH3OH + H2O}\ (\Delta H\approx-49) \]</div>
+  <div class="scroll"><table>
+    <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
+    <tbody>
+      <tr><td class="item">温度 [°C]</td><td>200</td><td class="nrm">230–260</td><td>270–300</td>
+        <td>下限=速度不足（180℃で水素化ほぼ消失）／上限=Cu焼結＋平衡律速（発熱・逆反応）</td>
+        <td><span class="b bh">高</span> VBF1996, graaf1988, ng1999 <span class="b lab">ラ</span>／Lurgi 230–250 <span class="b ind">工</span></td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td>5</td><td class="nrm">5–10</td><td>10–15</td>
+        <td>モル減（3→1）で P↑が平衡・速度とも有利／上限=圧縮動力・逓減。旧高圧法 25–30</td>
+        <td><span class="b bh">高</span> graaf2016「±100 bar」／Web</td></tr>
+      <tr><td class="item">GHSV [h⁻¹]</td><td>~5,000</td><td class="nrm">~8,000–15,000</td><td>20,000–27,500</td>
+        <td>低SV=平衡接近だが生産性低／高SV=STY↑・転化率↓。単位系（h⁻¹ vs L/(kg·h)）不統一</td>
+        <td><span class="b bm">中</span> ng1999(27,500)<span class="b lab">ラ</span>／工業 8,000–20,000</td></tr>
+      <tr><td class="item">供給組成</td><td>M=2.0, CO₂ 0%</td><td class="nrm">M=2.0–2.05, CO₂ 2–5%</td><td>CO₂ ~30%</td>
+        <td>M値 \(=\dfrac{H_2-CO_2}{CO+CO_2}\)。微量CO₂が活性面の酸化度維持で速度最大／過多で H₂O 強吸着し阻害</td>
+        <td><span class="b bh">高</span> ng1999「工業feed 2–5% CO₂」, Klier 最大2%</td></tr>
+      <tr><td class="item">不純物</td><td>—</td><td class="nrm">S &lt;0.1 ppm</td><td>Cl ppb級</td>
+        <td>S→Cu/Zn硫化物で不可逆被毒（ZnO がスカベンジ）。Cl→ZnCl₂で焼結促進（硫黄より深刻）</td>
+        <td><span class="b bh">高</span>(S) <span class="b bl">低</span>(Cl 閾値は定性) ／Web</td></tr>
+      <tr><td class="item">触媒</td><td colspan="3">CuO 60 / ZnO 30 / Al₂O₃ 10 wt%（Cu=活性相, ZnO=構造/被毒スカベンジ, Al₂O₃=分散）。寿命 2–5年</td>
+        <td><span class="b bm">中</span> ICI 51-2, 市販Cu-Zn-Al／Web</td></tr>
+      <tr><td class="item">1パス転化率</td><td>—</td><td class="nrm">15–25%</td><td>平衡値</td>
+        <td>発熱・モル減で平衡律速 → リサイクル運転（total &gt;90%）</td>
+        <td><span class="b bm">中</span> 一般値（プラント一次値は未取得）</td></tr>
+      <tr><td class="item">選択率 / STY</td><td colspan="3">MeOH 選択率 &gt;99%。STY 0.5–1.3（工業）〜2.7 kg/(kg<sub>cat</sub>·h)（ラボ）</td>
+        <td><span class="b bh">高</span>(選択率) <span class="b bm">中</span>(STY 幅大)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><b>平衡（定量）:</b> \(\log_{10}K_1^\ast = 3066/T - 10.592\)（CO₂水素化, T↑で K↓＝平衡不利）。両主反応とも発熱＋モル減のため<b>低温・高圧が平衡有利</b>で、速度（高温有利）との妥協点が Normal 230–260℃。上限は焼結と平衡の二重制約。</div>
+  <div class="src"><b>出典:</b> local <span class="mono">vandenBussche_Froment_1996, graaf1988, graaf_2016_equilibria, ng1999</span>（いずれもラボ/ベンチ速度論）／web: Lurgi・Johnson Matthey・Casale の工業レビュー、硫黄・塩素被毒・触媒寿命。</div>
+</div>
+
+<!-- ============ DME ============ -->
+<div class="stage">§2 DME 合成 — 3 経路（間接 γ-Al₂O₃ / 間接 H-ZSM-5 / 直接法）</div>
+<div class="rx">
+  <div class="rxn">間接（脱水）: \[ \ce{2 CH3OH <=> CH3OCH3 + H2O} \quad(\Delta H\approx-21\ \text{〜}\ -24\,\mathrm{kJ/mol},\ \Delta n=0) \]</div>
+
+  <div style="font-weight:600;margin:8px 0 2px;color:var(--accent-ink)">§2a 間接・γ-Al₂O₃（従来工業標準・弱酸→高温要）</div>
+  <div class="scroll"><table>
+    <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
+    <tbody>
+      <tr><td class="item">温度 [°C]</td><td>250</td><td class="nrm">290–360</td><td>400（~420で平衡）</td>
+        <td>下限=弱酸で低温活性不足／上限=平衡（弱発熱）＋高温で炭化水素副生</td>
+        <td><span class="b bh">高</span> BL1993(250–400)<span class="b lab">ラ</span>／工業 300–420 <span class="b ind">工</span></td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td>0.1</td><td class="nrm">0.15–1.0</td><td>1（特許~10 bar）/工業~2</td>
+        <td>\(\Delta n=0\) で圧力鈍感。加圧は分離・処理量都合</td>
+        <td><span class="b bh">高</span> BL1992/1993</td></tr>
+      <tr><td class="item">供給・水</td><td colspan="3">純MeOH。生成する<b>水が強い生成物阻害</b>（水吸着熱 42.1 kJ/mol）。高転化域で速度が著しく低下</td>
+        <td><span class="b bh">高</span> BL1992</td></tr>
+      <tr><td class="item">触媒 / Ea</td><td colspan="3">Bayer SAS 350 γ-Al₂O₃（BET 247 m²/g, 3mm ペレット）。Ea=143.7 kJ/mol（intrinsic, 解離吸着 LHHW）。3mm 粒は<b>細孔内拡散律速</b>。コーク少・堅牢</td>
+        <td><span class="b bh">高</span> BL1992/1993</td></tr>
+      <tr><td class="item">性能</td><td colspan="3">MeOH 転化率 ≈平衡（下§4）、DME 選択率 ≈100%（適正温度域）</td>
+        <td><span class="b bh">高</span>／工業 Toyo・Uhde</td></tr>
+    </tbody>
+  </table></div>
+
+  <div style="font-weight:600;margin:14px 0 2px;color:var(--accent-ink)">§2b 間接・H-ZSM-5（強Brønsted酸→低温可・ただし MTH）</div>
+  <div class="scroll"><table>
+    <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
+    <tbody>
+      <tr><td class="item">温度 [°C]</td><td>130–160</td><td class="nrm">200–280</td><td>350–400（400+で分解）</td>
+        <td>強酸で低温活性（γより約50℃低）。265℃で転化率最大82%。272℃超で副生・DME選択率低下／上限=MTH（hydrocarbon pool）</td>
+        <td><span class="b bh">高</span> Ortega2018, Tavan2014, Trypolskyi2021, Dalena2021 <span class="b lab">ラ</span></td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td colspan="3">常圧（ラボ研究の大半）。\(\Delta n=0\) で加圧の動機弱い</td>
+        <td><span class="b bh">高</span> Ortega, Trypolskyi, Laugel</td></tr>
+      <tr><td class="item">WHSV [h⁻¹]</td><td>3</td><td class="nrm">15–40</td><td>100</td>
+        <td>平衡・接触時間で転化率決定</td>
+        <td><span class="b bh">高</span> Ortega(15–100), Trypolskyi(3–39)</td></tr>
+      <tr><td class="item">触媒 Si/Al / Ea</td><td>~10</td><td class="nrm">15–68</td><td>—</td>
+        <td>低Si/Al（高酸量）ほど高活性だが選択率維持に<b>より低温</b>要。Ea 50–70 kJ/mol（見かけ）</td>
+        <td><span class="b bh">高</span> Migliori2014(10–25), Ortega(35–68)</td></tr>
+      <tr><td class="item">水 / 失活</td><td colspan="3">水の生成物阻害（Ortega が ZSM-5 で初記述）。MTH でコーク→失活。高温酸化再生の繰返しで永久失活リスク。<b>空気雰囲気で MTH 抑制し運転上限を 400℃ へ拡張・選択率&gt;90%を50h維持</b>（Laugel）</td>
+        <td><span class="b bh">高</span> Ortega, Laugel</td></tr>
+    </tbody>
+  </table></div>
+
+  <div style="font-weight:600;margin:14px 0 2px;color:var(--accent-ink)">§2c 直接法（syngas → DME・二元機能 Cu/ZnO＋固体酸）</div>
+  <div class="scroll"><table>
+    <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
+    <tbody>
+      <tr><td class="item">温度 [°C]</td><td>200</td><td class="nrm">230–280</td><td>300</td>
+        <td>下限=合成活性／上限=Cu焼結・平衡（強発熱）。<b>除熱が最大課題</b>（スラリー/沸騰水で等温化）</td>
+        <td><span class="b bh">高</span> KOGAS 230/260/280 <span class="b ind">工</span></td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td>2</td><td class="nrm">4–6</td><td>7（~10）</td>
+        <td>モル減（\(\ce{CO + 2H2}\)）で高圧が平衡・速度とも有利</td>
+        <td><span class="b bh">高</span> KOGAS 4.3–6.1, JFE 5.0</td></tr>
+      <tr><td class="item">供給 H₂/CO</td><td>1.0</td><td class="nrm">1.0–1.3</td><td>2.0</td>
+        <td>CO-rich が直接法に整合（水は WGS で CO₂化し循環）。最大 STY は H₂/CO=1.0</td>
+        <td><span class="b bh">高</span> KOGAS 1.2–1.3, JFE 1.0</td></tr>
+      <tr><td class="item">反応器 / 性能</td><td colspan="3">スラリー（JFE, 三相・鉱物油）または多管固定床＋沸騰水（KOGAS）。CO 転化率 67.7%（260℃/4.3MPa/GHSV3000, KOGAS）〜96%（JFE demo）、DME 選択率 93%、純度 99.6%。STY 281 kg/(m³<sub>cat</sub>·h)</td>
+        <td><span class="b bm">中</span>(STY 触媒依存) JFE 100t/d, KOGAS 10t/d <span class="b ind">工</span></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ============ MA ============ -->
+<div class="stage">§3 酢酸メチル合成 — H-モルデナイト カルボニル化</div>
+<div class="rx">
+  <div class="rxn">\[ \ce{CH3OCH3 + CO -> CH3COOCH3} \]（8員環側ポケットの Brønsted 酸点上、律速=表面メトキシ種への CO 挿入。<b>CO 1次・DME 0次</b>）</div>
+  <div class="scroll"><table>
+    <thead><tr><th>項目</th><th>下限</th><th class="nrm">Normal</th><th>上限</th><th>律速・理由</th><th>信頼度/出典</th></tr></thead>
+    <tbody>
+      <tr><td class="item">温度 [°C]</td><td>~150</td><td class="nrm">165–190</td><td>~210（限界 250）</td>
+        <td>下限=速度不足・誘導期長大／上限=<b>コーク失活加速・MTH副生・脱カルボニル化（MeOH増）</b></td>
+        <td><span class="b bh">高</span> Cheung(150–190), Cheng(195–210), DTU(165) <span class="b lab">ラ</span></td></tr>
+      <tr><td class="item">圧力 [MPa]</td><td>~1.0</td><td class="nrm">1.5–3.0</td><td>~10（実験上限）</td>
+        <td>CO 分圧に<b>1次</b>（\(r=k\,p_\mathrm{CO}\)）→高圧有利／上限=装置＋CO によるコーク加速</td>
+        <td><span class="b bh">高</span> Cheng(1.5), DTU(1–10)</td></tr>
+      <tr><td class="item">供給（CO/DME）</td><td>DME 0.8 kPa</td><td class="nrm">DME 0.2–2%＋CO大過剰</td><td>DME 66.8 kPa</td>
+        <td>DME は<b>0次</b>（酸点が CH₃ で飽和＝MARI）。標準 DME/N₂/CO = 2/5/93</td>
+        <td><span class="b bh">高</span> Cheung(0次域), Cheng</td></tr>
+      <tr><td class="item">接触時間</td><td colspan="3">W/F ≈ 3.9 g<sub>cat</sub>·h/g<sub>DME</sub>（Cheng）。<b>GHSV/WHSV の明示値は文献未収載</b></td>
+        <td><span class="b bl">低</span> GHSV 記載なし</td></tr>
+      <tr><td class="item">水（決定的）</td><td colspan="3"><b style="color:var(--red)">実質無水必須</b>。~1000 ppm（0.5 kPa@0.5MPa）で速度 <b>約1/4</b>、~7000 ppm で <b>約1/14</b>。<b>可逆</b>阻害（除去で ~4h かけ回復）。<b>明確な許容 ppm 閾値は一次文献に無い</b></td>
+        <td><span class="b bl">低</span> 閾値未確定／定量は Cheung 添加実験のみ</td></tr>
+      <tr><td class="item">誘導期</td><td>短（DME前ドーズ/高温で消失）</td><td class="nrm">~4 h @438K</td><td>~8 h（低温・脱Al過多）</td>
+        <td>酸点 H⁺ のメチル基置換＋副生水の除去に要する時間</td>
+        <td><span class="b bh">高</span> Cheung(4h), Cheng</td></tr>
+      <tr><td class="item">触媒 H-MOR</td><td colspan="3">至適 Si/Al ~10（ZSM-5/FER/BEA は低活性〜不検出）。活性点=8員環側ポケット（3.4×4.8 Å）の Brønsted 酸点。DME 吸着 ~0.5/Al。<b>コーク失活</b>（CO が加速）→ 再生 <b>~773K（500℃）乾燥空気/O₂</b>。H₂ 共供給 5–19% で失活抑制</td>
+        <td><span class="b bh">高</span> Cheung, Bhan, Cheng, DTU, review2024</td></tr>
+      <tr><td class="item">性能 / Ea</td><td colspan="3">MA 選択率 <b>&gt;99%</b>（無水条件）。DME 転化率 9–33%（希薄ほど高）。Ea=88.65 kJ/mol（Cheng）</td>
+        <td><span class="b bh">高</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><b>工業化:</b> DICP（大連化物研）×陝西延長石油による<b>世界初の石炭→エタノール商業プラント（無水エタノール 10万 t/年）が 2017 年稼働</b>。DME→酢酸メチル（H-MOR）→水素化→エタノールの間接ルートの中核工程。技術系譜は BP Chemicals（Cheung–Iglesia のハロゲンフリー間接酢酸プロセス）。<br><b style="color:var(--red)">⚠️ 唯一の失活律速系:</b> 平衡ではなく<b>触媒コーク寿命が上限温度を決める</b>。工業化の最大障壁も急速失活で、上限温度・水管理・再生サイクルが設計の要。</div>
+  <div class="src"><b>出典:</b> local <span class="mono">accounts2024_MOR_carbonylation_review, cheung2006/2007, bhan2007, cheng2017, dtu_...2017, ProductionofMethylAcetate</span>／web: DICP 石炭→エタノールプラント(2017), BP/Iglesia 系譜, DME carbonylation レビュー。</div>
+</div>
+
+<!-- ============ EQUILIBRIUM ============ -->
+<div class="stage">§4 脱水平衡 \(\ce{2CH3OH <=> CH3OCH3 + H2O}\)（定量）</div>
+<div class="rx scroll">
+  <table>
+    <thead><tr><th>温度 [°C]</th><th>150</th><th>250</th><th>300</th><th>400</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr><td class="item">平衡定数 \(K_p\)</td><td>—</td><td class="mono">~18</td><td class="mono">~11.5</td><td class="mono">~5.9</td>
+        <td>\(\Delta n=0\) で圧力に無感。T↑で \(K_p\)↓</td></tr>
+      <tr><td class="item">平衡 MeOH 転化率（純MeOH供給）</td><td class="mono">93%</td><td class="mono">~90%</td><td class="mono">~87%</td><td class="mono">82–83%</td>
+        <td>弱発熱ゆえ 150→400℃ で 93→82% と<b>緩やかに単調減少</b></td></tr>
+    </tbody>
+  </table>
+  <div class="note">\(\Delta H\approx-21\)〜\(-24\) kJ/mol（弱発熱）。ZSM-5 が低温で有利なのは、低温＝平衡転化率が高い＋強酸で低温でも高活性、の両取りができるため。<b style="color:var(--red)">⚠️ 棄却した誤情報:</b> 一部 Web の「250℃で平衡転化率 3.4%」は \(K_p\)→転化率の換算誤り（査読値・シミュレーションは 80–93%）。</div>
+</div>
+
+<!-- ============ UNCERTAINTY ============ -->
+<div class="stage">§5 信頼度・要注意（正直な整理）</div>
+<div class="rx">
+  <table>
+    <thead><tr><th>信頼度</th><th>項目</th></tr></thead>
+    <tbody>
+      <tr><td><span class="b bh">高</span></td><td>各反応の温度/圧力 Normal・選択率・律速機構・MA の水の可逆阻害・脱水平衡の温度依存・MeOH の S 許容・低温高圧が平衡有利</td></tr>
+      <tr><td><span class="b bm">中</span></td><td>STY 絶対値（触媒依存で数倍）・GHSV レンジ（単位系不統一）・直接法の圧力層（熱力学最適 20–70 vs 実機 40–61 bar）・MeOH 1パス転化率（一次プラント値は推定）</td></tr>
+      <tr><td><span class="b bl">低</span></td><td><b>MA の水許容 ppm 閾値</b>（一次文献に定量閾値なし＝「実質無水」とだけ言える）・<b>MA / DME間接の工業 GHSV/WHSV 公称値</b>（公開乏しい）・MeOH の Cl 許容 ppb 具体値・焼結開始温度の厳密値</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="foot">
+  ローカル一次論文（<span class="mono">references/</span>）＋ Web（工業/デモ）を突き合わせて作成。ラボ論文は運転「域」ではなく測定「窓」を示す点に注意（工業域は Web 由来）。<br>
+  反応部のみ（MB・フローシート・分離・除熱設計は別プロジェクト範囲）。数値は出典間で幅がある場合 Normal を代表値とした。
+</div>
+</div>
+</body>
+</html>
