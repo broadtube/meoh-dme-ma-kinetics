@@ -110,7 +110,9 @@ EQ_KOGAS = {
 K_EQ3_SOURCES = {
     "KOGAS":  (10194.0, -13.91),   # KOGAS 2008/2021 ⚠️過大（523Kで10^5.6 → 脱水がほぼ不可逆扱い）
     "BL":     (1000.0,   -0.735),  # Bercič–Levec 1992 記載範囲 K=7〜11(290–360°C) への2点fit
-    "thermo": (1121.0,   -0.888),  # Cantera(NASA熱力学)由来のfit（K≈18@250°C, BL とほぼ一致）
+    "thermo": (1121.0,   -0.888),  # Cantera nasa_gas.yaml(NASA-7熱力学)の 2CH3OH⇌DME+H2O 標準ギブスを
+                                   # log10 K=c0/T+c1 に 250–315℃ でフィット（K≈18@250°C, BL とほぼ一致）。
+                                   # 完全再現: examples/derive_keq3_thermo.py（(1120.9,-0.888)→丸めて本値）
 }
 
 
