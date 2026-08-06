@@ -156,12 +156,11 @@ def rate_ms_rwgs(state, model: str = "KOGAS") -> dict[str, float]:
     # 共通分母（第3項は K3·√pH2）
     DEN = 1.0 + K2 * (p_H2O / p_H2) + K3 * p_H2 ** 0.5 + K4 * p_H2O
 
-    r_MS = (k1 * p_H2 * p_CO2
-            * (1.0 - (1.0 / Keq["K_eq1"]) * (p_MeOH * p_H2O) / (p_CO2 * p_H2 ** 3))
-            / DEN ** 3)
-    r_RWGS = (k5 * p_CO2
-              * (1.0 - Keq["K_eq2"] * (p_CO * p_H2O) / (p_CO2 * p_H2))
-              / DEN)
+    # 駆動力を展開した等価形（p_CO2 が分母に現れない → CO2=0 供給でも特異点なし）。
+    #   r_MS   = k1·pH2·pCO2·[1 − (1/Keq1)·pMeOH·pH2O/(pCO2·pH2³)]  = k1·[pH2·pCO2 − (1/Keq1)·pMeOH·pH2O/pH2²]
+    #   r_RWGS = k5·pCO2·[1 − Keq2·pCO·pH2O/(pCO2·pH2)]            = k5·[pCO2 − Keq2·pCO·pH2O/pH2]
+    r_MS = k1 * (p_H2 * p_CO2 - (1.0 / Keq["K_eq1"]) * p_MeOH * p_H2O / p_H2 ** 2) / DEN ** 3
+    r_RWGS = k5 * (p_CO2 - Keq["K_eq2"] * p_CO * p_H2O / p_H2) / DEN
     f = _MS_UNIT_TO_MOL_KG_S[model]          # 源の速度単位 → mol·kg⁻¹·s⁻¹
     return {"r_MS": r_MS * f, "r_RWGS": r_RWGS * f}
 
