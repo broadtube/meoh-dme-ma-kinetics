@@ -83,3 +83,30 @@ def test_unknown_model_raises():
     s = GasState(438.0, 50.0, {"CO": 0.30, "DME": 0.02, "MA": 0.0})
     with pytest.raises(ValueError):
         carbonylation.rate(s, model="nonsense")
+
+
+def test_dtu_third_term_uses_reciprocal_K3():
+    """DTU eqn(11) の第3項は K3⁻¹·pMA/pDME（K3 は eqn(7) の平衡定数）。掛ける実装への回帰防止。"""
+    s = GasState(438.0, 50.0, {"CO": 0.60, "DME": 0.15, "MA": 0.25})
+    p = s.partial_pressures()
+    k1, K2, K3 = (carbonylation.DTU_PARAMS[k] for k in ("k1", "K2", "K3"))
+    den = 1.0 + K2 * p["MA"] + p["MA"] / (K3 * p["DME"])
+    expect = k1 * p["CO"] / den * carbonylation._dme_reg(p["DME"])
+    assert carbonylation.rate(s, "DTU") == pytest.approx(expect, rel=1e-12)
+
+
+def test_dtu_reproduces_paper_surface_coverages():
+    """DTU p8: 100 bar・2 vol% DME in CO・1.5 g 出口で methyl/acetyl/CH3-MA = 21/7/72%。
+    PFR 積分＋酸点密度換算まで含めた end-to-end 検証（K3 を掛けると 19/18/63% でずれる）。"""
+    from reaction_rate.reactors import pfr, CatalystBed
+
+    flow = 300.0 / 22414.0 / 60.0                      # 300 Nml/min → mol/s
+    res = pfr({"CO": 0.98 * flow, "DME": 0.02 * flow, "MA": 0.0}, T=438.0, P=100.0,
+              bed=CatalystBed({"carbonylation": 1.5e-3}, acid_site_density=1.43),
+              models={"carbonylation": "DTU"})
+    y = res.mole_fractions()
+    p_MA, p_DME = y["MA"][-1] * 100.0, y["DME"][-1] * 100.0
+    K2, K3 = carbonylation.DTU_PARAMS["K2"], carbonylation.DTU_PARAMS["K3"]
+    den = 1.0 + K2 * p_MA + p_MA / (K3 * p_DME)        # eqn(8): Θ_CH3 = 1/den
+    theta = (100.0 / den, 100.0 * (p_MA / (K3 * p_DME)) / den, 100.0 * K2 * p_MA / den)
+    assert theta == pytest.approx((21.0, 7.0, 72.0), abs=0.6)

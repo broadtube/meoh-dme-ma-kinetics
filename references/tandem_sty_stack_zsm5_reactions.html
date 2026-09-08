@@ -155,7 +155,7 @@
 <!-- RWGS -->
 <div class="rx">
   <h2>② 逆水性ガスシフト (RWGS) <span class="tag">model = KOGAS</span></h2>
-  <div class="eqn">\[ \ce{CO + H2O <=> CO2 + H2} \]</div>
+  <div class="eqn">\[ \ce{CO2 + H2 <=> CO + H2O} \]</div>
   <div class="lbl">速度式（DEN は MS と共通）</div>
   <div class="rate">\[ r_\mathrm{RWGS} = \frac{k_5\,p_\mathrm{CO_2}\left[\,1 - K_\mathrm{eq2}\dfrac{p_\mathrm{CO}\,p_\mathrm{H_2O}}{p_\mathrm{CO_2}\,p_\mathrm{H_2}}\right]}{\mathrm{DEN}}\times\frac{1000}{3600} \]</div>
   <div class="lbl">パラメータ</div>
@@ -163,7 +163,7 @@
     <tr><th>定数</th><th>A</th><th>B [J/mol]</th><th>\(A\exp(B/RT)\)@250℃<br>(×1000/3600 前)</th></tr>
     <tr><td class="mono">k₅</td><td class="mono">1.09×10¹⁰</td><td class="mono">−94765</td><td class="mono">3.76</td></tr>
   </table>
-  <div class="src"><b>出典:</b> 同上（KOGAS = Ng 1999 / VBF 1996）。RWGS は正反応、駆動力に K<sub>eq2</sub>。<span class="mono">vbf_kogas.rate_ms_rwgs</span></div>
+  <div class="src"><b>出典:</b> 同上（KOGAS = Ng 1999 / VBF 1996）。正反応は <b>CO₂+H₂→CO+H₂O</b>（network の量論もこの向き）。駆動力の K<sub>eq2</sub> は<b>平衡定数の逆数</b> 1/K<sub>eq,2</sub>（Graaf 1986 eq12 の逆数, 523 K で 86.1）で、Ng 1999 eq(9) の (1/K<sub>eq,2</sub>) に対応する。<span class="mono">vbf_kogas.rate_ms_rwgs</span></div>
 </div>
 
 <!-- MD -->
@@ -196,7 +196,7 @@
   <div class="eqn">\[ \ce{CH3OCH3 + CO -> CH3COOCH3} \]</div>
   <div class="sub" style="margin:-2px 0 4px;font-size:.85rem;">（DME + CO → 酢酸メチル）</div>
   <div class="lbl">速度式（per mol Al。CO 一次・DME 零次・MA 阻害）</div>
-  <div class="rate">\[ r_\mathrm{MA} = \frac{k_1\,p_\mathrm{CO}}{1 + K_2\,p_\mathrm{MA} + K_3\,p_\mathrm{MA}/p_\mathrm{DME}}\;f_\mathrm{reg}(p_\mathrm{DME})\;\times\;\rho_\mathrm{acid} \]</div>
+  <div class="rate">\[ r_\mathrm{MA} = \frac{k_1\,p_\mathrm{CO}}{1 + K_2\,p_\mathrm{MA} + K_3^{-1}\,p_\mathrm{MA}/p_\mathrm{DME}}\;f_\mathrm{reg}(p_\mathrm{DME})\;\times\;\rho_\mathrm{acid} \]</div>
   <div class="rate">\[ f_\mathrm{reg} = \frac{K_\mathrm{DME}\,p_\mathrm{DME}}{1 + K_\mathrm{DME}\,p_\mathrm{DME}}, \qquad K_\mathrm{DME} = 10^{5}\ \mathrm{bar^{-1}} \]</div>
   <div class="sub" style="margin:-2px 0 4px;font-size:.85rem;">（DME 枯渇で速度 → 0 の正則化）</div>
   <div class="lbl">パラメータ &nbsp;（438 K 基準の van't Hoff）</div>
@@ -207,7 +207,7 @@
     <tr><td class="mono">K₂</td><td class="mono">4.65 bar⁻¹</td><td class="mono">ΔH₂ = −97（DTU DFT）</td><td class="mono">0.061</td><td>DTU DFT</td></tr>
     <tr><td class="mono">K₃</td><td class="mono">1.76（無次元）</td><td class="mono">固定（tier 2 では温度非依存）</td><td class="mono">1.76</td><td>DTU</td></tr>
   </table>
-  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂）＋ K₃ 固定（温度依存は tier 3）。<b>実装上の注意:</b> ① DTU 系は <b>per mol Al</b> なので reactor 側で <b>×酸点密度 \(\rho_\mathrm{acid}\)</b>＝<b>1.43 mmol/g（=1.43 mol Al/kg）</b>を掛ける（Cheung2007/Cheng2017 は既に per kg）。この 1.43 は <b>DTU 2017 §2 Experimental</b> の報告値「Mordenite (SiO₂/Al₂O₃=20), Zeolyst <b>CBV21A</b>, all Al sites 1.43×10⁻³ mol Al/g」＝DTU が TOF を定義した全 Al 基準そのもの（公称20の理想値 ~1.51 に対し報告 1.43 は実効 ~22 相当）。② 第3項 \(K_3\,p_\mathrm{MA}/p_\mathrm{DME}\) は <b>\(p_\mathrm{DME}\to 0\) でゼロ除算</b>になるため、実装では \(p_\mathrm{DME}=0\) のとき第3項を 0 とする。③ \(f_\mathrm{reg}\) は DTU 公表式にはない移植項（Diemer&amp;Luyben の DME 正則化）で、検証域 \(p_\mathrm{DME}\gtrsim 10^{-4}\) bar では ≈1 で速度不変。</div>
+  <div class="note"><b>DTU-Cheung2007-2</b> = DTU 式 ＋ k₁ 温度依存（E<sub>a</sub>=69.6, Cheung）＋ K₂ 温度依存（van't Hoff ΔH₂ = −97 kJ/mol）＋ K₃ 固定（温度依存は tier 3）。<b>⚠️ ΔH₂ は DTU の報告値ではなく、DTU Table 2 の MA on H–Z (T3-O3, −1.01 eV) から当まとめが当てた推定</b>（eqn(6) 字義どおりの Table 3 値は +23〜+46 kJ/mol で符号が逆になるが、fit K₂ とのエントロピー整合から発熱側が支持される。詳細は <code>rate_equations.html</code> §3「K₂/K₃ の温度依存」）。<b>実装上の注意:</b> ① DTU 系は <b>per mol Al</b> なので reactor 側で <b>×酸点密度 \(\rho_\mathrm{acid}\)</b>＝<b>1.43 mmol/g（=1.43 mol Al/kg）</b>を掛ける（Cheung2007/Cheng2017 は既に per kg）。この 1.43 は <b>DTU 2017 §2 Experimental</b> の報告値「Mordenite (SiO₂/Al₂O₃=20), Zeolyst <b>CBV21A</b>, all Al sites 1.43×10⁻³ mol Al/g」＝DTU が TOF を定義した全 Al 基準そのもの（公称20の理想値 ~1.51 に対し報告 1.43 は実効 ~22 相当）。② 第3項は <b>\(K_3^{-1}\,p_\mathrm{MA}/p_\mathrm{DME}\)（K₃ の逆数）</b>：K₃ は DTU eqn(7) DME+CH₃CO–Z⇌MA+CH₃–Z の平衡定数なので \(\Theta_\mathrm{acetyl}/\Theta_\mathrm{CH_3}=K_3^{-1}p_\mathrm{MA}/p_\mathrm{DME}\)（原著 eqn 8·10·11 の印字どおり。Table 4 の 1.76 は割る値）。また \(p_\mathrm{DME}\to 0\) で<b>ゼロ除算</b>になるため、実装では \(p_\mathrm{DME}=0\) のとき第3項を 0 とする。③ \(f_\mathrm{reg}\) は DTU 公表式にはない移植項（Diemer&amp;Luyben の DME 正則化）で、検証域 \(p_\mathrm{DME}\gtrsim 10^{-4}\) bar では ≈1 で速度不変。</div>
   <div class="src"><b>出典:</b> 基準式・K₂/K₃ = <b>DTU (mordenite carbonylation) 2017</b>, Catal. Sci. Technol.（Table 4, 438 K, per mol Al）。k₁ の温度依存 E<sub>a</sub> = <b>Cheung 2007</b>（Iglesia/BP）→ 整形形は <b>Diemer &amp; Luyben 2010</b>, IECR 49, 12224（査読, eq6-7, DOI 10.1021/ie101583j）。K₂ の van't Hoff ΔH₂=−97 kJ/mol は <b>DTU の DFT 吸着エネルギー（−1.01 eV）由来の近似</b>、<b>K₃ の ΔH₃=−8 kJ/mol は論文の直接裏付けなしの見積り</b>（tier 2 では K₃ 固定なので本 example の結果には無影響）。速度則(CO 一次・DME 零次・律速=8-MR 側ポケット Brønsted 酸点への CO 挿入)は Cheung 2006/07・Bhan 2007 で確立。<span class="mono">carbonylation.rate(model="DTU-Cheung2007-2")</span></div>
 </div>
 

@@ -11,18 +11,19 @@
   Cheung 2007（Iglesia/BP, 基礎速度論）: Ea≈69.6 kJ/mol（exp(−8370/T)=Cheung データの整形形。
                                           primary は Diemer & Luyben 2010 IECR 査読 eq6, 非査読 Miriyam2015 も同形）
   Cheng 2017（天津大, 失活論文）        : Ea=88.65 kJ/mol
-K2,K3 の van't Hoff ΔH は DTU 自身の DFT（Table 2/3）由来（両系統で共通）。
+K2,K3 の van't Hoff ΔH は ⚠️ DTU が報告した値ではなく、DTU の DFT から当実装が当てた推定
+（対応づけ・不確かさは下の DFT_DH_K2/K3 のコメント参照）。既定は tier 1（K2,K3 固定）を推奨。
 
 model= で選択（9 種）:
-  'DTU'               : k1·pCO/(1+K2·pMA+K3·pMA/pDME)。全定数 438 K 固定。 per mol Al。 [DTU 2017]
+  'DTU'               : k1·pCO/(1+K2·pMA+K3⁻¹·pMA/pDME)。全定数 438 K 固定。 per mol Al。 [DTU 2017]
   'Cheung2007'        : k(T)·pCO。MA阻害なし・1次・乾燥。per kg。   [Cheung→Diemer&Luyben2010形, 実値]
                         k = 8.2e-5·exp(−8370/T) kmol·kg⁻¹·s⁻¹·Pa⁻¹（Ea=69.6）を直接使用。
   'Cheng2017'         : 同上 1次形だが Ea=88.65（Cheng）。per kg。★混成★     [混成]
                         大きさは Cheung(8.2e-5) の 438K 値に anchor、温度依存のみ Cheng Ea。
                         （Cheng 独自の絶対値は接触時間・質量基準で mol·(kg·s)⁻¹ に変換できないため）
   'DTU-Cheung2007-1'  : DTU式で k1 温度依存（Ea=69.6, Cheung）。K2,K3 固定。 per mol Al。
-  'DTU-Cheung2007-2'  : + K2 も温度依存（van't Hoff ΔH2, DTU DFT）。
-  'DTU-Cheung2007-3'  : + K3 も温度依存（van't Hoff ΔH3, DTU DFT）。
+  'DTU-Cheung2007-2'  : + K2 も温度依存（van't Hoff ΔH2 推定値）。★感度解析用★
+  'DTU-Cheung2007-3'  : + K3 も温度依存（van't Hoff ΔH3 推定値）。★感度解析用・信頼度最低★
   'DTU-Cheng2017-1/2/3': 上と同じだが k1 の Ea=88.65（Cheng）。
 失活（コーク）モデル deactivation() は別途（Cheng 2017 Table 1, 過渡計算）で未実装。
 """
@@ -42,11 +43,32 @@ T_REF = 438.0       # 温度依存の基準温度 [K]（DTU 実験温度・Cheun
 # --- 温度依存 Ea（k1, [J/mol]）2 系統 ---
 EA_CHEUNG = 8370.0 * R   # ≈69.6 kJ/mol。exp(−8370/T)＝Cheung 2007 データの整形（Diemer&Luyben2010, Fig8 70–85 と整合）
 EA_CHENG = 88.65e3       # Cheng 2017（失活論文）の前進速度 Ea
-# --- K2,K3 の van't Hoff ΔH（吸着, ΔH<0。DTU DFT 由来の概算, [J/mol]）---
-#   K2: MA 吸着 −1.01 eV(側pocket) ≈ −97 kJ/mol。 K3: MA≈DME 吸着（差小）→ ほぼ温度非依存。
-#   ⚠️ 概算（±10–20 kJ/mol、K2/K3 の DFT ステップ対応は DTU eqn 5–10 の精読要）。
+# --- K2,K3 の van't Hoff ΔH [J/mol] ---
+# ⚠️ DTU は ΔH を一切報告していない。以下は DTU の DFT から当実装が当てた推定値であり、
+#    「DFT のどの数値を ΔH に対応させるか」が自明でない点が最大の不確かさ。
+#
+# ΔH2 = -97 kJ/mol【採用】: DTU Table 2（PDF p.3=誌面1143）の MA on H–Z, T3-O3 = -1.01 eV。
+#   ただし K2 の定義 eqn(6) は MA + CH3–Z ⇌ C（メチル化席の閉塞）で、Table 2 は
+#   プロトン席(H–Z)への吸着＝別反応。eqn(6) を字義どおり DFT で見ると Table 3 の
+#   CH3–MA+ 錯体生成は吸熱 +0.24/+0.48 eV(主channel/側pocket) = +23〜+46 kJ/mol で符号が逆。
+#   それでも Table 2 を採るのは DTU 本文(PDF p.7=誌面1147)自身が
+#   "the CH3–MA species ... cannot explain the detrimental effect of MA ... However, MA binds
+#    to protonated sites with sufficient strength to inhibit methylation (Table 2)" と述べ、
+#   阻害の実体をプロトン席吸着に帰しているため。
+#   熱力学整合(当実装): K2=4.65 bar^-1 @438K → ΔG°=-5.6 kJ/mol。
+#     ΔH=-97 → ΔS°=-210 J/(mol·K)（強い化学吸着として説明可だが経験則 -100〜-190 よりやや大 ⇒ 上限寄り）
+#     ΔH=+46 → ΔS°=+118 J/(mol·K)（会合反応でエントロピー増＝物理的に不可）⇒ 発熱側が支持される
+#
+# ΔH3 = -34 kJ/mol【tier 3 のみ・信頼度低】: DTU Table 3（PDF p.4=誌面1144）の
+#   DME+CH3CO–Z→CH3–MA+ + Z- (ΔE=+0.13) と CH3–MA+ + Z-→MA+CH3–Z (ΔE=-0.48) の和
+#   = eqn(7) 全体 ΔE = -0.35 eV @T3-O3（主channel は -0.48 eV = -46 kJ/mol）。
+#   ただし eqn(7) は両辺の気体分子数が等しい交換反応で ΔS°≈+25 J/(mol·K)(気相 MA-DME)程度のはずで、
+#   fit 値 K3=1.76 (ΔG°=-2.1 kJ/mol) と組むと ΔH3≈+9 kJ/mol となり DFT の -34 と符号すら食い違う。
+#   ⇒ 既定では K3 を動かさない（tier 3 は上限側の感度確認用）。
+#   （旧値 -8.0e3 は Table 2 の MA/DME 吸着差 0.02 eV から取っていたが、これは eqn(7) とは
+#     無関係な量の混同だったため撤回）
 DFT_DH_K2 = -97.0e3
-DFT_DH_K3 = -8.0e3
+DFT_DH_K3 = -33.8e3
 
 # --- Cheung 整形形（per-kg・Pa 基準の温度依存 k, 水阻害は乾燥前提で無視）---
 #   Diemer & Luyben 2010（IECR 49, 12224, 査読, eq6-7, DOI 10.1021/ie101583j）が
@@ -75,7 +97,7 @@ def _vant_hoff(x_ref: float, energy: float, T: float) -> float:
 
 
 def rate_dtu(state, model: str = "DTU") -> float:
-    """DTU eqn(11): r_MA = k1·pCO / (1 + K2·pMA + K3·pMA/pDME) [mol·(mol Al)⁻¹·s⁻¹]。
+    """DTU eqn(11): r_MA = k1·pCO / (1 + K2·pMA + K3⁻¹·pMA/pDME) [mol·(mol Al)⁻¹·s⁻¹]。
     model で k1(Ea は Cheung2007/Cheng2017 系で選択)・K2・K3 の温度依存を段階的に有効化。"""
     T = state.T
     p = state.partial_pressures()
@@ -93,7 +115,10 @@ def rate_dtu(state, model: str = "DTU") -> float:
 
     inhibition = 1.0 + K2 * p_MA
     if p_DME > 0.0:                       # 微分条件(pMA→0)では第3項は 0
-        inhibition += K3 * p_MA / p_DME
+        # ⚠️ 原著 eqn(10)(11) は K3⁻¹（K3 は eqn(7) DME+CH3CO-Z⇌MA+CH3-Z の平衡定数なので
+        #    θ_acetyl/θ_CH3 = K3⁻¹·pMA/pDME）。Table 4 の 1.76 はそのまま「割る」値。
+        #    検証: 100 bar 出口被覆率が論文 p8 の methyl/acetyl/CH3-MA = 21/7/72% を再現する。
+        inhibition += p_MA / (K3 * p_DME)
     # DME 正則化: DTU 式は DME 零次で、pMA が低いと K3 項が効かず反応器で DME を過剰消費し得る
     # （負の DME）。Diemer&Luyben2010 の因子 K_DME·pDME/(1+K_DME·pDME) を掛け、DME 枯渇で速度→0 にする。
     # pDME≳1e-4 bar で因子≈1 なので微分域(DTU の検証域)の速度は変えない。

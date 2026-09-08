@@ -30,3 +30,16 @@ def test_rates_signs():
     s = GasState(T, 50.0, {"CO": 0.15, "CO2": 0.08, "H2": 0.72, "H2O": 0.01, "CH3OH": 0.04})
     r = graaf.rates(s)
     assert r["r_A"] > 0 and r["r_C"] > 0
+
+
+def test_params_match_graaf1988_eqs46_51():
+    """Graaf 1988 p.2892 eqs (46)–(51) の (A, B) を原著どおりに保持しているか。
+    ⚠️ K_CO/K_CO2 の B は 58,100 / 67,400（過去に 58753 / 67132 という出所不明値が入っていた）。"""
+    assert graaf.PARAMS == {
+        "k_A":   (2.69e7,  -109900.0),
+        "k_B":   (7.31e8,  -123400.0),
+        "k_C":   (4.36e2,   -65200.0),
+        "K_CO":  (7.99e-7,   58100.0),
+        "K_CO2": (1.02e-7,   67400.0),
+        "K_H2O_over_sqrtK_H2": (4.13e-11, 104500.0),
+    }
