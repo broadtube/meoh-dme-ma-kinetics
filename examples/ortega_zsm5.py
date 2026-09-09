@@ -170,7 +170,7 @@ def main():
 
 
 def deviation_points():
-    """{系列: [(T[℃], 計算/実測 − 1), ...]}。パネル (b) 用。"""
+    """{系列: [(T[℃], 計算/実測 − 1), ...]}。偏差パネル用。"""
     out = {"Fig. 4 — dry (linear axis)": [], "Fig. 6 — dry (log axis)": [],
            "Fig. 7 — 30 wt% H$_2$O in feed": []}
     for T, row in FIG4.items():
@@ -183,21 +183,33 @@ def deviation_points():
     return out
 
 
-def plot():
-    """2 パネル: (a) Fig.4 の p_M 依存性 (b) 全点の偏差（計算/実測 − 1）。
+def _p_m_of_T(T_c: float) -> float:
+    """Fig.6 の各点の p_MeOH を温度で線形内挿（転化率が上がるほど下がる）。"""
+    import numpy as np
+    Ts = [T for T, _, _ in FIG6]
+    return float(np.interp(T_c, Ts, [p for _, p, _ in FIG6]))
 
-    (b) を対数軸のアレニウス図にすると「線の上に点が乗っている」ようにしか見えず、
-    肝心の一致度（何 % ずれているか）が読めない。パリティ図（原著 Fig.8 と同型）も
-    対数軸だと帯が潰れるので、**偏差そのもの**を縦軸に取る。0% 線からの距離が誤差、
-    網掛けが ±10%/±20%。低温ほど下振れするという残差の構造も一目で分かる。
+
+def plot():
+    """4 パネル。上段は原著の図をそのまま並べ、下段右で一致度を定量する。
+
+      (a) Fig. 4 — 速度 vs p_MeOH（線形軸・乾燥）
+      (b) Fig. 6 — ln(rate) vs 1/T（乾燥, WHSV 100 h⁻¹）  ← 原著と同じ軸範囲
+      (c) Fig. 7 — ln(rate) vs 1/T（70wt%MeOH/30wt%H2O, WHSV 14 h⁻¹） ← 同上
+      (d) 偏差（計算/実測 − 1）
+
+    (b)(c) は**原著の軸範囲をそのまま使う**（Fig.6 は −6.0〜−2.0、Fig.7 は −3.0〜−7.0）。
+    紙面と重ねて見比べられるようにするため。ただし対数軸なので一致度は読めない
+    ——「何 % ずれているか」は (d) を見る。
     """
     import numpy as np
     import matplotlib.pyplot as plt
     from reaction_rate import plots
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.4, 4.2), dpi=130)
+    fig, axes = plt.subplots(2, 2, figsize=(10.4, 7.6), dpi=130)
+    ax1, ax2, ax3, ax4 = axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]
 
-    # (a) 速度 vs p_MeOH。線=本実装、点=原著 Fig.4、★=SI の厳密値
+    # --- (a) Fig. 4: 速度 vs p_MeOH。線=本実装、点=原著、★=SI の厳密値 ---
     pm = np.linspace(0.25, 1.0, 40)
     plots.lines(pm, {f"{T} °C": [rate_at_outlet(T, p) for p in pm] for T in FIG4},
                 "Methanol partial pressure [bar]",
@@ -211,29 +223,51 @@ def plot():
                  textcoords="offset points", xytext=(-104, -20), fontsize=8, color="#1b242c",
                  arrowprops=dict(arrowstyle="-", color="#5b6873", lw=0.8))
     ax1.set_ylim(0.0, None)
-    ax1.set_title("(a) Fig. 4 — rate vs $p_{MeOH}$ (dry, WHSV 100 h$^{-1}$)\n"
-                  "lines = this implementation, circles = paper", fontsize=9.5, pad=6)
+    ax1.set_title("(a) Fig. 4 — rate vs $p_{MeOH}$ (dry, WHSV 100 h$^{-1}$)", fontsize=9.5, pad=6)
 
-    # (b) 偏差: (計算/実測 − 1) を温度に対して。パリティより「何 % ずれか」が直読できる
-    bands = ((0.20, "#dbe0dd"), (0.10, "#c7d3cd"))
-    for f, col in bands:
-        ax2.axhspan(-f * 100, f * 100, color=col, zorder=0)
-    ax2.axhline(0.0, color="#1b242c", lw=1.2, zorder=1)
+    # --- (b) Fig. 6 / (c) Fig. 7: 原著と同じ ln(rate) vs 1/T ---
+    def arrhenius(ax, title, data, model, ylim):
+        Ts = np.linspace(136.0, 194.0, 60)
+        ax.plot(1000.0 / (Ts + 273.15), [math.log(model(T)) for T in Ts],
+                color="#D55E00", lw=1.6, zorder=2)
+        ax.plot([1000.0 / (T + 273.15) for T, _ in data], [math.log(r) for _, r in data],
+                "o", ms=7, color=plots.OKABE_ITO[0], mfc="white", mew=1.6, zorder=3)
+        ax.set_xlim(2.1, 2.5)
+        ax.set_ylim(*ylim)
+        ax.set_xlabel("Inv. Temp. [1/T] (K$^{-1}$)  ×10$^{-3}$", color="#1b242c")
+        ax.set_ylabel("ln(rate / mol$_{MeOH}$ kg$^{-1}$ s$^{-1}$)", color="#1b242c")
+        ax.set_title(title, fontsize=9.5, pad=6)
+        plots._style(ax)
+
+    arrhenius(ax2, "(b) Fig. 6 — dry feed, WHSV 100 h$^{-1}$",
+              [(T, r) for T, _, r in FIG6],
+              lambda T: rate_at_outlet(T, _p_m_of_T(T)), (-6.0, -2.0))
+    arrhenius(ax3, "(c) Fig. 7 — 70 wt% MeOH / 30 wt% H$_2$O, WHSV 14 h$^{-1}$",
+              FIG7, lambda T: rate_wet_feed(T)[0], (-7.0, -3.0))
+    ax2.text(0.03, 0.06, "line = this implementation\ncircles = digitized from the paper",
+             transform=ax2.transAxes, fontsize=8, color="#5b6873")
+    ax3.text(0.03, 0.06, "water inhibition: 0.35-0.6x the dry rate\n(note the shifted axis vs. (b))",
+             transform=ax3.transAxes, fontsize=8, color="#5b6873")
+
+    # --- (d) 偏差: (計算/実測 − 1)。何 % ずれているかはここで読む ---
+    for f, col in ((0.20, "#dbe0dd"), (0.10, "#c7d3cd")):
+        ax4.axhspan(-f * 100, f * 100, color=col, zorder=0)
+    ax4.axhline(0.0, color="#1b242c", lw=1.2, zorder=1)
     for i, (label, pts) in enumerate(deviation_points().items()):
-        ax2.plot([T for T, _ in pts], [d * 100 for _, d in pts], "o", ms=6,
+        ax4.plot([T for T, _ in pts], [d * 100 for _, d in pts], "o", ms=6,
                  color=plots.OKABE_ITO[i], mfc="white", mew=1.5, label=label, zorder=3)
     dev_si = rate_at_outlet(SI_ANCHOR["T"], SI_ANCHOR["p_M"]) / SI_ANCHOR["rate"] - 1.0
-    ax2.plot([SI_ANCHOR["T"]], [dev_si * 100], "*", ms=14, color="#1b242c", zorder=4,
+    ax4.plot([SI_ANCHOR["T"]], [dev_si * 100], "*", ms=14, color="#1b242c", zorder=4,
              label="SI Table S6 (exact value)")
-    ax2.set_xlabel("Temperature [°C]", color="#1b242c")
-    ax2.set_ylabel("(calculated / measured − 1)  [%]", color="#1b242c")
-    ax2.set_ylim(-40, 40)
-    ax2.legend(frameon=False, labelcolor="#1b242c", fontsize=8, loc="upper left")
-    ax2.text(0.98, 0.03, "shaded: ±10% (inner) / ±20% (outer)", transform=ax2.transAxes,
+    ax4.set_xlabel("Temperature [°C]", color="#1b242c")
+    ax4.set_ylabel("(calculated / measured − 1)  [%]", color="#1b242c")
+    ax4.set_ylim(-40, 40)
+    ax4.legend(frameon=False, labelcolor="#1b242c", fontsize=8, loc="upper left")
+    ax4.text(0.98, 0.03, "shaded: ±10% (inner) / ±20% (outer)", transform=ax4.transAxes,
              fontsize=8, color="#5b6873", ha="right", va="bottom")
-    ax2.set_title("(b) deviation from the paper, point by point\n"
-                  "0% line = perfect agreement", fontsize=9.5, pad=6)
-    plots._style(ax2)
+    ax4.set_title("(d) deviation from the paper — 0% line = perfect agreement",
+                  fontsize=9.5, pad=6)
+    plots._style(ax4)
 
     fig.suptitle("Ortega 2018 (ZSM-5 methanol dehydration) reproduction", fontsize=11)
     fig.tight_layout()
