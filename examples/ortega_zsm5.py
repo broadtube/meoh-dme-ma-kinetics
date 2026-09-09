@@ -86,26 +86,49 @@ def rate_meoh(T_c: float, p_M: float, p_W: float = 0.0, p_D: float = 0.0) -> flo
                                             source="ZSM5", k_eq3=K_EQ3)
 
 
-def rate_at_outlet(T_c: float, p_M: float, whsv: float = WHSV_FIG4) -> float:
+def rate_at_outlet(T_c: float, p_M: float, whsv: float = WHSV_FIG4,
+                   rate_fn=None) -> float:
     """出口 p_MeOH を固定した無勾配反応器の予測速度 [mol_MeOH·kg⁻¹·s⁻¹]。
 
     r = (F_MeOH/W)·X と p_W = p_D = p_M·X/(2(1−X)) を連立して X を解く（乾燥供給・Δn=0）。
+    rate_fn(T[℃], p_M, p_W, p_D) を渡すと別の速度式で同じ検証ができる
+    （Aspen LHHW 形の検証に使う。既定は Ortega 原形 = rate_meoh）。
     """
+    rate_fn = rate_fn or rate_meoh
     fw = whsv / 3600.0 / MW_MEOH                      # F_MeOH/W [mol·kg⁻¹·s⁻¹]
 
     def g(X):
         p_wd = p_M * X / (2.0 * (1.0 - X))
-        return rate_meoh(T_c, p_M, p_wd, p_wd) - fw * X
+        return rate_fn(T_c, p_M, p_wd, p_wd) - fw * X
 
     return fw * brentq(g, 1e-12, 0.9)
 
 
-def rate_wet_feed(T_c: float, whsv: float = WHSV_FIG7) -> tuple[float, float, dict]:
-    """70 wt% MeOH / 30 wt% H2O 供給の CSTR 解。(r_MeOH, 転化率, 出口分圧) を返す。"""
+def wet_feed_composition(X: float) -> dict[str, float]:
+    """70 wt% MeOH / 30 wt% H2O 供給・転化率 X のときの出口分圧 [bar]（全圧 1 bar・Δn=0）。"""
+    n_M, n_W = WT_MEOH / 32.042, WT_H2O / 18.015
+    y_M0, y_W0 = n_M / (n_M + n_W), n_W / (n_M + n_W)
+    return {"CH3OH": y_M0 * (1 - X), "H2O": y_W0 + y_M0 * X / 2, "DME": y_M0 * X / 2}
+
+
+def rate_wet_feed(T_c: float, whsv: float = WHSV_FIG7,
+                  rate_fn=None) -> tuple[float, float, dict]:
+    """70 wt% MeOH / 30 wt% H2O 供給の CSTR 解。(r_MeOH, 転化率, 出口モル分率) を返す。
+
+    rate_fn=None なら reactors.cstr（反応網経由）で解く。rate_fn を渡した場合は
+    反応が 1 本しかないので転化率 X の 1 次元求解に落として同じ答えを出す。
+    """
     n_M, n_W = WT_MEOH / 32.042, WT_H2O / 18.015      # 相対モル
+    fw = whsv / 3600.0 / MW_MEOH                      # F_MeOH/W [mol·kg⁻¹·s⁻¹]
+    if rate_fn is not None:
+        g = lambda X: rate_fn(T_c, *(wet_feed_composition(X)[s]
+                                     for s in ("CH3OH", "H2O", "DME"))) - fw * X
+        X = brentq(g, 1e-12, 0.95)
+        return fw * X, X, wet_feed_composition(X)
+
     F_M = 1.0e-4                                      # 任意基準 [mol/s]
     F_in = {"CH3OH": F_M, "H2O": F_M * n_W / n_M, "DME": 0.0}
-    W = F_M / (whsv / 3600.0 / MW_MEOH)               # F_MeOH/W から触媒質量 [kg]
+    W = F_M / fw                                      # F_MeOH/W から触媒質量 [kg]
     out = cstr(F_in, T_c + 273.15, 1.0, CatalystBed({"dehydration": W}),
                models={"dehydration": "ZSM5"}, k_eq3=K_EQ3)
     X = (F_in["CH3OH"] - out["CH3OH"]) / F_in["CH3OH"]

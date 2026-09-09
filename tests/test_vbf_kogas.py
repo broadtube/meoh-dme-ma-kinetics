@@ -142,3 +142,47 @@ def test_ortega_fig7_water_inhibition():
         assert math.isclose(wet(T), r_exp, rel_tol=0.10)
     assert wet(140.0) / _rate_at_outlet(140.0, 0.95) < 0.45      # 低温は水で強く落ちる
     assert wet(190.0) / _rate_at_outlet(190.0, 0.95) > 0.50      # 高温では緩む
+
+
+def test_aspen_lhhw_exact_equals_ortega():
+    """aspen_lhhw.ORTEGA_EXACT は Ortega Eq.(16) の厳密な書き換え（フィットではない）。
+    Aspen LHHW の指数に実数（吸着項 p_M^0.5・逆反応項 p_M^-1）を使えることが前提。"""
+    from reaction_rate import aspen_lhhw as al
+
+    for T_c in (140.0, 190.0, 250.0, 300.0):
+        for p_M, p_W, p_D in ((0.95, 0.01, 0.01), (0.30, 0.30, 0.30),
+                              (0.12, 0.39, 0.63), (5.0, 2.0, 2.0)):
+            got = al.rate(T_c + 273.15, {"CH3OH": p_M, "H2O": p_W, "DME": p_D})
+            assert math.isclose(got, _r_meoh(T_c, p_M, p_W, p_D), rel_tol=1e-11)
+
+
+def test_aspen_lhhw_exact_reproduces_si_anchor():
+    """厳密形も SI Table S6/S7 のアンカーを再現する（元実装と同じ −1.2%）。"""
+    from reaction_rate import aspen_lhhw as al
+    from scipy.optimize import brentq
+
+    fw = 100.0 / 3600.0 / 32.042e-3
+    p_M = 0.931
+    f = lambda T, pm, pw, pd: al.rate(T + 273.15, {"CH3OH": pm, "H2O": pw, "DME": pd})
+    g = lambda X: f(190.0, p_M, p_M * X / (2 * (1 - X)), p_M * X / (2 * (1 - X))) - fw * X
+    assert math.isclose(fw * brentq(g, 1e-12, 0.9), 89.9 / 1300.0, rel_tol=0.05)
+
+
+def test_aspen_lhhw_kinetic_factor_is_39kJ():
+    """kinetic factor の E は E_app + ΔH_M（吸着熱を吸収した見かけの値）。"""
+    from reaction_rate import aspen_lhhw as al
+    assert math.isclose(al.ORTEGA_EXACT.E,
+                        vbf_kogas.EAPP_ORT + vbf_kogas.DH_M_ORT, rel_tol=1e-12)
+    assert math.isclose(al.ORTEGA_EXACT.E / 1e3, 39.0, abs_tol=0.01)
+
+
+def test_aspen_lhhw_linear_fit_is_worse():
+    """線形吸着項に制限した LINEAR_FIT は関数形が違うので誤差が残る（外挿禁止の根拠）。"""
+    from reaction_rate import aspen_lhhw as al
+
+    errs = [abs(al.rate(T + 273.15, {"CH3OH": pm, "H2O": pw, "DME": pd}, al.LINEAR_FIT)
+                / _r_meoh(T, pm, pw, pd) - 1.0)
+            for T, pm, pw, pd in ((140.0, 0.95, 0.01, 0.01), (190.0, 0.93, 0.04, 0.04),
+                                  (250.0, 0.30, 0.30, 0.30))]
+    assert max(errs) > 0.10          # 厳密形なら 1e-11 で一致する
+    assert max(errs) < 0.60          # それでもオーダーは合っている
