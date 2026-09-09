@@ -4,17 +4,17 @@
   graaf         → §1 メタノール合成 (Graaf 1988) ＋ 平衡定数
   vbf_kogas     → §2 VBF/KOGAS 合成・逆WGS ＋ 脱水(Bercič–Levec)
   carbonylation → §3 モルデナイト カルボニル化 (DTU/Cheng)
-共通基盤: units, state (GasState + SRK フガシティ)
-反応器  : network (量論→成分速度), reactors (PFR + CatalystBed)
+共通基盤: units, state (GasState + SRK フガシティ), thermo (NASA-7 の h/cp・断熱床用)
+反応器  : network (量論→成分速度), reactors (等温/断熱 PFR + CatalystBed)
 条件定義: case.py（独立ファイル。`python -m reaction_rate.case` で実行）
 """
-from . import units, state, graaf, vbf_kogas, carbonylation, network, reactors
+from . import units, state, thermo, graaf, vbf_kogas, carbonylation, network, reactors
 from .state import GasState, Component, COMPONENTS
 from .reactors import CatalystBed, Geometry, PFRResult, pfr
 
 __version__ = "0.1.0"
 __all__ = [
-    "units", "state", "graaf", "vbf_kogas", "carbonylation", "network", "reactors",
+    "units", "state", "thermo", "graaf", "vbf_kogas", "carbonylation", "network", "reactors",
     "GasState", "Component", "COMPONENTS",
     "CatalystBed", "Geometry", "PFRResult", "pfr",
 ]

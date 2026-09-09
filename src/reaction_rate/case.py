@@ -25,12 +25,14 @@ class Case:
     models: dict | None = None      # {役割: モデル名}  例) {"synthesis": "KOGAS"}
     k_eq3: str = "KOGAS"            # 脱水平衡: "KOGAS" / "BL" / "thermo"
     n_points: int = 200
+    adiabatic: bool = False         # True で断熱（T は入口温度・熱収支を連立）
 
 
 def run_case(case: Case) -> PFRResult:
-    """Case を等温 PFR にかけて結果を返す。"""
+    """Case を PFR にかけて結果を返す（既定は等温、case.adiabatic=True で断熱）。"""
     return pfr(case.feed, case.T, case.P, case.bed,
-               models=case.models, k_eq3=case.k_eq3, n_points=case.n_points)
+               models=case.models, k_eq3=case.k_eq3, n_points=case.n_points,
+               adiabatic=case.adiabatic)
 
 
 # ============================================================
@@ -46,6 +48,23 @@ CASE_METHANOL = Case(
     P=50.0,                         # bar
     bed=CatalystBed(masses={"synthesis": 50.0}),
     models={"synthesis": "Graaf1988"},
+)
+
+# --- メタノール合成: VBF 1996 原著パラメータ・断熱ベンチ反応器（原著 Table 3 = FIG. 5 の条件）---
+#     KOGAS(=Ng 1999) との違いは A のみ（B は共通）。models={"synthesis":"VBF"} で切替。
+#     再現の検証は examples/vbf_fig5.py（出口 T・組成・RWGS 反転位置・平衡到達位置）。
+_VBF_FEED_MOLPCT = {"CO": 0.04, "CO2": 0.03, "H2": 0.82, "H2O": 0.0, "CH3OH": 0.0, "Ar": 0.11}
+_VBF_MW = {"CO": 28.010, "CO2": 44.010, "H2": 2.016, "H2O": 18.015, "CH3OH": 32.042, "Ar": 39.948}
+_VBF_F = 2.8e-5 / (sum(_VBF_FEED_MOLPCT[s] * _VBF_MW[s] for s in _VBF_FEED_MOLPCT) * 1e-3)  # mol/s
+CASE_METHANOL_VBF = Case(
+    name="methanol synthesis (VBF 1996, adiabatic bench reactor / FIG.5)",
+    feed={s: y * _VBF_F for s, y in _VBF_FEED_MOLPCT.items()},
+    T=493.2,                        # 入口温度（断熱）
+    P=50.0,                         # bar
+    bed=CatalystBed(masses={"synthesis": 34.8e-3}),   # Table 3: 34.8 g
+    models={"synthesis": "VBF"},
+    adiabatic=True,
+    n_points=400,
 )
 
 # --- DME 合成: ハイブリッド触媒 8:2 (合成:脱水), KOGAS ---
@@ -73,7 +92,7 @@ CASE_CARBONYLATION = Case(
 )
 
 # 一括実行用
-ALL_CASES = [CASE_METHANOL, CASE_DME, CASE_CARBONYLATION]
+ALL_CASES = [CASE_METHANOL, CASE_METHANOL_VBF, CASE_DME, CASE_CARBONYLATION]
 
 
 if __name__ == "__main__":
@@ -81,4 +100,5 @@ if __name__ == "__main__":
         res = run_case(case)
         y = res.mole_fractions()
         outlet = {s: round(float(y[s][-1]), 4) for s in res.F}
-        print(f"[{case.name}]  出口モル分率: {outlet}")
+        T_out = f"  出口 T: {res.T_profile[-1]:.1f} K" if case.adiabatic else ""
+        print(f"[{case.name}]  出口モル分率: {outlet}{T_out}")

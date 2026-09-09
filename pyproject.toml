@@ -10,8 +10,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# thermo: 自前SRKの検証用 / cantera: 平衡・熱力学・データ源(SRKは無い)
+# thermo: 自前SRKの検証用 / cantera: 断熱床の h,cp (reaction_rate.thermo)・平衡・熱力学データ源(SRKは無い)
 extra = ["thermo>=0.6", "cantera>=3.0"]
+adiabatic = ["cantera>=3.0"]   # pfr(..., adiabatic=True) のエネルギー収支に必須
 plot = ["matplotlib>=3.8"]     # examples/ の Fig 出力用（PNG）
 dev = ["pytest>=8"]
 

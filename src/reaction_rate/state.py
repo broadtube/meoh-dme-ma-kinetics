@@ -6,7 +6,8 @@
   - fugacities()        : fᵢ = φᵢ·yᵢ·P          [bar]      → Graaf 合成・Cheng カルボニル化
   - fugacity_coeffs()   : φᵢ (SRK)
 
-Cantera に SRK は無いため SRK は自前実装（Graaf 1986 eq13–15）。`thermo` で検証可。
+Cantera に SRK は無いため SRK は自前実装（Graaf 1986 eq13–15）。外部 `thermo` ライブラリで検証可。
+（本パッケージの `thermo.py` は別物＝断熱床用の h/cp 供給モジュール。）
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -38,6 +39,8 @@ COMPONENTS: dict[str, Component] = {
     "DME":  Component("DME",  46.068, 400.378,  53.368,  0.1960, "chemicals"),
     "MA":   Component("MA",   74.079, 506.500,  47.500,  0.3200, "chemicals"),  # 酢酸メチル
     "N2":   Component("N2",   28.013, 126.192,  33.958,  0.0372, "chemicals"),
+    "Ar":   Component("Ar",   39.948, 150.687,  48.630, -0.0022, "chemicals"),  # 不活性希釈剤
+    "He":   Component("He",    4.003,   5.195,   2.283, -0.3836, "chemicals"),  # 不活性希釈剤
 }
 
 # メタノール合成の SRK 用（Graaf 1986 Table 2・原著再現）。

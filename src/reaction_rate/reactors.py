@@ -1,8 +1,15 @@
-"""反応器モデル。まずは等温・一定圧の PFR。
+"""反応器モデル。等温 PFR と断熱 PFR（一定圧）。
 
 PFR 設計式:  dFᵢ/dW = Rᵢ(state(W))     （W = 触媒質量 [kg], Fᵢ = モル流量 [mol/s]）
 各 W で局所組成 yᵢ=Fᵢ/ΣF から GasState を作り、network.species_rates で Rᵢ を得る。
-（等温=T一定、一定圧=P一定。流量計算は理想気体、レート駆動力は SRK/分圧/濃度。）
+（一定圧=P一定。流量計算は理想気体、レート駆動力は SRK/分圧/濃度。）
+
+温度モード:
+  等温 (adiabatic=False, 既定): T 一定。result.T は float。
+  断熱 (adiabatic=True)       : エネルギー収支を連立して T も積分する。result.T は配列。
+      dT/dW = −Σᵢ Rᵢ·hᵢ(T) / Σᵢ Fᵢ·cpᵢ(T)
+      hᵢ は生成熱込みの絶対エンタルピーなので Σᵢ Rᵢhᵢ = Σⱼ rⱼΔHⱼ（反応ごとの ΔH 不要）。
+      h・cp は thermo.py（Cantera NASA-7）。⚠️ 熱損失ゼロ・圧損ゼロ・η=1。
 
 触媒は CatalystBed（各触媒量を指定）。総触媒量 W_total = 各触媒量の合計。
 """
@@ -57,12 +64,20 @@ class Geometry:
 class PFRResult:
     W: np.ndarray                 # 触媒質量グリッド [kg]
     F: dict[str, np.ndarray]      # {species: モル流量 [mol/s]}
-    T: float
+    T: float | np.ndarray         # 等温なら float、断熱なら W と同長の温度プロファイル [K]
     P: float
 
     @property
     def F_total(self) -> np.ndarray:
         return sum(self.F.values())
+
+    @property
+    def T_profile(self) -> np.ndarray:
+        """温度プロファイル [K]（等温でも W と同長の配列にして返す）。"""
+        return np.broadcast_to(np.asarray(self.T, dtype=float), self.W.shape).copy()
+
+    def _T_at(self, i: int) -> float:
+        return float(self.T[i]) if np.ndim(self.T) else float(self.T)
 
     def mole_fractions(self) -> dict[str, np.ndarray]:
         Ft = self.F_total
@@ -88,8 +103,9 @@ class PFRResult:
         Q = np.empty_like(self.W)
         for i in range(len(self.W)):
             yi = {s: float(y[s][i]) for s in self.F}
-            Z = GasState(self.T, self.P, yi).Z(criticals)
-            Q[i] = Ft[i] * Z * R_BAR_M3 * self.T / self.P
+            Ti = self._T_at(i)
+            Z = GasState(Ti, self.P, yi).Z(criticals)
+            Q[i] = Ft[i] * Z * R_BAR_M3 * Ti / self.P
         return Q
 
     def residence_time(self, geom: "Geometry", criticals: str = "chemicals") -> np.ndarray:
@@ -109,29 +125,51 @@ class PFRResult:
 
 def pfr(F_in: dict[str, float], T: float, P: float, bed: CatalystBed,
         models: dict | None = None, k_eq3: str = "KOGAS",
-        n_points: int = 200) -> PFRResult:
-    """等温・一定圧 PFR を積分する。
+        n_points: int = 200, adiabatic: bool = False) -> PFRResult:
+    """一定圧 PFR を積分する（既定は等温、adiabatic=True で断熱）。
 
-    F_in   : 入口モル流量 {species: mol/s}（活性反応に現れる種は 0 でも含める）
-    T, P   : 温度[K], 圧力[bar]（一定）
-    bed    : CatalystBed（各触媒量。総量が積分上限）
-    models : {役割: モデル名}。k_eq3 : 脱水平衡 'KOGAS'/'BL'/'thermo'。
+    F_in      : 入口モル流量 {species: mol/s}（活性反応に現れる種は 0 でも含める）
+    T, P      : 温度[K]（断熱では**入口温度**）, 圧力[bar]（一定）
+    bed       : CatalystBed（各触媒量。総量が積分上限）
+    models    : {役割: モデル名}。k_eq3 : 脱水平衡 'KOGAS'/'BL'/'thermo'。
+    adiabatic : True でエネルギー収支を連立（h,cp は thermo.py = Cantera NASA-7）。
+                熱損失ゼロ・圧損ゼロ・有効係数 η=1 の理想断熱床。
     """
     species = list(F_in)
     F0 = np.array([F_in[s] for s in species], dtype=float)
     W_total = bed.total()
 
-    def rhs(W, F):
-        F_pos = np.maximum(F, 0.0)
-        Ftot = F_pos.sum()
-        y = {s: F_pos[i] / Ftot for i, s in enumerate(species)}
-        R = species_rates(GasState(T, P, y), bed, models=models, k_eq3=k_eq3)
+    def rates_at(T_loc, F_pos):
+        y = {s: F_pos[i] / F_pos.sum() for i, s in enumerate(species)}
+        R = species_rates(GasState(T_loc, P, y), bed, models=models, k_eq3=k_eq3)
         return np.array([R.get(s, 0.0) for s in species])
 
-    sol = solve_ivp(rhs, (0.0, W_total), F0, method="BDF",
+    if not adiabatic:
+        def rhs(W, F):
+            return rates_at(T, np.maximum(F, 0.0))
+
+        y0 = F0
+    else:
+        from . import thermo                      # 遅延 import（Cantera 依存はここだけ）
+        thermo.enthalpies(T, species)             # 未対応成分があれば入口で即エラー
+
+        def rhs(W, u):
+            F_pos = np.maximum(u[:-1], 0.0)
+            T_loc = u[-1]
+            dF = rates_at(T_loc, F_pos)
+            h = thermo.enthalpies(T_loc, species)
+            cp = thermo.heat_capacities(T_loc, species)
+            q = -sum(dF[i] * h[s] for i, s in enumerate(species))      # 発熱 [W/kg_cat]
+            C = sum(F_pos[i] * cp[s] for i, s in enumerate(species))   # 熱容量流量 [W/K]
+            return np.append(dF, q / C)
+
+        y0 = np.append(F0, float(T))
+
+    sol = solve_ivp(rhs, (0.0, W_total), y0, method="BDF",
                     t_eval=np.linspace(0.0, W_total, n_points),
                     rtol=1e-8, atol=1e-16)
     if not sol.success:
         raise RuntimeError(f"PFR 積分に失敗: {sol.message}")
-    F = {s: sol.y[i] for i, s in enumerate(species)}
-    return PFRResult(sol.t, F, T, P)
+    if not adiabatic:
+        return PFRResult(sol.t, {s: sol.y[i] for i, s in enumerate(species)}, T, P)
+    return PFRResult(sol.t, {s: sol.y[i] for i, s in enumerate(species)}, sol.y[-1], P)
