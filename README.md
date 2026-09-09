@@ -14,7 +14,7 @@ CO/CO₂/H₂ からの **メタノール / DME / 酢酸メチル** 合成の反
 | `vbf_kogas.py` | **§2** | VBF(=KOGAS=Ng) の r_MS/r_RWGS ＋ 脱水 r_MD(Bercič–Levec) ＋ K_eq1/2/3 |
 | `carbonylation.py` | **§3** | モルデナイト カルボニル化: 速度則＋DTU＋Cheng(＋失活) |
 | `network.py` | — | 量論で束ねて成分速度 Rᵢ に変換（ハイブリッド床＝触媒質量分率で加重） |
-| `reactors.py` | — | 一定圧 PFR。**等温**（既定）と**断熱**（`adiabatic=True`）|
+| `reactors.py` | — | 一定圧の **PFR**（等温／`adiabatic=True` で断熱）と **CSTR**（無勾配反応器）|
 | `thermo.py` | — | 断熱床のエネルギー収支用 h(T)・cp(T)（Cantera NASA-7・遅延 import）|
 
 各反応系は `model=`/`source=` 引数で切替（例: 合成 `Graaf1988`/`VBF`/`KOGAS`、脱水 `BercicLevec`/`KOGAS`/`ZSM5`、
@@ -28,6 +28,7 @@ CO/CO₂/H₂ からの **メタノール / DME / 酢酸メチル** 合成の反
 | スクリプト | 再現対象 |
 |---|---|
 | `examples/vbf_fig5.py` | VBF 1996 **FIG. 5**（断熱ベンチ反応器の濃度・温度プロファイル） |
+| `examples/ortega_zsm5.py` | Ortega 2018 **Fig. 4 / 6 / 7 ＋ SI アンカー**（ZSM-5 脱水・無勾配反応器） |
 | `examples/dtu_fig8.py` | DTU 2017 **Fig 8**（カルボニル化の全圧依存） |
 | `examples/derive_keq3_thermo.py` | 脱水平衡 K_eq3("thermo") の NASA 熱力学からの導出 |
 

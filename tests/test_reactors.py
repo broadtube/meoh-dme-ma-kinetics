@@ -131,3 +131,31 @@ def test_vbf_and_kogas_reach_same_equilibrium():
     assert math.isclose(float(r_vbf.T_profile[-1]), float(r_kog.T_profile[-1]), abs_tol=0.5)
     for s in ("CO", "CH3OH", "CO2", "H2O"):
         assert math.isclose(r_vbf.outlet()[s], r_kog.outlet()[s], rel_tol=0.02)
+
+
+# ============================================================
+#  CSTR（無勾配反応器）
+# ============================================================
+def test_cstr_mass_balance_and_inert():
+    """炭素収支が閉じ、不活性種は素通りする。"""
+    from reaction_rate.reactors import cstr
+
+    F_in = {"CH3OH": 1e-4, "H2O": 0.0, "DME": 0.0, "N2": 2e-4}
+    out = cstr(F_in, 463.15, 1.0, CatalystBed({"dehydration": 1e-4}),
+               models={"dehydration": "ZSM5"}, k_eq3="thermo")
+    assert out["N2"] == F_in["N2"]
+    assert math.isclose(out["CH3OH"] + 2 * out["DME"], F_in["CH3OH"], rel_tol=1e-9)
+    assert math.isclose(out["DME"], out["H2O"], rel_tol=1e-9)
+    assert 0.0 < out["DME"] < F_in["CH3OH"] / 2
+
+
+def test_cstr_slower_than_pfr():
+    """CSTR は出口組成（＝最も生成物が多い状態）で反応するので PFR より必ず転化率が低い。"""
+    from reaction_rate.reactors import cstr
+
+    F_in = {"CH3OH": 1e-4, "H2O": 0.0, "DME": 0.0}
+    bed = CatalystBed({"dehydration": 1e-4})
+    kw = dict(models={"dehydration": "ZSM5"}, k_eq3="thermo")
+    X_cstr = 1.0 - cstr(F_in, 463.15, 1.0, bed, **kw)["CH3OH"] / F_in["CH3OH"]
+    X_pfr = pfr(F_in, 463.15, 1.0, bed, **kw).conversion("CH3OH")[-1]
+    assert 0.0 < X_cstr < X_pfr

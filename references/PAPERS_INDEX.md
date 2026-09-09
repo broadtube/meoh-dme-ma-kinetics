@@ -90,6 +90,25 @@ OpenAlex + Semantic Scholar + Europe PMC + 各機関リポジトリで確認。
 - **KOGAS 掲載値とは不一致**（K_w 前指数・K_M 指数は一致するが k_s が大きく相違）。KOGAS が引用するのは **1992 版**（DOI 10.1021/ie00004a010・未入手）。
 - 濃度基準 = **kmol·m⁻³** を原著記号表で確定（[[rate_equations]] に反映）。
 
+### ZSM-5 上のメタノール脱水（★実装の既定 source="ZSM5"・取得済・SI あり）
+- Ortega, C.; Rezaei, M.; Hessel, V.; Kolb, G. "Methanol to dimethyl ether conversion over a ZSM-5
+  catalyst: Intrinsic kinetic study on an external recycle reactor"
+  *Chem. Eng. J.* **2018**, 347, 741–753. DOI: 10.1016/j.cej.2018.04.104
+- 入手状況: **取得済み** → `ortega2018_zsm5_dme_intrinsic_LHHW_CEJ.pdf`（13頁）
+  ＋ **SI 取得済み（ユーザーDL）** → `1-s2.0-S1385894718307332-mmc1.docx`
+- 採用式: **Table 4 Eq.(16)** modified Klusáček & Schneider（解離吸着・表面反応律速・水阻害）
+  `r_MeOH = k·K_M·p_M·[1 − p_D·p_W/(p_M²·K_eq)] / (1 + 2√(K_M·p_M) + K_W·p_W)²`、
+  定数は **Table 5**（k_T0=8.16×10⁻², E_app=109.3 kJ/mol, ΔS/ΔH_M=−137/−70.3, ΔS/ΔH_W=−153/−73.1, T₀=438.15 K）。
+- 装置は**無勾配循環反応器**（§3.3 で RTD により完全混合を確認）→ 再現には PFR ではなく `reactors.cstr` を使う。
+- **SI の中身**: 速度の数表は無い（キャラクタリゼーション・移動現象判定・文献比較）。ただし
+  **Table S6/S7 に厳密な数値アンカーが 1 点**ある — 190 ℃ / p_MeOH=0.931 bar / 乾燥 / WHSV 100 h⁻¹ で
+  観測速度 **89.9 mol·m⁻³cat·s⁻¹**、希釈前床密度 **1300 kg·m⁻³** → **0.069154 mol_MeOH·kg⁻¹·s⁻¹**。
+  Table S3/S4（転化率 0.081, MeOH 2.5 g/h, 触媒 25.31 mg）からの独立検算 0.0694 とも 0.3% で一致。
+  Table S10/S11 は HZSM-5 の吸着エンタルピー・活性化エネルギーの文献一覧（本実装値の位置づけ確認用）。
+- **図の注意**: Fig. 6/7 の縦軸ラベルは "log(rate)" だが**実際は自然対数**（exp を取ると Fig. 4 と一致）。
+  Fig. 6 は −2.0〜−6.0、Fig. 7 は −3.0〜−7.0 と**軸範囲が違う**（見た目が同じなので取り違え注意）。
+- 再現: `examples/ortega_zsm5.py`（Fig. 4 / Fig. 6 / Fig. 7 ＋ SI アンカー）。
+
 ### KOGAS 値の出典 — Ng, Chadwick & Toseland 1999（★確定・取得済）
 - Ng, K.L.; Chadwick, D.; Toseland, B.A. "Kinetics and modelling of dimethyl ether synthesis from synthesis gas"
   *Chem. Eng. Sci.* **1999**, 54(15–16), 3587–3592. DOI: 10.1016/S0009-2509(98)00514-4

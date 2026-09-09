@@ -76,3 +76,69 @@ def test_dehydration_zsm5_faster_than_gamma_at_low_T():
     r_zsm5 = vbf_kogas.rate_dehydration(s, source="ZSM5", k_eq3="thermo")
     r_gamma = vbf_kogas.rate_dehydration(s, source="KOGAS", k_eq3="thermo")
     assert r_zsm5 / r_gamma > 10.0
+
+
+# ============================================================
+#  Ortega 2018 の再現（examples/ortega_fig4.py と同じ検証を数値だけで）
+# ============================================================
+def _r_meoh(T_c, p_M, p_W=0.0, p_D=0.0):
+    """r_MeOH [mol_MeOH·kg⁻¹·s⁻¹]（rate_dehydration は DME 基準なので ×2）。"""
+    P = p_M + p_W + p_D
+    y = {"CH3OH": p_M / P, "H2O": p_W / P, "DME": p_D / P}
+    return 2.0 * vbf_kogas.rate_dehydration(GasState(T_c + 273.15, P, y),
+                                            source="ZSM5", k_eq3="thermo")
+
+
+def _rate_at_outlet(T_c, p_M, whsv=100.0):
+    """出口 p_MeOH を固定した無勾配反応器の速度（examples/ortega_fig4.rate_at_outlet と同一）。"""
+    from scipy.optimize import brentq
+    fw = whsv / 3600.0 / 32.042e-3
+    g = lambda X: _r_meoh(T_c, p_M, p_M * X / (2 * (1 - X)), p_M * X / (2 * (1 - X))) - fw * X
+    return fw * brentq(g, 1e-12, 0.9)
+
+
+def test_ortega_si_anchor():
+    """SI Table S6/S7（デジタイズ不要の厳密値）: 190℃, p_MeOH=0.931 bar, 乾燥, WHSV 100 h⁻¹ で
+    観測速度 89.9 mol·m⁻³cat·s⁻¹ ÷ 床密度 1300 kg·m⁻³ = 0.06915 mol_MeOH·kg⁻¹·s⁻¹。
+    SI Table S3/S4 の転化率 0.081 からの独立検算 (0.0702) とも整合する。"""
+    assert math.isclose(_rate_at_outlet(190.0, 0.931), 89.9 / 1300.0, rel_tol=0.05)
+
+
+def test_ortega_fig4_grid():
+    """Fig. 4（速度 vs p_MeOH, 乾燥・WHSV 100 h⁻¹）。152℃ 以上は ±15% 以内で再現する。
+    140℃ の 3 点は Fig.4 が線形軸で読み取り誤差が大きいので Fig.6（対数軸）で見る。"""
+    fig4 = {152: [(0.322, 0.00706), (0.625, 0.00721), (0.957, 0.00710)],
+            165: [(0.312, 0.01478), (0.625, 0.01531), (0.954, 0.01671)],
+            177: [(0.312, 0.02810), (0.616, 0.03092), (0.941, 0.03296)],
+            190: [(0.299, 0.05443), (0.620, 0.06359), (0.906, 0.06889)]}
+    errs = [abs(_rate_at_outlet(T, p) / r - 1) for T, row in fig4.items() for p, r in row]
+    assert max(errs) < 0.15
+    assert sum(errs) / len(errs) < 0.05
+
+
+def test_ortega_fig4_nearly_zero_order_at_low_T():
+    """論文本文の主張「165℃ 以下では p_MeOH に零次、177/190℃ ではわずかに正」を再現する
+    （分母が 2√(K_M·p_M) である証左）。p_M を 0.3→0.95 に振ったときの速度比で見る。"""
+    ratio = {T: _rate_at_outlet(T, 0.95) / _rate_at_outlet(T, 0.30) for T in (140, 165, 190)}
+    assert 1.0 < ratio[140] < 1.15          # ほぼ零次
+    assert ratio[140] < ratio[165] < ratio[190]
+    assert 1.20 < ratio[190] < 1.45         # 高温側でははっきり正
+
+
+def test_ortega_fig7_water_inhibition():
+    """Fig. 7（70 wt% MeOH / 30 wt% H2O, WHSV 14 h⁻¹）を CSTR で解いて再現する。
+    水阻害は低温ほど強く効く（乾燥比が 140℃ で ~0.35、190℃ で ~0.6）。"""
+    from reaction_rate.reactors import cstr, CatalystBed
+
+    def wet(T_c, whsv=14.0):
+        F_M = 1e-4
+        F_in = {"CH3OH": F_M, "H2O": F_M * (0.30 / 18.015) / (0.70 / 32.042), "DME": 0.0}
+        W = F_M / (whsv / 3600.0 / 32.042e-3)
+        out = cstr(F_in, T_c + 273.15, 1.0, CatalystBed({"dehydration": W}),
+                   models={"dehydration": "ZSM5"}, k_eq3="thermo")
+        return (F_in["CH3OH"] - out["CH3OH"]) / W
+
+    for T, r_exp in ((140.0, 0.001013), (164.7, 0.008593), (190.2, 0.037761)):
+        assert math.isclose(wet(T), r_exp, rel_tol=0.10)
+    assert wet(140.0) / _rate_at_outlet(140.0, 0.95) < 0.45      # 低温は水で強く落ちる
+    assert wet(190.0) / _rate_at_outlet(190.0, 0.95) > 0.50      # 高温では緩む

@@ -1,4 +1,4 @@
-"""反応器モデル。等温 PFR と断熱 PFR（一定圧）。
+"""反応器モデル。等温/断熱 PFR と等温 CSTR（無勾配反応器）。
 
 PFR 設計式:  dFᵢ/dW = Rᵢ(state(W))     （W = 触媒質量 [kg], Fᵢ = モル流量 [mol/s]）
 各 W で局所組成 yᵢ=Fᵢ/ΣF から GasState を作り、network.species_rates で Rᵢ を得る。
@@ -11,6 +11,10 @@ PFR 設計式:  dFᵢ/dW = Rᵢ(state(W))     （W = 触媒質量 [kg], Fᵢ = �
       hᵢ は生成熱込みの絶対エンタルピーなので Σᵢ Rᵢhᵢ = Σⱼ rⱼΔHⱼ（反応ごとの ΔH 不要）。
       h・cp は thermo.py（Cantera NASA-7）。⚠️ 熱損失ゼロ・圧損ゼロ・η=1。
 
+CSTR（cstr）は無勾配循環反応器（gradientless recycle reactor）の理想化。
+触媒が見るのは**出口組成**で、Fᵢ_out = Fᵢ_in + Rᵢ(y_out)·W を解く。
+Ortega 2018 の速度論測定はこの型の反応器で行われている。
+
 触媒は CatalystBed（各触媒量を指定）。総触媒量 W_total = 各触媒量の合計。
 """
 from __future__ import annotations
@@ -18,6 +22,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 from scipy.integrate import solve_ivp
+from scipy.optimize import least_squares
 
 from .units import R_BAR_M3
 from .state import GasState
@@ -173,3 +178,46 @@ def pfr(F_in: dict[str, float], T: float, P: float, bed: CatalystBed,
     if not adiabatic:
         return PFRResult(sol.t, {s: sol.y[i] for i, s in enumerate(species)}, T, P)
     return PFRResult(sol.t, {s: sol.y[i] for i, s in enumerate(species)}, sol.y[-1], P)
+
+
+def cstr(F_in: dict[str, float], T: float, P: float, bed: CatalystBed,
+         models: dict | None = None, k_eq3: str = "KOGAS") -> dict[str, float]:
+    """等温・一定圧 CSTR（無勾配反応器）の出口モル流量 [mol/s] を返す。
+
+    Fᵢ_out = Fᵢ_in + Rᵢ(y_out)·W_total  を解く。触媒が見るのは**出口組成**なので、
+    転化率が高いと生成物阻害・逆反応が効く（PFR より必ず遅い）。
+
+    F_in : 入口モル流量 {species: mol/s}    T, P : 温度[K], 圧力[bar]
+    bed  : CatalystBed（総量が触媒質量）    models / k_eq3 : pfr と同じ
+
+    出典: Ortega 2018（ZSM-5 脱水）の速度論測定装置がこの型（循環比が十分大きく
+    完全混合とみなせる、RTD で検証済 §3.3）。速度式のパラメータもこの反応器で回帰
+    されているので、原著の再現には PFR ではなく本関数を使う。
+    """
+    W = bed.total()
+    F_out = dict(F_in)
+
+    def rates_at(F_map):
+        tot = sum(max(v, 0.0) for v in F_map.values())
+        y = {s: max(v, 0.0) / tot for s, v in F_map.items()}
+        return species_rates(GasState(T, P, y), bed, models=models, k_eq3=k_eq3)
+
+    # 反応に現れる種だけを未知数にする（不活性種は素通り＝方程式が自明）
+    active = [s for s in F_in if s in rates_at(F_in)]
+    if not active:
+        return F_out
+
+    def residual(x):
+        trial = {**F_in, **{s: max(x[i], 0.0) for i, s in enumerate(active)}}
+        R = rates_at(trial)
+        return np.array([max(x[i], 0.0) - F_in[s] - W * R.get(s, 0.0)
+                         for i, s in enumerate(active)])
+
+    x0 = np.array([F_in[s] for s in active], dtype=float)
+    scale = max(sum(F_in.values()), 1e-30)
+    sol = least_squares(residual, x0, method="lm", xtol=1e-14, ftol=1e-14,
+                        diff_step=1e-7)
+    if not sol.success or np.linalg.norm(sol.fun) > 1e-8 * scale:
+        raise RuntimeError(f"CSTR の求解に失敗: {sol.message}（残差 {np.linalg.norm(sol.fun):.3e}）")
+    F_out.update({s: float(max(sol.x[i], 0.0)) for i, s in enumerate(active)})
+    return F_out
