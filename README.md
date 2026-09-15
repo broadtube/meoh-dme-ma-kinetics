@@ -31,6 +31,7 @@ CO/CO₂/H₂ からの **メタノール / DME / 酢酸メチル** 合成の反
 | `examples/vbf_fig5.py` | VBF 1996 **FIG. 5**（断熱ベンチ反応器の濃度・温度プロファイル） |
 | `examples/ortega_zsm5.py` | Ortega 2018 **Fig. 4 / 6 / 7 ＋ SI アンカー**（ZSM-5 脱水・無勾配反応器） |
 | `examples/ortega_aspen_lhhw.py` | 同じ検証を **Aspen Plus LHHW 形**で（厳密変換 vs 線形フィット） |
+| `examples/ortega_adiabatic_bed.py` | Ortega 速度式で断熱固定床（工業 DME 間接法）を解く。VBF FIG.5 と同一構成 |
 | `examples/dtu_fig8.py` | DTU 2017 **Fig 8**（カルボニル化の全圧依存） |
 | `examples/derive_keq3_thermo.py` | 脱水平衡 K_eq3("thermo") の NASA 熱力学からの導出 |
 

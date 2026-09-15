@@ -159,3 +159,25 @@ def test_cstr_slower_than_pfr():
     X_cstr = 1.0 - cstr(F_in, 463.15, 1.0, bed, **kw)["CH3OH"] / F_in["CH3OH"]
     X_pfr = pfr(F_in, 463.15, 1.0, bed, **kw).conversion("CH3OH")[-1]
     assert 0.0 < X_cstr < X_pfr
+
+
+def test_adiabatic_dehydration_bed_reaches_equilibrium():
+    """断熱 ZSM-5 床（examples/ortega_adiabatic_bed.py の諸元）は出口温度での平衡に到達する。
+
+    2 CH3OH ⇌ DME + H2O は Δn=0 なので平衡転化率は圧力に依らず X = 2√K/(1+2√K)。
+    断熱なので出口温度自体が転化率で決まる（自己整合）。ここが合っていれば
+    エネルギー収支・平衡定数・速度式の符号がすべて整合していることになる。
+    """
+    W = 23.52e-3                                    # kg（16 mm × 150 mm, ρ_bed 780 kg/m³）
+    F = W * 30.0 / 3600.0 / 32.042e-3               # mol/s（WHSV 30 h⁻¹, 純メタノール）
+    res = pfr({"CH3OH": F, "DME": 0.0, "H2O": 0.0}, 473.15, 10.0,
+              CatalystBed({"dehydration": W}),
+              models={"dehydration": "ZSM5"}, k_eq3="thermo",
+              adiabatic=True, n_points=400)
+    T_out = float(res.T_profile[-1])
+    X = (res.F["CH3OH"][0] - res.F["CH3OH"][-1]) / res.F["CH3OH"][0]
+    K = 10.0 ** (1121.0 / T_out - 0.888)
+    assert math.isclose(X, 2 * math.sqrt(K) / (1 + 2 * math.sqrt(K)), rel_tol=1e-3)
+    assert math.isclose(T_out - 273.15, 342.4, abs_tol=2.0)     # ΔT = 142 K
+    out = res.outlet()
+    assert math.isclose(out["DME"], out["H2O"], rel_tol=1e-9)   # 量論 1:1

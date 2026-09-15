@@ -108,6 +108,13 @@ OpenAlex + Semantic Scholar + Europe PMC + 各機関リポジトリで確認。
 - **図の注意**: Fig. 6/7 の縦軸ラベルは "log(rate)" だが**実際は自然対数**（exp を取ると Fig. 4 と一致）。
   Fig. 6 は −2.0〜−6.0、Fig. 7 は −3.0〜−7.0 と**軸範囲が違う**（見た目が同じなので取り違え注意）。
 - 再現: `examples/ortega_zsm5.py`（Fig. 4 / Fig. 6 / Fig. 7 ＋ SI アンカー）。
+- Aspen Plus 移植: `src/reaction_rate/aspen_lhhw.py` ＋ `examples/ortega_aspen_lhhw.py`。
+  Eq.(16) は Aspen の LHHW 形（k₀·T^n·exp(−E/RT) / driving force / adsorption^m）に
+  **フィット不要で厳密変換できる**（`ORTEGA_EXACT`, 倍精度一致）。鍵は吸着項の指数に
+  **実数 0.5** を指定できること。k·K_M をまとめて単一 Arrhenius にすると
+  **E = E_app + ΔH_M = 39.0 kJ/mol**、分子分母に p_M を掛けて負の指数を消せる。
+  指数を実数にできない運用向けの線形形 `LINEAR_FIT` は関数形が違うため誤差が残り
+  （Fig.4/6/7 で平均 20.6% / 厳密形 8.2%）、E≈0 は見かけの値なので**外挿不可**。
 
 ### KOGAS 値の出典 — Ng, Chadwick & Toseland 1999（★確定・取得済）
 - Ng, K.L.; Chadwick, D.; Toseland, B.A. "Kinetics and modelling of dimethyl ether synthesis from synthesis gas"
