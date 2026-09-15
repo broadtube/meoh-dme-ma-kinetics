@@ -255,7 +255,7 @@ def write_csv(case: str = CASE, outdir: str = "datasets", n_points: int = 601):
 
     path_csv = os.path.join(outdir, f"ortega_adiabatic_bed_{case}.csv")
     with open(path_csv, "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")     # csv 既定の \r\n を避ける（.gitattributes と揃える）
         w.writerow(["z_mm", "z_over_L", "W_g", "T_C", "T_K", "X_MeOH"]
                    + [f"y_{s}" for s in species] + [f"F_{s}_mol_h" for s in species])
         for i in range(len(zl)):
@@ -266,6 +266,7 @@ def write_csv(case: str = CASE, outdir: str = "datasets", n_points: int = 601):
 
     MW = {"CH3OH": 32.042, "DME": 46.068, "H2O": 18.015, "N2": 28.013}
     F_tot = sum(feed.values())
+    g = lambda x: float(f"{x:.10g}")      # 10 桁に丸める（再生成時の最終桁ノイズで差分が出ないように）
     spec = {
         "case": case,
         "kinetics": "Ortega 2018 Table 4 Eq.(16), Table 5 constants "
@@ -273,23 +274,23 @@ def write_csv(case: str = CASE, outdir: str = "datasets", n_points: int = 601):
         "K_eq": "K_eq3('thermo') = 10^(1121/T - 0.888)",
         "reactor": {"type": "adiabatic PFR, isobaric, ideal gas, eta=1",
                     "diameter_m": DIAMETER, "length_m": LENGTH,
-                    "bed_volume_mL": AREA * LENGTH * 1e6},
+                    "bed_volume_mL": g(AREA * LENGTH * 1e6)},
         "catalyst": {"name": "H-ZSM-5",
                      "particle_density_kg_m3_s": RHO_S,
-                     "porosity_m3_g_per_m3_s": POROSITY,
-                     "bed_void_fraction": VOID,
+                     "porosity_m3_g_per_m3_s": g(POROSITY),
+                     "bed_void_fraction": g(VOID),
                      "bed_density_kg_m3": RHO_BED,
-                     "mass_g": W_CAT * 1e3},
+                     "mass_g": g(W_CAT * 1e3)},
         "inlet": {"T_C": c["T_in"], "T_K": c["T_in"] + 273.15, "P_bar": c["p_bar"],
-                  "mole_fraction": {s: feed[s] / F_tot for s in species},
-                  "molar_flow_mol_h": {s: feed[s] * 3600 for s in species},
-                  "total_molar_flow_mol_h": F_tot * 3600,
-                  "mass_flow_kg_s": sum(feed[s] * MW[s] * 1e-3 for s in species),
-                  "W_over_F_total_kg_s_per_mol": W_CAT / F_tot,
-                  "WHSV_MeOH_1_h": 3600 * MW_MEOH * feed["CH3OH"] / W_CAT},
-        "expected_outlet": {"X_MeOH": float(X[-1]), "X_eq_at_T_out": x_eq(float(T[-1])),
-                            "T_C": float(T[-1] - 273.15), "dT_K": float(T[-1] - T[0]),
-                            "mole_fraction": {s: float(y[s][-1]) for s in species}},
+                  "mole_fraction": {s: g(feed[s] / F_tot) for s in species},
+                  "molar_flow_mol_h": {s: g(feed[s] * 3600) for s in species},
+                  "total_molar_flow_mol_h": g(F_tot * 3600),
+                  "mass_flow_kg_s": g(sum(feed[s] * MW[s] * 1e-3 for s in species)),
+                  "W_over_F_total_kg_s_per_mol": g(W_CAT / F_tot),
+                  "WHSV_MeOH_1_h": g(3600 * MW_MEOH * feed["CH3OH"] / W_CAT)},
+        "expected_outlet": {"X_MeOH": g(X[-1]), "X_eq_at_T_out": g(x_eq(float(T[-1]))),
+                            "T_C": g(T[-1] - 273.15), "dT_K": g(T[-1] - T[0]),
+                            "mole_fraction": {s: g(y[s][-1]) for s in species}},
         "aspen_notes": [
             "RPlug, adiabatic, zero pressure drop, Rate basis = Cat(wt), catalyst loading = mass_g",
             "LHHW on partial-pressure basis [bar]; rate in mol_MeOH/(kg_cat s)",

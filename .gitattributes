@@ -1,0 +1,6 @@
+# 生成物の改行コードを LF に固定（Windows で再生成しても CRLF 差分が出ないように）
+datasets/*.csv  text eol=lf
+datasets/*.json text eol=lf
+*.py  text eol=lf
+*.md  text eol=lf
+*.png binary
