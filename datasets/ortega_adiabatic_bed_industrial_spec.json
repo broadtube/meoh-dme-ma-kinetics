@@ -1,0 +1,55 @@
+{
+ "case": "industrial",
+ "kinetics": "Ortega 2018 Table 4 Eq.(16), Table 5 constants (= vbf_kogas source='ZSM5' = aspen_lhhw.ORTEGA_EXACT)",
+ "K_eq": "K_eq3('thermo') = 10^(1121/T - 0.888)",
+ "reactor": {
+  "type": "adiabatic PFR, isobaric, ideal gas, eta=1",
+  "diameter_m": 0.016,
+  "length_m": 0.15,
+  "bed_volume_mL": 30.15928947446201
+ },
+ "catalyst": {
+  "name": "H-ZSM-5",
+  "particle_density_kg_m3_s": 1300.0,
+  "porosity_m3_g_per_m3_s": 0.6666666666666667,
+  "bed_void_fraction": 0.4,
+  "bed_density_kg_m3": 780.0,
+  "mass_g": 23.524245790080368
+ },
+ "inlet": {
+  "T_C": 200.0,
+  "T_K": 473.15,
+  "P_bar": 10.0,
+  "mole_fraction": {
+   "CH3OH": 1.0,
+   "DME": 0.0,
+   "H2O": 0.0
+  },
+  "molar_flow_mol_h": {
+   "CH3OH": 22.025072520517167,
+   "DME": 0.0,
+   "H2O": 0.0
+  },
+  "total_molar_flow_mol_h": 22.025072520517167,
+  "mass_flow_kg_s": 0.00019603538158400309,
+  "W_over_F_total_kg_s_per_mol": 3.84504,
+  "WHSV_MeOH_1_h": 30.0
+ },
+ "expected_outlet": {
+  "X_MeOH": 0.8541308995305276,
+  "X_eq_at_T_out": 0.8541308995305276,
+  "T_C": 342.4247779539302,
+  "dT_K": 142.42477795393017,
+  "mole_fraction": {
+   "CH3OH": 0.14586910046947252,
+   "DME": 0.4270654497652637,
+   "H2O": 0.4270654497652637
+  }
+ },
+ "aspen_notes": [
+  "RPlug, adiabatic, zero pressure drop, Rate basis = Cat(wt), catalyst loading = mass_g",
+  "LHHW on partial-pressure basis [bar]; rate in mol_MeOH/(kg_cat s)",
+  "if reaction is written 2 CH3OH -> DME + H2O, halve k0 (extent basis)",
+  "property method IDEAL; expect ~±1 K outlet-T difference from cp/dHf data source"
+ ]
+}

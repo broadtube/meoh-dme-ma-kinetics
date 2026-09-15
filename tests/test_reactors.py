@@ -181,3 +181,25 @@ def test_adiabatic_dehydration_bed_reaches_equilibrium():
     assert math.isclose(T_out - 273.15, 342.4, abs_tol=2.0)     # ΔT = 142 K
     out = res.outlet()
     assert math.isclose(out["DME"], out["H2O"], rel_tol=1e-9)   # 量論 1:1
+
+
+def test_ortega_adiabatic_bed_csv_export(tmp_path):
+    """examples/ortega_adiabatic_bed.write_csv が CSV/JSON を出し、末尾行が出口状態と整合する。"""
+    import csv
+    import json
+    import os
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "examples"))
+    import ortega_adiabatic_bed as ob
+
+    path_csv, path_json = ob.write_csv("validation", outdir=str(tmp_path), n_points=101)
+    rows = list(csv.DictReader(open(path_csv, encoding="utf-8")))
+    spec = json.load(open(path_json, encoding="utf-8"))
+    assert len(rows) == 101
+    last = rows[-1]
+    assert math.isclose(float(last["z_over_L"]), 1.0, abs_tol=1e-9)
+    assert math.isclose(float(last["T_C"]), spec["expected_outlet"]["T_C"], abs_tol=1e-3)
+    assert math.isclose(float(last["X_MeOH"]), spec["expected_outlet"]["X_MeOH"], abs_tol=1e-5)
+    assert math.isclose(float(last["y_DME"]), float(last["y_H2O"]), rel_tol=1e-9)
+    assert math.isclose(spec["catalyst"]["mass_g"], 23.52, abs_tol=0.01)
+    assert math.isclose(spec["inlet"]["W_over_F_total_kg_s_per_mol"], 20.0, rel_tol=1e-9)

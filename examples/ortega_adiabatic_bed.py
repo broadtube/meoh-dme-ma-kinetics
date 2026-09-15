@@ -10,6 +10,13 @@
 反応器プロファイルの実測は存在しない）。本スクリプトの出力が Aspen 側の照合目標になる。
 
 実行: PYTHONPATH=src python3 examples/ortega_adiabatic_bed.py [validation|industrial]
+出力: figures/ortega_adiabatic_bed_<case>.png（図）
+      datasets/ortega_adiabatic_bed_<case>.csv（Aspen 突き合わせ用の軸方向プロファイル）
+      datasets/ortega_adiabatic_bed_<case>_spec.json（諸元・入口条件・期待結果の機械可読版）
+
+CSV の列: z_mm, z_over_L, W_g, T_C, T_K, X_MeOH, y_CH3OH, y_DME, y_H2O, y_N2（モル分率）,
+          F_CH3OH_mol_h, F_DME_mol_h, F_H2O_mol_h, F_N2_mol_h（モル流量）。
+Aspen RPlug の Profiles（Length / Temperature / Mole fraction）と列で突き合わせられる。
 
 # Table 3 相当の諸元 — case "validation"（既定・Aspen 突き合わせ用）
 
@@ -226,6 +233,78 @@ def main(case: str = CASE):
         print("     床後半は 272 ℃ 超で実触媒は MTH 副生が始まるが、本モデルは脱水しか持たない。")
 
 
+def write_csv(case: str = CASE, outdir: str = "datasets", n_points: int = 601):
+    """軸方向プロファイルを CSV に、諸元を JSON に書き出す（Aspen Plus 突き合わせ用）。
+
+    CSV はヘッダ 1 行＋データだけの素の形式（Excel / Aspen の取り込みを邪魔しない）。
+    諸元・入口条件・期待結果は同名の *_spec.json に分けて置く。
+    """
+    import csv
+    import json
+    import os
+
+    os.makedirs(outdir, exist_ok=True)
+    c = CASES[case]
+    feed = feed_flows(case)
+    res = run(case, n_points=n_points)
+    y = res.mole_fractions()
+    T = res.T_profile
+    zl = res.W / res.W[-1]
+    X = (res.F["CH3OH"][0] - res.F["CH3OH"]) / res.F["CH3OH"][0]
+    species = list(feed)                                  # CH3OH, DME, H2O, (N2)
+
+    path_csv = os.path.join(outdir, f"ortega_adiabatic_bed_{case}.csv")
+    with open(path_csv, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["z_mm", "z_over_L", "W_g", "T_C", "T_K", "X_MeOH"]
+                   + [f"y_{s}" for s in species] + [f"F_{s}_mol_h" for s in species])
+        for i in range(len(zl)):
+            w.writerow([f"{zl[i]*LENGTH*1e3:.4f}", f"{zl[i]:.6f}", f"{res.W[i]*1e3:.5f}",
+                        f"{T[i]-273.15:.4f}", f"{T[i]:.4f}", f"{X[i]:.6f}"]
+                       + [f"{y[s][i]:.8f}" for s in species]
+                       + [f"{res.F[s][i]*3600:.8e}" for s in species])
+
+    MW = {"CH3OH": 32.042, "DME": 46.068, "H2O": 18.015, "N2": 28.013}
+    F_tot = sum(feed.values())
+    spec = {
+        "case": case,
+        "kinetics": "Ortega 2018 Table 4 Eq.(16), Table 5 constants "
+                    "(= vbf_kogas source='ZSM5' = aspen_lhhw.ORTEGA_EXACT)",
+        "K_eq": "K_eq3('thermo') = 10^(1121/T - 0.888)",
+        "reactor": {"type": "adiabatic PFR, isobaric, ideal gas, eta=1",
+                    "diameter_m": DIAMETER, "length_m": LENGTH,
+                    "bed_volume_mL": AREA * LENGTH * 1e6},
+        "catalyst": {"name": "H-ZSM-5",
+                     "particle_density_kg_m3_s": RHO_S,
+                     "porosity_m3_g_per_m3_s": POROSITY,
+                     "bed_void_fraction": VOID,
+                     "bed_density_kg_m3": RHO_BED,
+                     "mass_g": W_CAT * 1e3},
+        "inlet": {"T_C": c["T_in"], "T_K": c["T_in"] + 273.15, "P_bar": c["p_bar"],
+                  "mole_fraction": {s: feed[s] / F_tot for s in species},
+                  "molar_flow_mol_h": {s: feed[s] * 3600 for s in species},
+                  "total_molar_flow_mol_h": F_tot * 3600,
+                  "mass_flow_kg_s": sum(feed[s] * MW[s] * 1e-3 for s in species),
+                  "W_over_F_total_kg_s_per_mol": W_CAT / F_tot,
+                  "WHSV_MeOH_1_h": 3600 * MW_MEOH * feed["CH3OH"] / W_CAT},
+        "expected_outlet": {"X_MeOH": float(X[-1]), "X_eq_at_T_out": x_eq(float(T[-1])),
+                            "T_C": float(T[-1] - 273.15), "dT_K": float(T[-1] - T[0]),
+                            "mole_fraction": {s: float(y[s][-1]) for s in species}},
+        "aspen_notes": [
+            "RPlug, adiabatic, zero pressure drop, Rate basis = Cat(wt), catalyst loading = mass_g",
+            "LHHW on partial-pressure basis [bar]; rate in mol_MeOH/(kg_cat s)",
+            "if reaction is written 2 CH3OH -> DME + H2O, halve k0 (extent basis)",
+            "property method IDEAL; expect ~±1 K outlet-T difference from cp/dHf data source",
+        ],
+    }
+    path_json = os.path.join(outdir, f"ortega_adiabatic_bed_{case}_spec.json")
+    with open(path_json, "w", encoding="utf-8") as f:
+        json.dump(spec, f, ensure_ascii=False, indent=1)
+    print(f"saved {path_csv}  ({len(zl)} rows)")
+    print(f"saved {path_json}")
+    return path_csv, path_json
+
+
 def plot(case: str = CASE):
     """VBF FIG.5 と同じ 2 パネル: (a) 組成プロファイル (b) 温度プロファイル。"""
     import matplotlib.pyplot as plt
@@ -264,4 +343,5 @@ if __name__ == "__main__":
     import sys
     case = sys.argv[1] if len(sys.argv) > 1 else CASE
     main(case)
+    write_csv(case)
     plot(case)
