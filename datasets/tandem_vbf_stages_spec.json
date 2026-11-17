@@ -1,0 +1,201 @@
+{
+ "script": "examples/fig_tandem_zsm5_stages.py",
+ "synthesis_model": "VBF",
+ "git_head": "e17eca0",
+ "operating": {
+  "T_C": 250.0,
+  "T_K": 523.15,
+  "P_bar": 51.01325,
+  "isothermal": true,
+  "SV_1_h": 5000.0,
+  "SV_basis": "fresh feed (STP 22.414 L/mol) / total catalyst 3.0 mL",
+  "Vm_STP_m3_mol": 0.022414
+ },
+ "feed": {
+  "H2_over_CO": 1.5,
+  "y_CO2": 0.03,
+  "mole_fraction": {
+   "CO": 0.388,
+   "CO2": 0.03,
+   "H2": 0.582,
+   "H2O": 0.0,
+   "CH3OH": 0.0,
+   "DME": 0.0,
+   "MA": 0.0
+  },
+  "molar_flow_mol_h": {
+   "CO": 0.2596591416,
+   "CO2": 0.02007673775,
+   "H2": 0.3894887124,
+   "H2O": 0.0,
+   "CH3OH": 0.0,
+   "DME": 0.0,
+   "MA": 0.0
+  },
+  "total_mol_h": 0.6692245918,
+  "total_NL_h": 15.0
+ },
+ "beds": [
+  {
+   "name": "hybrid (synthesis + dehydration, physically mixed)",
+   "volume_mL": 1.0,
+   "volume_fraction_synthesis": 0.5263157895,
+   "synthesis": {
+    "catalyst": "Cu/ZnO/Al2O3",
+    "bulk_density_kg_m3": 1300.0,
+    "mass_g": 0.6842105263
+   },
+   "dehydration": {
+    "catalyst": "H-ZSM-5",
+    "bulk_density_kg_m3": 800.0,
+    "mass_g": 0.3789473684
+   }
+  },
+  {
+   "name": "carbonylation",
+   "catalyst": "H-MOR",
+   "volume_mL": 2.0,
+   "bulk_density_kg_m3": 837.0,
+   "mass_g": 1.674,
+   "acid_site_density_mol_Al_kg": 1.43
+  }
+ ],
+ "kinetics": {
+  "synthesis": {
+   "model": "VBF",
+   "source": "Vanden Bussche & Froment 1996 (original)",
+   "form": "x = A*exp(B/(R*T)), R=8.314; rates in mol/(kg_cat s)",
+   "params": {
+    "k1": {
+     "A": 1.07,
+     "B_J_mol": 36696.0
+    },
+    "K2": {
+     "A": 3453.38,
+     "B_J_mol": 0.0
+    },
+    "K3": {
+     "A": 0.499,
+     "B_J_mol": 17197.0
+    },
+    "K4": {
+     "A": 6.62e-11,
+     "B_J_mol": 124119.0
+    },
+    "k5": {
+     "A": 12200000000.0,
+     "B_J_mol": -94765.0
+    }
+   },
+   "rate_unit_factor_to_mol_kg_s": 1.0,
+   "k1_at_T_mol_kg_s_bar2": 4937.183995,
+   "equilibrium": {
+    "log10_K_eq1": [
+     3066.0,
+     -10.592
+    ],
+    "log10_K_eq2_inv(RWGS)": [
+     -2073.0,
+     2.029
+    ],
+    "form": "log10 K = c0/T + c1"
+   }
+  },
+  "dehydration": {
+   "model": "ZSM5",
+   "source": "Ortega et al. 2018 LHHW (Table 5)",
+   "T0_K": 438.15,
+   "kT0_mol_kg_s": 0.0816,
+   "Eapp_J_mol": 109300.0,
+   "dS_MeOH_J_mol_K": -137.0,
+   "dH_MeOH_J_mol": -70300.0,
+   "dS_H2O_J_mol_K": -153.0,
+   "dH_H2O_J_mol": -73100.0,
+   "k_eq3": "thermo",
+   "log10_K_eq3": [
+    1121.0,
+    -0.888
+   ],
+   "K_eq3_at_T": 17.97996637,
+   "rate_basis": "DME formation (MeOH consumption / 2)"
+  },
+  "carbonylation": {
+   "model": "DTU-Cheung2007-2",
+   "form": "r = k1*pCO/(1 + K2*pMA + pMA/(K3*pDME)) * K_DME*pDME/(1+K_DME*pDME)",
+   "source": "DTU 2017 eqn(11) Table 4 @438 K; k1 Ea from Cheung 2007; K2 van't Hoff (DFT estimate); K3 fixed",
+   "T_ref_K": 438.0,
+   "k1_ref_mol_molAl_s_bar": 2.28e-05,
+   "K2_ref_1_bar": 4.65,
+   "K3_ref": 1.76,
+   "Ea_k1_J_mol": 69588.18,
+   "dH_K2_J_mol": -97000.0,
+   "K3_temperature_dependent": false,
+   "K_DME_reg_1_bar": 100000.0,
+   "water_inhibition": "none (K_w=0)",
+   "K3_inverse_fix": "cecc1da (pMA/(K3*pDME))"
+  }
+ },
+ "solver": {
+  "type": "isothermal PFR, isobaric, ideal gas",
+  "method": "BDF",
+  "rtol": 1e-08,
+  "atol": 1e-16
+ },
+ "STY_basis": "net production from fresh feed per total catalyst 3.0 mL (both stages)",
+ "results": {
+  "dme": {
+   "cum_catalyst_mL": 1.0,
+   "outlet_mol_h": {
+    "CO": 0.03888166876,
+    "CO2": 0.08876026827,
+    "H2": 0.1539843583,
+    "H2O": 0.005030265976,
+    "CH3OH": 0.004666349332,
+    "DME": 0.0737137965,
+    "MA": 0.0
+   },
+   "STY_g_Lh_total3mL": {
+    "CO": -2061.325671,
+    "CO2": 1007.587393,
+    "H2": -158.258926,
+    "H2O": 30.20674719,
+    "CH3OH": 49.83661087,
+    "DME": 1131.998202,
+    "MA": 0.0
+   },
+   "X_CO": 0.8502588104,
+   "X_COx": 0.543705522,
+   "Y_C_CH3OH": 0.01668126857,
+   "Y_C_DME": 0.5270242535,
+   "Y_C_MA": 0.0,
+   "C_balance": 1.0
+  },
+  "ma": {
+   "cum_catalyst_mL": 3.0,
+   "outlet_mol_h": {
+    "CO": 0.02254768294,
+    "CO2": 0.08876026827,
+    "H2": 0.1539843583,
+    "H2O": 0.005030265976,
+    "CH3OH": 0.004666349332,
+    "DME": 0.05737981067,
+    "MA": 0.01633398582
+   },
+   "STY_g_Lh_total3mL": {
+    "CO": -2213.830652,
+    "CO2": 1007.587393,
+    "H2": -158.258926,
+    "H2O": 30.20674719,
+    "CH3OH": 49.83661087,
+    "DME": 881.1626259,
+    "MA": 403.3405566
+   },
+   "X_CO": 0.9131643015,
+   "X_COx": 0.602096265,
+   "Y_C_CH3OH": 0.01668126857,
+   "Y_C_DME": 0.4102427676,
+   "Y_C_MA": 0.1751722288,
+   "C_balance": 1.0
+  }
+ }
+}
