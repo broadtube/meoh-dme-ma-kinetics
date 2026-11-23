@@ -19,8 +19,13 @@ STY は 2 本とも同じ基準（全触媒 3.0 mL）で割るので、棒の差
 ⚠️ ZSM-5(Ortega) のフィット域は 140–190℃・~1 bar、カルボニル化の検証域は 150–190℃。
    250℃/51bar はどちらも外挿。絶対値は要実験較正。
 
+  --compare-ma を付けると、VBF と KOGAS の MA 時点（タンデム出口）だけを横に並べた
+  1 枚を描く（DME 時点は描かない。datasets は書かない＝各モデル単独実行で出力済みのもの）:
+  figures/tandem_vbf_vs_kogas_ma_stage.png
+
 実行: PYTHONPATH=src python3 examples/fig_tandem_zsm5_stages.py                       # VBF
       PYTHONPATH=src python3 examples/fig_tandem_zsm5_stages.py --synthesis-model KOGAS
+      PYTHONPATH=src python3 examples/fig_tandem_zsm5_stages.py --compare-ma          # VBF vs KOGAS
 """
 import argparse
 import csv
@@ -73,11 +78,12 @@ def feed():
             "H2O": 0.0, "CH3OH": 0.0, "DME": 0.0, "MA": 0.0}
 
 
-def run():
-    """→ {"feed", "dme", "ma"}: 各時点のモル流量 [mol/s]。"""
+def run(syn_model=None):
+    """→ {"feed", "dme", "ma"}: 各時点のモル流量 [mol/s]。syn_model 省略時は SYN_MODEL。"""
     f = feed()
     r1 = pfr(f, T, P, CatalystBed({"synthesis": m_syn, "dehydration": m_deh}),
-             models={"synthesis": SYN_MODEL, "dehydration": DEH_MODEL}, k_eq3=K_EQ3)
+             models={"synthesis": syn_model or SYN_MODEL, "dehydration": DEH_MODEL},
+             k_eq3=K_EQ3)
     r2 = pfr(r1.outlet(), T, P, CatalystBed({"carbonylation": m_ma}),
              models={"carbonylation": MA_MODEL})
     return {"feed": f, "dme": r1.outlet(), "ma": r2.outlet()}
@@ -208,25 +214,15 @@ def write_spec(res, path):
         fh.write("\n")
 
 
-def main():
-    global SYN_MODEL
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--synthesis-model", choices=tuple(SYN_SOURCES), default=SYN_MODEL)
-    SYN_MODEL = ap.parse_args().synthesis_model
-    tag = SYN_MODEL.lower()
-
-    res = run()
-    f = res["feed"]
-    data = {k: {s: sty(f, res[k])[s] for s in ORDER} for k, _ in STAGES}
-    totals = {k: sum(data[k].values()) for k in data}
-    ymax = max(totals.values())
-
-    fig, ax = plt.subplots(figsize=(6.4, 6.2), dpi=130)
-    xs = [0.0, 1.1]
-    for x, (k, lab) in zip(xs, STAGES):
+def _stacked_bars(ax, bars, title):
+    """bars = [(xticklabel, {species: STY})] を積み上げ棒で描き、軸を整える。→ 各棒の Σ。"""
+    totals = [sum(d.values()) for _, d in bars]
+    ymax = max(totals)
+    xs = [1.1 * i for i in range(len(bars))]
+    for x, (_, d), tot in zip(xs, bars, totals):
         bottom = 0.0
         for s in ORDER:
-            h = data[k][s]
+            h = d[s]
             ax.bar(x, h, width=0.62, bottom=bottom,
                    color=COLORS[s], edgecolor="white", linewidth=2.0,
                    label=s if x == xs[0] else None)
@@ -237,17 +233,15 @@ def main():
                 ax.text(x + 0.36, bottom + h / 2, f"{s} {h:.0f}", ha="left", va="center",
                         color=plots._INK, fontsize=7.5)
             bottom += max(h, 0.0)
-        ax.text(x, bottom + 0.015 * ymax, f"Σ {totals[k]:.0f}", ha="center", va="bottom",
+        ax.text(x, bottom + 0.015 * ymax, f"Σ {tot:.0f}", ha="center", va="bottom",
                 color=plots._INK, fontsize=10, fontweight="bold")
 
     ax.set_ylabel("STY  [g/(L·h)]  (per 3.0 mL total-catalyst)", color=plots._INK)
     ax.set_xticks(xs)
-    ax.set_xticklabels([lab for _, lab in STAGES], color=plots._INK, fontsize=9.5)
-    ax.set_xlim(-0.6, 1.9)
+    ax.set_xticklabels([lab for lab, _ in bars], color=plots._INK, fontsize=9.5)
+    ax.set_xlim(-0.6, xs[-1] + 0.8)
     ax.set_ylim(0, ymax * 1.22)
-    ax.set_title(f"Tandem STY at DME and MA stages — {SYN_MODEL} synthesis + ZSM-5 (Ortega)\n"
-                 "(250°C, 51 bar, SV 5000/h, hybrid 1.0 mL + MA bed 2.0 mL)",
-                 color=plots._INK, fontsize=10)
+    ax.set_title(title, color=plots._INK, fontsize=10)
     h_, l_ = ax.get_legend_handles_labels()
     ax.legend(h_[::-1], l_[::-1], frameon=False, labelcolor=plots._INK, fontsize=9,
               loc="upper center", ncol=4)
@@ -256,7 +250,55 @@ def main():
     ax.tick_params(colors=plots._MUTED, labelcolor=plots._INK)
     ax.yaxis.grid(True, color=plots._GRID, lw=0.8)
     ax.set_axisbelow(True)
+    return totals
 
+
+def compare_ma():
+    """VBF と KOGAS の MA 時点（タンデム出口）だけを並べた 1 枚。datasets は書かない。"""
+    bars, results = [], {}
+    for model in SYN_SOURCES:                       # VBF, KOGAS の順
+        res = run(model)
+        f = res["feed"]
+        results[model] = res
+        bars.append((f"{model} synthesis\n(MA stage, tandem outlet)",
+                     {s: sty(f, res["ma"])[s] for s in ORDER}))
+
+    fig, ax = plt.subplots(figsize=(6.4, 6.2), dpi=130)
+    totals = _stacked_bars(
+        ax, bars,
+        "Tandem STY at MA stage — VBF vs KOGAS synthesis + ZSM-5 (Ortega)\n"
+        "(250°C, 51 bar, SV 5000/h, hybrid 1.0 mL + MA bed 2.0 mL)")
+    fig.tight_layout()
+    print("saved", plots.save(fig, "tandem_vbf_vs_kogas_ma_stage.png"))
+    for (model, res), (_, d), tot in zip(results.items(), bars, totals):
+        m = metrics(res["feed"], res["ma"])
+        print(f"[{model:5}] MA stage  Σ={tot:.1f}  "
+              + "  ".join(f"{s}={d[s]:.1f}" for s in ORDER)
+              + f"  X_CO={m['X_CO']:.3f}  C_bal={m['C_balance']:.6f}")
+
+
+def main():
+    global SYN_MODEL
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--synthesis-model", choices=tuple(SYN_SOURCES), default=SYN_MODEL)
+    ap.add_argument("--compare-ma", action="store_true",
+                    help="VBF と KOGAS の MA 時点のみを並べた比較図を描く（datasets は書かない）")
+    args = ap.parse_args()
+    if args.compare_ma:
+        compare_ma()
+        return
+    SYN_MODEL = args.synthesis_model
+    tag = SYN_MODEL.lower()
+
+    res = run()
+    f = res["feed"]
+    data = {k: {s: sty(f, res[k])[s] for s in ORDER} for k, _ in STAGES}
+    totals = {k: sum(data[k].values()) for k in data}
+
+    fig, ax = plt.subplots(figsize=(6.4, 6.2), dpi=130)
+    _stacked_bars(ax, [(lab, data[k]) for k, lab in STAGES],
+                  f"Tandem STY at DME and MA stages — {SYN_MODEL} synthesis + ZSM-5 (Ortega)\n"
+                  "(250°C, 51 bar, SV 5000/h, hybrid 1.0 mL + MA bed 2.0 mL)")
     fig.tight_layout()
     print("saved", plots.save(fig, f"tandem_{tag}_stages.png"))
 
